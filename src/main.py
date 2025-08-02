@@ -1,13 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from src.routers import users
-from src.routers.exam_products import router as exam_products_router
-from src.routers.venues import router as venues_router
-from src.routers.candidates import router as candidates_router
-from src.routers.schedules import router as schedules_router
-from src.routers.wx_miniprogram import router as wx_miniprogram_router
-from src.routers.public import router as public_router
-from src.institutions.router import router as institutions_router
+from src.routers import users, roles, permissions, institutions, exam_products, venues, candidates, schedules, public
 # from src.routers.mobile_checkin import router as mobile_checkin_router  # 暂时注释掉，因为移动端签到功能已经在schedules.py中实现
 from src.auth.social import router as social_router
 from src.auth.fastapi_users_config import fastapi_users, auth_backend
@@ -99,14 +92,14 @@ class SimpleInstitution(BaseModel):
     business_scope: Optional[str] = None
 
 # 包含所有路由
-app.include_router(venues_router)
-# app.include_router(mobile_checkin_router)  # 暂时注释掉，因为移动端签到功能已经在schedules.py中实现
-app.include_router(exam_products_router)
-app.include_router(candidates_router)
-app.include_router(schedules_router)
-app.include_router(wx_miniprogram_router)
-app.include_router(public_router)
-app.include_router(institutions_router)
+app.include_router(venues.router)
+app.include_router(exam_products.router)
+app.include_router(candidates.router)
+app.include_router(schedules.router)
+app.include_router(public.router)
+app.include_router(institutions.router)
+app.include_router(roles.router)
+app.include_router(permissions.router)
 app.include_router(social_router)
 
 # 包含 FastAPI-Users 路由

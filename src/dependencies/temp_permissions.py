@@ -29,3 +29,23 @@ temp_schedule_read = temp_permission_bypass()
 temp_schedule_create = temp_permission_bypass()
 temp_schedule_update = temp_permission_bypass()
 temp_schedule_delete = temp_permission_bypass()
+
+temp_user_read = temp_permission_bypass()
+temp_user_create = temp_permission_bypass()
+temp_user_update = temp_permission_bypass()
+temp_user_delete = temp_permission_bypass()
+
+temp_role_read = temp_permission_bypass()
+temp_role_create = temp_permission_bypass()
+temp_role_update = temp_permission_bypass()
+temp_role_delete = temp_permission_bypass()
+
+temp_permission_read = temp_permission_bypass()
+temp_permission_create = temp_permission_bypass()
+temp_permission_update = temp_permission_bypass()
+temp_permission_delete = temp_permission_bypass()
+
+temp_institution_read = temp_permission_bypass()
+temp_institution_create = temp_permission_bypass()
+temp_institution_update = temp_permission_bypass()
+temp_institution_delete = temp_permission_bypass()
