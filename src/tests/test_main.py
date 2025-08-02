@@ -6,4 +6,4 @@ client = TestClient(app)
 def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Welcome to fastAPI_project_template API"}
+    assert response.json() == {"message": "Welcome to Exam Site Backend API"}
