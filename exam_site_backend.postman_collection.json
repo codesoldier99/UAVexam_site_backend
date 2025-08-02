@@ -1,0 +1,586 @@
+{
+	"info": {
+		"_postman_id": "exam-site-backend-collection",
+		"name": "Exam Site Backend API",
+		"description": "考试系统后端API测试集合",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "认证管理",
+			"item": [
+				{
+					"name": "管理员登录",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin@exam.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/jwt/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"jwt",
+								"login"
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"admin_token\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "用户注册",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"username\": \"testuser\",\n  \"password\": \"testpass123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取当前用户信息",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "机构管理",
+			"item": [
+				{
+					"name": "获取机构列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/institutions?page=1&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"institutions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "创建新机构",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"测试机构\",\n  \"code\": \"TEST001\",\n  \"contact_person\": \"张三\",\n  \"phone\": \"13800138000\",\n  \"email\": \"contact@test.com\",\n  \"address\": \"北京市朝阳区\",\n  \"description\": \"测试机构描述\",\n  \"status\": \"active\",\n  \"license_number\": \"LIC001\",\n  \"business_scope\": \"考试服务\",\n  \"admin_username\": \"admin_test\",\n  \"admin_email\": \"admin@test.com\",\n  \"admin_password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/institutions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"institutions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取机构详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/institutions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"institutions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新机构信息",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"更新后的机构名称\",\n  \"contact_person\": \"李四\",\n  \"phone\": \"13900139000\",\n  \"email\": \"updated@test.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/institutions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"institutions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除机构",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/institutions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"institutions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "考试产品管理",
+			"item": [
+				{
+					"name": "获取考试产品列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/exam-products?page=1&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"exam-products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "创建考试产品",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"无人机驾驶员考试\",\n  \"description\": \"无人机驾驶员理论考试\",\n  \"category\": \"无人机\",\n  \"duration\": 120,\n  \"pass_score\": 80,\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/exam-products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"exam-products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取考试产品详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/exam-products/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"exam-products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新考试产品",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"更新后的考试产品\",\n  \"description\": \"更新后的描述\",\n  \"duration\": 150,\n  \"pass_score\": 85\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/exam-products/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"exam-products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除考试产品",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/exam-products/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"exam-products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "考场资源管理",
+			"item": [
+				{
+					"name": "获取考场资源列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/venues?page=1&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"venues"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "创建考场资源",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"考场A\",\n  \"location\": \"北京市朝阳区\",\n  \"address\": \"朝阳区某某街道123号\",\n  \"capacity\": 50,\n  \"equipment\": \"电脑、投影仪\",\n  \"status\": \"active\",\n  \"description\": \"标准考场\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/venues",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"venues"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取考场资源详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/venues/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"venues",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新考场资源",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"更新后的考场名称\",\n  \"capacity\": 60,\n  \"equipment\": \"电脑、投影仪、监控设备\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/venues/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"venues",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "删除考场资源",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/venues/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"venues",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+} 

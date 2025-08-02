@@ -1,0 +1,134 @@
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy.orm import Session
+from typing import List
+from src.dependencies.get_db import get_db
+from src.dependencies.temp_permissions import (
+    temp_venue_read, temp_venue_create,
+    temp_venue_update, temp_venue_delete
+)
+from src.schemas.venue import VenueCreate, VenueRead, VenueUpdate, VenueStatus
+from src.models.venue import Venue
+from src.models.user import User
+
+router = APIRouter(
+    prefix="/venues",
+    tags=["venues"],
+    responses={404: {"description": "Not found"}},
+)
+
+
+@router.post("/", response_model=VenueRead, status_code=status.HTTP_201_CREATED)
+async def create_venue(
+    venue: VenueCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(temp_venue_create)
+):
+    """创建考场资源"""
+    # 检查考场名称是否已存在
+    existing_venue = db.query(Venue).filter(Venue.name == venue.name).first()
+    if existing_venue:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="考场名称已存在"
+        )
+    
+    # 创建新考场
+    new_venue = Venue(
+        name=venue.name,
+        type=venue.type,
+        status=VenueStatus.active
+    )
+    
+    db.add(new_venue)
+    db.commit()
+    db.refresh(new_venue)
+    
+    return new_venue
+
+
+@router.get("/", response_model=List[VenueRead])
+async def get_venues(
+    page: int = Query(1, ge=1, description="页码"),
+    size: int = Query(20, ge=1, le=100, description="每页数量"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(temp_venue_read)
+):
+    """获取考场资源列表"""
+    skip = (page - 1) * size
+    venues = db.query(Venue).offset(skip).limit(size).all()
+    
+    return venues
+
+
+@router.get("/{venue_id}", response_model=VenueRead)
+async def get_venue(
+    venue_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(temp_venue_read)
+):
+    """根据ID获取考场资源详情"""
+    venue = db.query(Venue).filter(Venue.id == venue_id).first()
+    if not venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="考场资源不存在"
+        )
+    return venue
+
+
+@router.put("/{venue_id}", response_model=VenueRead)
+async def update_venue(
+    venue_id: int,
+    venue: VenueUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(temp_venue_update)
+):
+    """更新考场资源信息"""
+    db_venue = db.query(Venue).filter(Venue.id == venue_id).first()
+    if not db_venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="考场资源不存在"
+        )
+    
+    # 检查名称是否重复
+    if venue.name and venue.name != db_venue.name:
+        existing = db.query(Venue).filter(
+            Venue.name == venue.name,
+            Venue.id != venue_id
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="考场名称已存在"
+            )
+    
+    # 更新字段
+    update_data = venue.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_venue, field, value)
+    
+    db.commit()
+    db.refresh(db_venue)
+    
+    return db_venue
+
+
+@router.delete("/{venue_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_venue(
+    venue_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(temp_venue_delete)
+):
+    """删除考场资源"""
+    venue = db.query(Venue).filter(Venue.id == venue_id).first()
+    if not venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="考场资源不存在"
+        )
+    
+    db.delete(venue)
+    db.commit()
+    
+    return {"message": "考场删除成功"} 
