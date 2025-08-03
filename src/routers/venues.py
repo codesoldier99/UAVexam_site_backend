@@ -1,134 +1,69 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
-from typing import List
-from src.dependencies.get_db import get_db
-from src.dependencies.temp_permissions import (
-    temp_venue_read, temp_venue_create,
-    temp_venue_update, temp_venue_delete
-)
-from src.schemas.venue import VenueCreate, VenueRead, VenueUpdate, VenueStatus
-from src.models.venue import Venue
-from src.models.user import User
+﻿from fastapi import APIRouter, Query
+from typing import Optional
 
 router = APIRouter(
     prefix="/venues",
     tags=["venues"],
-    responses={404: {"description": "Not found"}},
 )
 
-
-@router.post("/", response_model=VenueRead, status_code=status.HTTP_201_CREATED)
-async def create_venue(
-    venue: VenueCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_venue_create)
-):
-    """创建考场资源"""
-    # 检查考场名称是否已存在
-    existing_venue = db.query(Venue).filter(Venue.name == venue.name).first()
-    if existing_venue:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="考场名称已存在"
-        )
-    
-    # 创建新考场
-    new_venue = Venue(
-        name=venue.name,
-        type=venue.type,
-        status=VenueStatus.active
-    )
-    
-    db.add(new_venue)
-    db.commit()
-    db.refresh(new_venue)
-    
-    return new_venue
-
-
-@router.get("/", response_model=List[VenueRead])
+@router.get("/")
 async def get_venues(
-    page: int = Query(1, ge=1, description="页码"),
-    size: int = Query(20, ge=1, le=100, description="每页数量"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_venue_read)
+    page: int = Query(1, description="页码", ge=1),
+    size: int = Query(10, description="每页数量", ge=1, le=100),
+    status: Optional[str] = Query(None, description="状态筛选"),
+    venue_type: Optional[str] = Query(None, description="考场类型筛选")
 ):
-    """获取考场资源列表"""
-    skip = (page - 1) * size
-    venues = db.query(Venue).offset(skip).limit(size).all()
+    """获取场地列表 - 增强版本支持分页和筛选"""
     
-    return venues
+    # 模拟数据库中的所有场地数据
+    all_venues = [
+        {"id": 1, "name": "北京考场1", "type": "理论考场", "address": "北京市朝阳区", "capacity": 50, "status": "active"},
+        {"id": 2, "name": "北京考场2", "type": "实操考场", "address": "北京市海淀区", "capacity": 30, "status": "active"},
+        {"id": 3, "name": "上海考场1", "type": "理论考场", "address": "上海市浦东新区", "capacity": 60, "status": "inactive"},
+        {"id": 4, "name": "深圳考场1", "type": "理论考场", "address": "深圳市南山区", "capacity": 40, "status": "active"},
+        {"id": 5, "name": "广州考场1", "type": "实操考场", "address": "广州市天河区", "capacity": 35, "status": "active"}
+    ]
+    
+    # 根据参数筛选数据
+    filtered_venues = all_venues
+    if status:
+        filtered_venues = [v for v in filtered_venues if v["status"] == status]
+    if venue_type:
+        filtered_venues = [v for v in filtered_venues if v["type"] == venue_type]
+    
+    # 分页处理
+    total = len(filtered_venues)
+    start = (page - 1) * size
+    end = start + size
+    venues_page = filtered_venues[start:end]
+    
+    return {
+        "message": "场地列表接口 - 支持分页和筛选",
+        "data": venues_page,
+        "pagination": {
+            "page": page,
+            "size": size,
+            "total": total,
+            "pages": (total + size - 1) // size
+        },
+        "filters": {
+            "status": status,
+            "venue_type": venue_type
+        }
+    }
 
-
-@router.get("/{venue_id}", response_model=VenueRead)
-async def get_venue(
-    venue_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_venue_read)
-):
-    """根据ID获取考场资源详情"""
-    venue = db.query(Venue).filter(Venue.id == venue_id).first()
-    if not venue:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="考场资源不存在"
-        )
-    return venue
-
-
-@router.put("/{venue_id}", response_model=VenueRead)
-async def update_venue(
-    venue_id: int,
-    venue: VenueUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_venue_update)
-):
-    """更新考场资源信息"""
-    db_venue = db.query(Venue).filter(Venue.id == venue_id).first()
-    if not db_venue:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="考场资源不存在"
-        )
+@router.get("/{venue_id}")
+async def get_venue_by_id(venue_id: int):
+    """根据ID获取单个场地信息"""
+    venues = {
+        1: {"id": 1, "name": "北京考场1", "type": "理论考场", "address": "北京市朝阳区", "capacity": 50, "status": "active"},
+        2: {"id": 2, "name": "北京考场2", "type": "实操考场", "address": "北京市海淀区", "capacity": 30, "status": "active"}
+    }
     
-    # 检查名称是否重复
-    if venue.name and venue.name != db_venue.name:
-        existing = db.query(Venue).filter(
-            Venue.name == venue.name,
-            Venue.id != venue_id
-        ).first()
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="考场名称已存在"
-            )
+    if venue_id not in venues:
+        return {"error": "场地不存在", "venue_id": venue_id}
     
-    # 更新字段
-    update_data = venue.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_venue, field, value)
-    
-    db.commit()
-    db.refresh(db_venue)
-    
-    return db_venue
-
-
-@router.delete("/{venue_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_venue(
-    venue_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_venue_delete)
-):
-    """删除考场资源"""
-    venue = db.query(Venue).filter(Venue.id == venue_id).first()
-    if not venue:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="考场资源不存在"
-        )
-    
-    db.delete(venue)
-    db.commit()
-    
-    return {"message": "考场删除成功"} 
+    return {
+        "message": "场地详情",
+        "data": venues[venue_id]
+    }

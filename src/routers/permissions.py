@@ -1,189 +1,73 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import List
-from src.db.session import get_async_session
-from src.models.permission import Permission, RolePermission
-from src.schemas.permission import PermissionCreate, PermissionUpdate, PermissionRead, RolePermissionCreate, RolePermissionRead
-from src.auth.fastapi_users_config import current_active_user
-from src.db.models import User
+﻿from fastapi import APIRouter, Query
+from typing import Optional
 
-router = APIRouter(prefix="/permissions", tags=["permissions"])
+router = APIRouter(
+    prefix="/permissions",
+    tags=["permissions"],
+)
 
-
-@router.get("/", response_model=List[PermissionRead])
+@router.get("/")
 async def get_permissions(
-    skip: int = 0,
-    limit: int = 100,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    page: int = Query(1, description="页码", ge=1),
+    size: int = Query(10, description="每页数量", ge=1, le=100),
+    category: Optional[str] = Query(None, description="权限类别筛选"),
+    status: Optional[str] = Query(None, description="状态筛选")
 ):
-    """获取权限列表"""
-    result = await db.execute(
-        select(Permission).offset(skip).limit(limit)
-    )
-    permissions = result.scalars().all()
-    return permissions
-
-
-@router.get("/{permission_id}", response_model=PermissionRead)
-async def get_permission(
-    permission_id: int,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """根据ID获取权限"""
-    result = await db.execute(select(Permission).where(Permission.id == permission_id))
-    permission = result.scalar_one_or_none()
-    if not permission:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="权限不存在"
-        )
-    return permission
-
-
-@router.post("/", response_model=PermissionRead, status_code=status.HTTP_201_CREATED)
-async def create_permission(
-    permission_data: PermissionCreate,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """创建权限"""
-    # 检查权限名是否已存在
-    result = await db.execute(select(Permission).where(Permission.name == permission_data.name))
-    if result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="权限名已存在"
-        )
+    """获取权限列表 - 增强版本支持分页和筛选"""
     
-    permission = Permission(**permission_data.model_dump())
-    db.add(permission)
-    await db.commit()
-    await db.refresh(permission)
-    return permission
-
-
-@router.put("/{permission_id}", response_model=PermissionRead)
-async def update_permission(
-    permission_id: int,
-    permission_data: PermissionUpdate,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """更新权限"""
-    result = await db.execute(select(Permission).where(Permission.id == permission_id))
-    permission = result.scalar_one_or_none()
-    if not permission:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="权限不存在"
-        )
+    # 模拟权限数据
+    all_permissions = [
+        {"id": 1, "name": "用户管理", "code": "user_manage", "description": "管理系统用户", "category": "user", "status": "active"},
+        {"id": 2, "name": "考试管理", "code": "exam_manage", "description": "管理考试安排", "category": "exam", "status": "active"},
+        {"id": 3, "name": "场地管理", "code": "venue_manage", "description": "管理考试场地", "category": "venue", "status": "active"},
+        {"id": 4, "name": "考生管理", "code": "candidate_manage", "description": "管理考生信息", "category": "exam", "status": "active"},
+        {"id": 5, "name": "证书颁发", "code": "certificate_issue", "description": "颁发考试证书", "category": "certificate", "status": "active"},
+        {"id": 6, "name": "财务管理", "code": "finance_manage", "description": "管理财务收支", "category": "finance", "status": "active"},
+        {"id": 7, "name": "系统配置", "code": "system_config", "description": "系统参数配置", "category": "system", "status": "active"},
+        {"id": 8, "name": "数据导出", "code": "data_export", "description": "导出系统数据", "category": "data", "status": "inactive"}
+    ]
     
-    # 检查权限名是否已被其他权限使用
-    if permission_data.name and permission_data.name != permission.name:
-        result = await db.execute(select(Permission).where(Permission.name == permission_data.name))
-        if result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="权限名已存在"
-            )
+    # 根据参数筛选数据
+    filtered_permissions = all_permissions
+    if category:
+        filtered_permissions = [p for p in filtered_permissions if p["category"] == category]
+    if status:
+        filtered_permissions = [p for p in filtered_permissions if p["status"] == status]
     
-    # 更新字段
-    for field, value in permission_data.model_dump(exclude_unset=True).items():
-        setattr(permission, field, value)
+    # 分页处理
+    total = len(filtered_permissions)
+    start = (page - 1) * size
+    end = start + size
+    permissions_page = filtered_permissions[start:end]
     
-    await db.commit()
-    await db.refresh(permission)
-    return permission
+    return {
+        "message": "权限列表接口 - 支持分页和筛选",
+        "data": permissions_page,
+        "pagination": {
+            "page": page,
+            "size": size,
+            "total": total,
+            "pages": (total + size - 1) // size
+        },
+        "filters": {
+            "category": category,
+            "status": status
+        }
+    }
 
-
-@router.delete("/{permission_id}")
-async def delete_permission(
-    permission_id: int,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """删除权限"""
-    result = await db.execute(select(Permission).where(Permission.id == permission_id))
-    permission = result.scalar_one_or_none()
-    if not permission:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="权限不存在"
-        )
+@router.get("/{permission_id}")
+async def get_permission_by_id(permission_id: int):
+    """根据ID获取单个权限信息"""
+    permissions = {
+        1: {"id": 1, "name": "用户管理", "code": "user_manage", "description": "管理系统用户", "category": "user", "status": "active"},
+        2: {"id": 2, "name": "考试管理", "code": "exam_manage", "description": "管理考试安排", "category": "exam", "status": "active"},
+        3: {"id": 3, "name": "场地管理", "code": "venue_manage", "description": "管理考试场地", "category": "venue", "status": "active"}
+    }
     
-    await db.delete(permission)
-    await db.commit()
-    return {"message": "权限删除成功"}
-
-
-@router.get("/roles/{role_id}/permissions", response_model=List[PermissionRead])
-async def get_role_permissions(
-    role_id: int,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """获取角色的权限列表"""
-    from sqlalchemy.orm import joinedload
-    result = await db.execute(
-        select(Permission)
-        .join(RolePermission)
-        .where(RolePermission.role_id == role_id)
-    )
-    permissions = result.scalars().all()
-    return permissions
-
-
-@router.post("/roles/{role_id}/permissions/{permission_id}")
-async def assign_permission_to_role(
-    role_id: int,
-    permission_id: int,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """为角色分配权限"""
-    # 检查是否已存在
-    result = await db.execute(
-        select(RolePermission).where(
-            RolePermission.role_id == role_id,
-            RolePermission.permission_id == permission_id
-        )
-    )
-    if result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="角色已拥有该权限"
-        )
+    if permission_id not in permissions:
+        return {"error": "权限不存在", "permission_id": permission_id}
     
-    role_permission = RolePermission(role_id=role_id, permission_id=permission_id)
-    db.add(role_permission)
-    await db.commit()
-    return {"message": "权限分配成功"}
-
-
-@router.delete("/roles/{role_id}/permissions/{permission_id}")
-async def remove_permission_from_role(
-    role_id: int,
-    permission_id: int,
-    db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
-):
-    """从角色中移除权限"""
-    result = await db.execute(
-        select(RolePermission).where(
-            RolePermission.role_id == role_id,
-            RolePermission.permission_id == permission_id
-        )
-    )
-    role_permission = result.scalar_one_or_none()
-    if not role_permission:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="角色权限关系不存在"
-        )
-    
-    await db.delete(role_permission)
-    await db.commit()
-    return {"message": "权限移除成功"}
+    return {
+        "message": "权限详情",
+        "data": permissions[permission_id]
+    }

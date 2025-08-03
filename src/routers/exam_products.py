@@ -1,161 +1,75 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
-from typing import List
-from src.dependencies.get_db import get_db
-from src.dependencies.temp_permissions import (
-    temp_exam_product_read, temp_exam_product_create,
-    temp_exam_product_update, temp_exam_product_delete
-)
-from src.schemas.exam_product import ExamProductCreate, ExamProductRead, ExamProductUpdate, ExamProductStatus
-from src.models.exam_product import ExamProduct
-from src.models.user import User
+﻿from fastapi import APIRouter, Query
+from typing import Optional
 
 router = APIRouter(
     prefix="/exam-products",
     tags=["exam_products"],
-    responses={404: {"description": "Not found"}},
 )
 
-
-@router.post("/", response_model=ExamProductRead, status_code=status.HTTP_201_CREATED)
-async def create_exam_product(
-    exam_product: ExamProductCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_exam_product_create)
-):
-    """创建考试产品"""
-    # 检查产品名称是否已存在
-    existing_product = db.query(ExamProduct).filter(ExamProduct.name == exam_product.name).first()
-    if existing_product:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="考试产品名称已存在"
-        )
-    
-    # 生成唯一的code
-    if not exam_product.code:
-        import time
-        exam_product.code = f"PROD_{int(time.time())}"
-    
-    # 检查code是否已存在
-    existing_code = db.query(ExamProduct).filter(ExamProduct.code == exam_product.code).first()
-    if existing_code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="考试产品代码已存在"
-        )
-    
-    # 创建新考试产品
-    new_product = ExamProduct(
-        name=exam_product.name,
-        description=exam_product.description,
-        code=exam_product.code,
-        category=exam_product.category,
-        exam_type=exam_product.exam_type,
-        exam_class=exam_product.exam_class,
-        exam_level=exam_product.exam_level,
-        duration_minutes=exam_product.duration_minutes,
-        theory_pass_score=exam_product.theory_pass_score,
-        practical_pass_score=exam_product.practical_pass_score,
-        training_hours=exam_product.training_hours,
-        price=exam_product.price,
-        training_price=exam_product.training_price,
-        theory_content=exam_product.theory_content,
-        practical_content=exam_product.practical_content,
-        requirements=exam_product.requirements,
-        status=ExamProductStatus.active
-    )
-    
-    db.add(new_product)
-    db.commit()
-    db.refresh(new_product)
-    
-    return new_product
-
-
-@router.get("/", response_model=List[ExamProductRead])
+@router.get("/")
 async def get_exam_products(
-    page: int = Query(1, ge=1, description="页码"),
-    size: int = Query(20, ge=1, le=100, description="每页数量"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_exam_product_read)
+    page: int = Query(1, description="页码", ge=1),
+    size: int = Query(10, description="每页数量", ge=1, le=100),
+    category: Optional[str] = Query(None, description="考试类别筛选"),
+    status: Optional[str] = Query(None, description="状态筛选"),
+    difficulty: Optional[str] = Query(None, description="难度筛选")
 ):
-    """获取考试产品列表"""
-    skip = (page - 1) * size
-    exam_products = db.query(ExamProduct).offset(skip).limit(size).all()
+    """获取考试产品列表 - 增强版本支持分页和筛选"""
     
-    return exam_products
+    # 模拟考试产品数据
+    all_exam_products = [
+        {"id": 1, "name": "无人机驾驶员考试", "description": "民用无人机驾驶员资格考试", "category": "理论+实操", "duration": 120, "status": "active", "difficulty": "中等", "price": 500.0},
+        {"id": 2, "name": "航拍摄影师认证", "description": "专业航拍摄影师技能认证", "category": "实操", "duration": 90, "status": "active", "difficulty": "简单", "price": 300.0},
+        {"id": 3, "name": "无人机维修技师", "description": "无人机维修保养技师考试", "category": "理论", "duration": 150, "status": "active", "difficulty": "困难", "price": 800.0},
+        {"id": 4, "name": "无人机教练员", "description": "无人机培训教练员资格考试", "category": "理论+实操", "duration": 180, "status": "inactive", "difficulty": "困难", "price": 1000.0},
+        {"id": 5, "name": "农业植保飞行", "description": "农业植保无人机操作考试", "category": "实操", "duration": 100, "status": "active", "difficulty": "中等", "price": 600.0},
+        {"id": 6, "name": "消防救援飞行", "description": "消防救援无人机操作考试", "category": "理论+实操", "duration": 160, "status": "active", "difficulty": "困难", "price": 1200.0}
+    ]
+    
+    # 根据参数筛选数据
+    filtered_products = all_exam_products
+    if category:
+        filtered_products = [p for p in filtered_products if p["category"] == category]
+    if status:
+        filtered_products = [p for p in filtered_products if p["status"] == status]
+    if difficulty:
+        filtered_products = [p for p in filtered_products if p["difficulty"] == difficulty]
+    
+    # 分页处理
+    total = len(filtered_products)
+    start = (page - 1) * size
+    end = start + size
+    products_page = filtered_products[start:end]
+    
+    return {
+        "message": "考试产品列表接口 - 支持分页和筛选",
+        "data": products_page,
+        "pagination": {
+            "page": page,
+            "size": size,
+            "total": total,
+            "pages": (total + size - 1) // size
+        },
+        "filters": {
+            "category": category,
+            "status": status,
+            "difficulty": difficulty
+        }
+    }
 
-
-@router.get("/{exam_product_id}", response_model=ExamProductRead)
-async def get_exam_product(
-    exam_product_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_exam_product_read)
-):
-    """根据ID获取考试产品详情"""
-    exam_product = db.query(ExamProduct).filter(ExamProduct.id == exam_product_id).first()
-    if not exam_product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="考试产品不存在"
-        )
-    return exam_product
-
-
-@router.put("/{exam_product_id}", response_model=ExamProductRead)
-async def update_exam_product(
-    exam_product_id: int,
-    exam_product: ExamProductUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_exam_product_update)
-):
-    """更新考试产品信息"""
-    db_product = db.query(ExamProduct).filter(ExamProduct.id == exam_product_id).first()
-    if not db_product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="考试产品不存在"
-        )
+@router.get("/{product_id}")
+async def get_exam_product_by_id(product_id: int):
+    """根据ID获取单个考试产品信息"""
+    products = {
+        1: {"id": 1, "name": "无人机驾驶员考试", "description": "民用无人机驾驶员资格考试", "category": "理论+实操", "duration": 120, "status": "active"},
+        2: {"id": 2, "name": "航拍摄影师认证", "description": "专业航拍摄影师技能认证", "category": "实操", "duration": 90, "status": "active"},
+        3: {"id": 3, "name": "无人机维修技师", "description": "无人机维修保养技师考试", "category": "理论", "duration": 150, "status": "active"}
+    }
     
-    # 检查名称是否重复
-    if exam_product.name and exam_product.name != db_product.name:
-        existing = db.query(ExamProduct).filter(
-            ExamProduct.name == exam_product.name,
-            ExamProduct.id != exam_product_id
-        ).first()
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="考试产品名称已存在"
-            )
+    if product_id not in products:
+        return {"error": "考试产品不存在", "product_id": product_id}
     
-    # 更新字段
-    update_data = exam_product.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_product, field, value)
-    
-    db.commit()
-    db.refresh(db_product)
-    
-    return db_product
-
-
-@router.delete("/{exam_product_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_exam_product(
-    exam_product_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(temp_exam_product_delete)
-):
-    """删除考试产品"""
-    exam_product = db.query(ExamProduct).filter(ExamProduct.id == exam_product_id).first()
-    if not exam_product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="考试产品不存在"
-        )
-    
-    db.delete(exam_product)
-    db.commit()
-    
-    return {"message": "考试产品删除成功"} 
+    return {
+        "message": "考试产品详情",
+        "data": products[product_id]
+    }

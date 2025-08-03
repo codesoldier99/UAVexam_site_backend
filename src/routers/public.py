@@ -1,44 +1,48 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List
+﻿from fastapi import APIRouter
 from datetime import datetime
-from src.dependencies.get_db import get_db
-from src.services.venue import VenueService
-from src.services.wx_miniprogram import WxMiniprogramService
-from src.schemas.wx_miniprogram import VenueStatusResponse, PublicVenuesStatusResponse
 
-router = APIRouter(prefix="/public", tags=["公共看板"])
+router = APIRouter(prefix="/public", tags=["public"])
 
-@router.get("/venues-status", response_model=PublicVenuesStatusResponse)
-def get_venues_status(
-    db: Session = Depends(get_db)
-):
-    """获取考场实时状态"""
-    try:
-        venues_status = WxMiniprogramService.get_all_venues_status(db)
-        
-        return PublicVenuesStatusResponse(
-            timestamp=datetime.now().isoformat(),
-            venues=venues_status
-        )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取考场状态失败: {str(e)}")
+@router.get("/institutions")
+async def get_institutions():
+    """获取机构列表 - 公共API"""
+    return [
+        {
+            "id": 1,
+            "name": "示例培训机构",
+            "contact_person": "张三",
+            "phone": "13800138000"
+        }
+    ]
 
-@router.get("/venues/{venue_id}/status", response_model=VenueStatusResponse)
-def get_venue_status(
-    venue_id: int,
-    db: Session = Depends(get_db)
-):
-    """获取指定考场状态"""
-    try:
-        status = WxMiniprogramService.get_venue_status(db, venue_id)
-        if not status:
-            raise HTTPException(status_code=404, detail="考场不存在")
-        
-        return VenueStatusResponse(**status)
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取考场状态失败: {str(e)}") 
+@router.get("/venues-status")
+async def get_venues_status():
+    """获取考场状态 - 公共API"""
+    return [
+        {
+            "id": 1,
+            "name": "北京考场1",
+            "type": "理论考场",
+            "status": "active"
+        }
+    ]
+
+@router.get("/exam-products")
+async def get_exam_products():
+    """获取考试产品列表 - 公共API"""
+    return [
+        {
+            "id": 1,
+            "name": "无人机驾驶员考试",
+            "description": "民用无人机驾驶员资格考试"
+        }
+    ]
+
+@router.get("/health")
+async def health_check():
+    """健康检查 - 公共API"""
+    return {
+        "status": "healthy", 
+        "message": "系统运行正常",
+        "timestamp": datetime.now().isoformat()
+    }
