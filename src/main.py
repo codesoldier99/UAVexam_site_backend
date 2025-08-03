@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from src.routers import users, roles, permissions, institutions, exam_products, venues, candidates, schedules, public
+from src.routers import users, roles, permissions, exam_products, venues, candidates, schedules, public
+from src.institutions.router import router as institutions_router
 # from src.routers.mobile_checkin import router as mobile_checkin_router  # 暂时注释掉，因为移动端签到功能已经在schedules.py中实现
 from src.auth.social import router as social_router
 from src.auth.fastapi_users_config import fastapi_users, auth_backend
@@ -97,7 +98,7 @@ app.include_router(exam_products.router)
 app.include_router(candidates.router)
 app.include_router(schedules.router)
 app.include_router(public.router)
-app.include_router(institutions.router)
+app.include_router(institutions_router)
 app.include_router(roles.router)
 app.include_router(permissions.router)
 app.include_router(social_router)
