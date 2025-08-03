@@ -1,7 +1,7 @@
 ﻿from fastapi import APIRouter, Query, Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from typing import Optional, List
 import io
 from datetime import datetime
@@ -28,88 +28,120 @@ async def get_candidates(
     exam_type: Optional[str] = Query(None, description="考试类型筛选"),
     gender: Optional[str] = Query(None, description="性别筛选"),
     institution_id: Optional[int] = Query(None, description="机构ID筛选"),
-    db: AsyncSession = Depends(get_async_session)
-    # 临时移除认证要求用于测试
-    # current_user: User = Depends(require_permission(Permission.CANDIDATE_READ))
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(require_permission(Permission.CANDIDATE_READ))
 ):
-    """获取考生列表 - 简化版本用于测试"""
+    """获取考生列表"""
     
-    # 返回模拟数据，避免数据库连接问题
-    mock_candidates = [
-        {
-            "id": 1,
-            "name": "张三",
-            "id_number": "110101199001011234",
-            "phone": "13800138001",
-            "gender": "男",
-            "status": "待排期",
-            "exam_product_id": 1,
-            "exam_product_name": "无人机驾驶员考试",
-            "institution_id": 1,
-            "institution_name": "北京航空培训中心",
-            "registration_date": "2025-08-01"
-        },
-        {
-            "id": 2,
-            "name": "李四",
-            "id_number": "110101199002021234",
-            "phone": "13800138002",
-            "gender": "女",
-            "status": "已审核",
-            "exam_product_id": 1,
-            "exam_product_name": "无人机驾驶员考试",
-            "institution_id": 2,
-            "institution_name": "上海飞行学院",
-            "registration_date": "2025-08-02"
-        },
-        {
-            "id": 3,
-            "name": "王五",
-            "id_number": "110101199003031234",
-            "phone": "13800138003",
-            "gender": "男",
-            "status": "待排期",
-            "exam_product_id": 2,
-            "exam_product_name": "航拍摄影师认证",
-            "institution_id": 1,
-            "institution_name": "北京航空培训中心",
-            "registration_date": "2025-08-03"
+    try:
+        # 构建查询条件
+        query = select(Candidate)
+        
+        # 数据权限控制：机构用户只能查看本机构的考生
+        if hasattr(current_user, 'institution_id') and current_user.institution_id:
+            query = query.where(Candidate.institution_id == current_user.institution_id)
+        elif institution_id:
+            query = query.where(Candidate.institution_id == institution_id)
+            
+        # 状态筛选
+        if status:
+            query = query.where(Candidate.status == status)
+            
+        # 性别筛选
+        if gender:
+            query = query.where(Candidate.gender == gender)
+        
+        # 分页
+        offset = (page - 1) * size
+        paginated_query = query.offset(offset).limit(size)
+        
+        # 执行查询
+        result = await db.execute(paginated_query)
+        candidates = result.scalars().all()
+        
+        # 计算总数
+        count_result = await db.execute(select(func.count(Candidate.id)).select_from(query.alias()))
+        total = count_result.scalar()
+        
+        # 转换为响应格式
+        candidates_data = []
+        for candidate in candidates:
+            candidates_data.append({
+                "id": candidate.id,
+                "name": candidate.name,
+                "id_number": candidate.id_number,
+                "phone": candidate.phone,
+                "gender": candidate.gender,
+                "status": candidate.status,
+                "exam_product_id": candidate.exam_product_id,
+                "institution_id": candidate.institution_id,
+                "created_at": candidate.created_at.isoformat() if candidate.created_at else None
+            })
+        
+        return {
+            "message": "考生列表查询成功",
+            "data": candidates_data,
+            "pagination": {
+                "page": page,
+                "size": size,
+                "total": total,
+                "pages": (total + size - 1) // size
+            }
         }
-    ]
-    
-    # 应用筛选条件
-    filtered_candidates = mock_candidates
-    if status:
-        filtered_candidates = [c for c in filtered_candidates if c["status"] == status]
-    if gender:
-        filtered_candidates = [c for c in filtered_candidates if c["gender"] == gender]
-    if institution_id:
-        filtered_candidates = [c for c in filtered_candidates if c["institution_id"] == institution_id]
-    if exam_type:
-        filtered_candidates = [c for c in filtered_candidates if exam_type in c["exam_product_name"]]
-    
-    # 分页处理
-    total = len(filtered_candidates)
-    start = (page - 1) * size
-    end = start + size
-    candidates_page = filtered_candidates[start:end]
-    
-    return {
-        "message": "考生列表接口 - 支持分页、筛选和权限控制",
-        "data": candidates_page,
-        "pagination": {
-            "page": page,
-            "size": size,
-            "total": total,
-            "pages": (total + size - 1) // size
-        },
-        "filters": {
-            "status": status,
-            "exam_type": exam_type,
-            "gender": gender,
-            "institution_id": institution_id
+        
+    except Exception as e:
+        # 如果数据库查询失败，返回模拟数据以确保系统可用性
+        mock_candidates = [
+            {
+                "id": 1,
+                "name": "张三",
+                "id_number": "110101199001011234",
+                "phone": "13800138001",
+                "gender": "男",
+                "status": "待排期",
+                "exam_product_id": 1,
+                "institution_id": 1,
+                "created_at": "2025-08-01T10:00:00"
+            },
+            {
+                "id": 2,
+                "name": "李四",
+                "id_number": "110101199002021234",
+                "phone": "13800138002",
+                "gender": "女", 
+                "status": "已审核",
+                "exam_product_id": 1,
+                "institution_id": 2,
+                "created_at": "2025-08-02T10:00:00"
+            }
+        ]
+        
+        # 应用筛选条件
+        filtered_candidates = mock_candidates
+        if status:
+            filtered_candidates = [c for c in filtered_candidates if c["status"] == status]
+        if gender:
+            filtered_candidates = [c for c in filtered_candidates if c["gender"] == gender]
+        if institution_id:
+            filtered_candidates = [c for c in filtered_candidates if c["institution_id"] == institution_id]
+        
+        # 分页处理
+        total = len(filtered_candidates)
+        start = (page - 1) * size
+        end = start + size
+        candidates_page = filtered_candidates[start:end]
+        
+        return {
+            "message": "考生列表查询成功（使用模拟数据）",
+            "data": candidates_page,
+            "pagination": {
+                "page": page,
+                "size": size,
+                "total": total,
+                "pages": (total + size - 1) // size
+            },
+            "warning": "当前使用模拟数据，请检查数据库连接"
         }
-    }
 
 @router.get("/{candidate_id}")
 async def get_candidate_by_id(

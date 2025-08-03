@@ -291,39 +291,5 @@ def wx_login(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"登录失败: {str(e)}")
 
-@router.get("/me/qrcode", response_model=QrCodeResponse)
-def get_my_qrcode(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """获取我的二维码内容"""
-    try:
-        # 验证用户类型
-        if not hasattr(current_user, 'candidate_id') or not current_user.candidate_id:
-            raise HTTPException(status_code=403, detail="只有考生可以获取二维码")
-        
-        candidate_id = current_user.candidate_id
-        
-        # 查找考生的下一个待办日程
-        next_schedule = db.query(Schedule).filter(
-            Schedule.candidate_id == candidate_id,
-            Schedule.status.in_(['PENDING', 'CONFIRMED']),
-            Schedule.scheduled_date >= datetime.now().date()
-        ).order_by(Schedule.scheduled_date, Schedule.start_time).first()
-        
-        if not next_schedule:
-            raise HTTPException(status_code=404, detail="没有待办的考试日程")
-        
-        return QrCodeResponse(
-            schedule_id=next_schedule.id,
-            exam_date=next_schedule.scheduled_date,
-            start_time=next_schedule.start_time,
-            end_time=next_schedule.end_time,
-            venue_name=next_schedule.venue.name if next_schedule.venue else None,
-            exam_product_name=next_schedule.exam_product.name if next_schedule.exam_product else None
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取二维码失败: {str(e)}") 
+# 注释：已移除重复的 /me/qrcode 接口，使用 /my-qrcode/{candidate_id} 接口代替
+# 这样符合考生端的使用场景，不需要复杂的认证机制 

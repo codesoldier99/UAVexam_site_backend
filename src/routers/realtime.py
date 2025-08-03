@@ -298,6 +298,17 @@ async def get_venues_summary():
 
 # ===== 系统状态接口 =====
 
+@router.get("/venue-status")
+async def get_venue_status():
+    """获取所有考场的实时状态"""
+    venues = get_mock_venue_statuses()
+    return {
+        "message": "考场状态获取成功",
+        "venues": venues,
+        "timestamp": datetime.now().isoformat(),
+        "total_venues": len(venues)
+    }
+
 @router.get("/system-status")
 async def get_system_status():
     """获取系统实时状态"""
