@@ -51,17 +51,21 @@ async def get_candidates(
         if gender:
             query = query.where(Candidate.gender == gender)
         
-        # 分页
+        # 先计算总数（在应用分页之前）
+        count_query = select(func.count()).select_from(query.subquery())
+        count_result = await db.execute(count_query)
+        total = count_result.scalar()
+        
+        # 添加排序
+        query = query.order_by(Candidate.id)
+        
+        # 应用分页
         offset = (page - 1) * size
         paginated_query = query.offset(offset).limit(size)
         
         # 执行查询
         result = await db.execute(paginated_query)
         candidates = result.scalars().all()
-        
-        # 计算总数
-        count_result = await db.execute(select(func.count(Candidate.id)).select_from(query.alias()))
-        total = count_result.scalar()
         
         # 转换为响应格式
         candidates_data = []

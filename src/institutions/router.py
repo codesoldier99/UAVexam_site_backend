@@ -49,10 +49,10 @@ async def create_institution(
     return new_institution
 
 
-@router.get("/", response_model=List[InstitutionRead])
+@router.get("/")
 async def get_institutions(
     page: int = Query(1, ge=1, description="页码"),
-    size: int = Query(20, ge=1, le=100, description="每页数量"),
+    size: int = Query(10, ge=1, le=100, description="每页数量"),
     search: Optional[str] = Query(None, description="搜索关键词"),
     status_filter: Optional[str] = Query(None, description="状态过滤"),
     db: Session = Depends(get_db),
@@ -69,11 +69,48 @@ async def get_institutions(
     if status_filter:
         query = query.filter(Institution.status == status_filter)
     
+    # 计算总数
+    total = query.count()
+    
     # 分页
     skip = (page - 1) * size
     institutions = query.offset(skip).limit(size).all()
     
-    return institutions
+    # 转换为响应格式
+    institution_list = []
+    for institution in institutions:
+        institution_dict = {
+            "id": institution.id,
+            "name": institution.name,
+            "code": institution.code,
+            "contact_person": institution.contact_person,
+            "phone": institution.phone,
+            "email": institution.email,
+            "address": institution.address,
+            "description": institution.description,
+            "status": institution.status,
+            "license_number": institution.license_number,
+            "business_scope": institution.business_scope,
+            "created_at": institution.created_at.isoformat() if institution.created_at else None,
+            "updated_at": institution.updated_at.isoformat() if institution.updated_at else None
+        }
+        institution_list.append(institution_dict)
+    
+    # 计算分页信息
+    total_pages = (total + size - 1) // size
+    
+    return {
+        "message": "机构列表获取成功",
+        "data": institution_list,
+        "pagination": {
+            "page": page,
+            "size": size,
+            "total": total,
+            "pages": total_pages,
+            "has_next": page < total_pages,
+            "has_prev": page > 1
+        }
+    }
 
 
 @router.get("/stats")
