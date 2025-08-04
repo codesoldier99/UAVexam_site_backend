@@ -264,7 +264,7 @@ async def simple_login(login_data: LoginRequest):
             if not pwd_context.verify(login_data.password, user.hashed_password):
                 raise HTTPException(status_code=401, detail="用户名或密码错误")
             
-            # 生成简单的JWT令牌（这里使用简单的token，实际项目中应该使用proper JWT）
+            # 生成JWT令牌，使用统一的配置
             import jwt
             import datetime
             
@@ -272,10 +272,10 @@ async def simple_login(login_data: LoginRequest):
                 "user_id": user.id,
                 "email": user.email,
                 "username": user.username,
-                "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
             }
             
-            token = jwt.encode(payload, "your-secret-key-here", algorithm="HS256")
+            token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
             
             return {
                 "access_token": token, 
@@ -335,7 +335,7 @@ async def simple_login_endpoint(login_data: LoginRequest):
         if not pwd_context.verify(login_data.password, user_data["hashed_password"]):
             raise HTTPException(status_code=401, detail="用户名或密码错误")
         
-        # 生成简单的JWT令牌
+        # 生成JWT令牌，使用统一的配置
         import jwt
         import datetime
         
@@ -343,10 +343,10 @@ async def simple_login_endpoint(login_data: LoginRequest):
             "user_id": user_data["id"],
             "email": user_data["email"],
             "username": user_data["username"],
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         }
         
-        token = jwt.encode(payload, "your-secret-key-here", algorithm="HS256")
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         
         return {
             "message": "登录成功",

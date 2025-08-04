@@ -10,9 +10,9 @@ from typing import Optional, List
 from src.db.session import get_async_session
 from src.models.institution import Institution, InstitutionStatus
 from src.schemas.institution import InstitutionCreate, InstitutionRead, InstitutionUpdate
-# from src.core.rbac import require_permission, Permission
-# from src.db.models import User
-# from src.auth.fastapi_users_config import current_active_user
+from src.core.rbac import require_permission, Permission
+from src.db.models import User
+from src.auth.fastapi_users_config import current_active_user
 
 router = APIRouter(
     prefix="/institutions",
@@ -26,9 +26,8 @@ async def get_institutions(
     status: Optional[InstitutionStatus] = Query(None, description="状态筛选"),
     name: Optional[str] = Query(None, description="机构名称筛选"),
     contact_person: Optional[str] = Query(None, description="联系人筛选"),
-    db: AsyncSession = Depends(get_async_session)
-    # 临时移除认证要求用于测试
-    # current_user: User = Depends(require_permission(Permission.INSTITUTION_READ))
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(require_permission(Permission.INSTITUTION_READ))
 ):
     """获取机构列表 - 支持分页、筛选和权限控制"""
     

@@ -15,8 +15,8 @@ from src.db.session import get_async_session
 from src.core.config import settings
 
 # JWT 配置
-SECRET_KEY = "your-secret-key-here"  # 在生产环境中应该从环境变量获取
-LIFETIME_SECONDS = 3600  # 1 hour
+SECRET_KEY = settings.SECRET_KEY  # 使用统一的密钥配置
+LIFETIME_SECONDS = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60  # 使用统一的过期时间配置
 
 class UserManager(BaseUserManager[User, int]):
     reset_password_token_secret = SECRET_KEY
