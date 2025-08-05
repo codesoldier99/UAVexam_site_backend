@@ -1,0 +1,31 @@
+<view class="container">
+  <view class="header">
+    <view class="title">考点运营管理系统</view>
+    <view class="subtitle">请选择您的身份</view>
+  </view>
+
+  <view class="role-selection">
+    <view class="role-card" bindtap="selectCandidate">
+      <view class="role-icon">👨‍🎓</view>
+      <view class="role-title">我是考生</view>
+      <view class="role-desc">查看考试安排，展示身份二维码</view>
+    </view>
+
+    <view class="role-card" bindtap="selectStaff">
+      <view class="role-icon">👨‍💼</view>
+      <view class="role-title">我是考务人员</view>
+      <view class="role-desc">扫码签到，管理考试流程</view>
+    </view>
+  </view>
+
+  <view class="public-section">
+    <button class="btn-secondary" bindtap="viewDashboard">
+      查看考场实时看板
+    </button>
+  </view>
+
+  <view class="footer">
+    <view class="footer-text">考点运营与流程管理系统</view>
+    <view class="footer-version">v1.0.0</view>
+  </view>
+</view>

@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/candidate/login/login",
+    "pages/candidate/qrcode/qrcode",
+    "pages/candidate/profile/profile",
+    "pages/candidate/schedule/schedule",
+    "pages/staff/login/login",
+    "pages/staff/scan/scan",
+    "pages/public/dashboard/dashboard"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "考试管理系统",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f8f8f8"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#1890ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/candidate/qrcode/qrcode",
+        "text": "📱 二维码"
+      },
+      {
+        "pagePath": "pages/candidate/schedule/schedule",
+        "text": "📅 考试安排"
+      },
+      {
+        "pagePath": "pages/public/dashboard/dashboard",
+        "text": "📊 实时看板"
+      },
+      {
+        "pagePath": "pages/candidate/profile/profile",
+        "text": "👤 个人信息"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "connectSocket": 10000,
+    "uploadFile": 10000,
+    "downloadFile": 10000
+  },
+  "debug": false,
+  "style": "v2"
+}

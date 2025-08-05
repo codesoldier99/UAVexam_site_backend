@@ -1,0 +1,182 @@
+<view class="scan-container">
+  <!-- Header Section -->
+  <view class="header-section">
+    <view class="staff-info">
+      <view class="avatar">{{staffInfo.name ? staffInfo.name.charAt(0) : '👨‍💼'}}</view>
+      <view class="info">
+        <view class="name">{{staffInfo.name || 'Staff'}}</view>
+        <view class="role">{{staffInfo.role || 'Examiner'}} | {{staffInfo.id || 'ID001'}}</view>
+      </view>
+    </view>
+    <view class="logout-btn" bindtap="logout">
+      <text class="logout-icon">🚪</text>
+    </view>
+  </view>
+
+  <!-- Scan Section -->
+  <view class="scan-section">
+    <view class="scan-title">扫描考生二维码</view>
+    <view class="scan-subtitle">Scan Student QR Code</view>
+    
+    <!-- Camera View -->
+    <view class="camera-container">
+      <camera 
+        class="camera" 
+        device-position="back" 
+        flash="off" 
+        binderror="onCameraError"
+        bindstop="onCameraStop"
+        bindinitialized="onCameraReady"
+        wx:if="{{cameraAuthorized}}"
+      ></camera>
+      
+      <!-- Camera Authorization -->
+      <view class="camera-auth" wx:else>
+        <view class="auth-icon">📷</view>
+        <view class="auth-text">需要相机权限</view>
+        <button class="auth-btn" bindtap="requestCameraAuth">授权相机</button>
+      </view>
+      
+      <!-- Scan Frame -->
+      <view class="scan-frame" wx:if="{{cameraAuthorized}}">
+        <view class="frame-corner tl"></view>
+        <view class="frame-corner tr"></view>
+        <view class="frame-corner bl"></view>
+        <view class="frame-corner br"></view>
+        <view class="scan-line"></view>
+      </view>
+      
+      <!-- Scan Button -->
+      <view class="scan-controls" wx:if="{{cameraAuthorized}}">
+        <button class="scan-btn {{scanning ? 'scanning' : ''}}" bindtap="startScan" disabled="{{scanning || processing}}">
+          <view class="scan-icon">{{scanning ? '⏸️' : '📱'}}</view>
+          <text class="scan-text">{{scanning ? '扫描中...' : '开始扫描'}}</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- Manual Input Section -->
+  <view class="manual-section">
+    <view class="manual-title">手动输入</view>
+    <view class="input-container">
+      <input 
+        class="qr-input" 
+        type="text" 
+        placeholder="输入二维码内容或考生ID (如: C001, EXAM_C001_20250108)"
+        value="{{manualInput}}"
+        bindinput="onManualInput"
+      />
+      <button class="manual-btn" bindtap="handleManualInput" disabled="{{!manualInput.trim() || processing}}">
+        {{processing ? '处理中...' : '确认'}}
+      </button>
+    </view>
+    
+    <!-- Quick Test Buttons -->
+    <view class="quick-test">
+      <view class="test-title">快速测试:</view>
+      <view class="test-buttons">
+        <button class="test-btn" bindtap="handleManualInput" data-code="C001">张三 (C001)</button>
+        <button class="test-btn" bindtap="handleManualInput" data-code="C002">李四 (C002)</button>
+        <button class="test-btn" bindtap="handleManualInput" data-code="C003">王五 (C003)</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- Recent Scans -->
+  <view class="recent-section" wx:if="{{recentScans.length > 0}}">
+    <view class="section-title">
+      <text>最近扫描</text>
+      <view class="refresh-btn" bindtap="loadRecentScans">🔄</view>
+    </view>
+    <view class="recent-list">
+      <view class="recent-item" wx:for="{{recentScans}}" wx:key="id" bindtap="viewScanDetail" data-scan="{{item}}">
+        <view class="scan-info">
+          <view class="candidate-name">{{item.candidateName}}</view>
+          <view class="scan-time">{{item.scanTime}}</view>
+        </view>
+        <view class="scan-status {{item.status}}">
+          <text class="status-icon">{{item.statusIcon}}</text>
+          <text class="status-text">{{item.statusText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Empty State -->
+  <view class="empty-state" wx:if="{{recentScans.length === 0}}">
+    <view class="empty-icon">📋</view>
+    <view class="empty-text">暂无扫描记录</view>
+    <view class="empty-subtitle">开始扫描考生二维码进行签到</view>
+  </view>
+
+  <!-- Statistics -->
+  <view class="stats-section">
+    <view class="stat-item">
+      <view class="stat-number">{{todayStats.scanned}}</view>
+      <view class="stat-label">今日扫描</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-number">{{todayStats.checkedIn}}</view>
+      <view class="stat-label">成功签到</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-number">{{todayStats.failed}}</view>
+      <view class="stat-label">失败次数</view>
+    </view>
+  </view>
+</view>
+
+<!-- Scan Result Modal -->
+<view class="modal-overlay" wx:if="{{showResult}}" bindtap="closeResult">
+  <view class="result-modal" catchtap="">
+    <view class="result-header">
+      <view class="result-icon {{resultData.success ? 'success' : 'error'}}">
+        {{resultData.success ? '✅' : '❌'}}
+      </view>
+      <view class="result-title">
+        {{resultData.success ? '签到成功' : '签到失败'}}
+      </view>
+    </view>
+    
+    <view class="result-content" wx:if="{{resultData.candidateInfo}}">
+      <view class="info-row">
+        <text class="label">姓名:</text>
+        <text class="value">{{resultData.candidateInfo.name}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">考试:</text>
+        <text class="value">{{resultData.candidateInfo.examName}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">时间:</text>
+        <text class="value">{{resultData.candidateInfo.examTime}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">地点:</text>
+        <text class="value">{{resultData.candidateInfo.venue}}</text>
+      </view>
+      <view class="info-row" wx:if="{{resultData.candidateInfo.checkInTime}}">
+        <text class="label">签到时间:</text>
+        <text class="value">{{resultData.candidateInfo.checkInTime}}</text>
+      </view>
+    </view>
+    
+    <view class="result-message">
+      {{resultData.message}}
+    </view>
+    
+    <view class="result-actions">
+      <button class="action-btn secondary" bindtap="closeResult">关闭</button>
+      <button class="action-btn primary" bindtap="continueScan" wx:if="{{resultData.success}}">继续扫描</button>
+    </view>
+  </view>
+</view>
+
+<!-- Loading Overlay -->
+<view class="loading-overlay" wx:if="{{processing}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <view class="loading-text">处理中...</view>
+  </view>
+</view>

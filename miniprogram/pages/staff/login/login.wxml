@@ -1,0 +1,90 @@
+<!--miniprogram/pages/staff/login/login.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="logo">
+      <image src="/images/logo.png" class="logo-image" mode="aspectFit"></image>
+    </view>
+    <view class="title">Staff Login</view>
+    <view class="subtitle">Exam Management System</view>
+  </view>
+
+  <!-- Login Form -->
+  <view class="login-form">
+    <view class="form-group">
+      <view class="input-wrapper">
+        <image src="/images/icons/user.png" class="input-icon"></image>
+        <input 
+          class="input-field" 
+          type="text" 
+          placeholder="Staff ID" 
+          value="{{staffId}}"
+          bindinput="onStaffIdInput"
+          maxlength="20"
+        />
+      </view>
+    </view>
+
+    <view class="form-group">
+      <view class="input-wrapper">
+        <image src="/images/icons/lock.png" class="input-icon"></image>
+        <input 
+          class="input-field" 
+          type="{{showPassword ? 'text' : 'password'}}" 
+          placeholder="Password" 
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          maxlength="50"
+        />
+        <view class="password-toggle" bindtap="togglePassword">
+          <image 
+            src="/images/icons/{{showPassword ? 'eye-off' : 'eye'}}.png" 
+            class="toggle-icon"
+          ></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <view class="checkbox-wrapper">
+        <checkbox 
+          class="remember-checkbox" 
+          checked="{{rememberMe}}"
+          bindchange="onRememberChange"
+        />
+        <text class="checkbox-label">Remember me</text>
+      </view>
+    </view>
+
+    <button 
+      class="login-btn {{isLoading ? 'loading' : ''}}" 
+      bindtap="handleLogin"
+      disabled="{{isLoading}}"
+    >
+      <text wx:if="{{!isLoading}}">Login</text>
+      <text wx:else>Logging in...</text>
+    </button>
+  </view>
+
+  <!-- Additional Options -->
+  <view class="options">
+    <view class="option-item" bindtap="forgotPassword">
+      <text class="option-text">Forgot Password?</text>
+    </view>
+    <view class="divider"></view>
+    <view class="option-item" bindtap="contactSupport">
+      <text class="option-text">Contact Support</text>
+    </view>
+  </view>
+
+  <!-- Footer -->
+  <view class="footer">
+    <view class="footer-text">Exam Management System v1.0</view>
+    <view class="footer-text">© 2025 All Rights Reserved</view>
+  </view>
+
+  <!-- Loading Overlay -->
+  <view class="loading-overlay" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+  </view>
+</view>

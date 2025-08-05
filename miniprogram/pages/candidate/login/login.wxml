@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <view class="title">考生登录</view>
+  </view>
+
+  <view class="login-form">
+    <view class="form-card card">
+      <view class="form-title">请输入您的身份证号</view>
+      
+      <view class="input-group">
+        <view class="input-label">身份证号</view>
+        <input 
+          class="input-field" 
+          type="idcard"
+          placeholder="请输入18位身份证号"
+          value="{{idNumber}}"
+          bindinput="onIdNumberInput"
+          maxlength="18"
+        />
+      </view>
+
+      <button 
+        class="btn-primary login-btn" 
+        bindtap="handleLogin"
+        disabled="{{isLoading}}"
+      >
+        {{isLoading ? '登录中...' : '登录'}}
+      </button>
+    </view>
+
+    <view class="tips">
+      <view class="tip-item">
+        <text class="tip-icon">ℹ️</text>
+        <text class="tip-text">请确保输入的身份证号与报名时一致</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">🔒</text>
+        <text class="tip-text">您的个人信息将被安全保护</text>
+      </view>
+    </view>
+  </view>
+</view>

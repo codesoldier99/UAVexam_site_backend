@@ -1,0 +1,609 @@
+/* Staff Scan Page Styles */
+.scan-container {
+  padding: 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Header Section */
+.scan-header {
+  text-align: center;
+  padding: 40rpx 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.scan-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 16rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+.scan-subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20rpx;
+}
+
+.staff-info {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20rpx;
+  border-radius: 16rpx;
+  backdrop-filter: blur(10rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.staff-name {
+  font-size: 32rpx;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.staff-role {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Camera Section */
+.camera-section {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 12rpx 48rpx rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8rpx;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.camera-container {
+  position: relative;
+  width: 100%;
+  height: 500rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+}
+
+.camera-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400rpx;
+  height: 400rpx;
+  border: 4rpx solid #667eea;
+  border-radius: 16rpx;
+  background: transparent;
+  z-index: 10;
+}
+
+.camera-overlay::before,
+.camera-overlay::after {
+  content: '';
+  position: absolute;
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #667eea;
+}
+
+.camera-overlay::before {
+  top: -6rpx;
+  left: -6rpx;
+  border-right: none;
+  border-bottom: none;
+}
+
+.camera-overlay::after {
+  bottom: -6rpx;
+  right: -6rpx;
+  border-left: none;
+  border-top: none;
+}
+
+.scan-placeholder {
+  text-align: center;
+  color: #999;
+}
+
+.placeholder-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.placeholder-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* Control Buttons */
+.camera-controls {
+  display: flex;
+  justify-content: center;
+  gap: 30rpx;
+}
+
+.control-btn {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-btn {
+  background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
+  box-shadow: 0 8rpx 32rpx rgba(46, 213, 115, 0.4);
+}
+
+.scan-btn:active {
+  transform: scale(0.95);
+}
+
+.scan-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+}
+
+.scan-btn:active::before {
+  width: 200rpx;
+  height: 200rpx;
+}
+
+.toggle-btn {
+  background: linear-gradient(135deg, #ffa502 0%, #ff6348 100%);
+  box-shadow: 0 8rpx 32rpx rgba(255, 165, 2, 0.4);
+}
+
+/* Scan Result Section */
+.scan-result {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 12rpx 48rpx rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.5s ease-out;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.result-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: white;
+  margin-right: 20rpx;
+}
+
+.result-success {
+  background: linear-gradient(135deg, #2ed573, #17a2b8);
+}
+
+.result-error {
+  background: linear-gradient(135deg, #ff4757, #ff3742);
+}
+
+.result-warning {
+  background: linear-gradient(135deg, #ffa502, #ff6348);
+}
+
+.result-title {
+  flex: 1;
+}
+
+.result-status {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.result-time {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* Candidate Info */
+.candidate-info {
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.candidate-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: white;
+  margin: 0 auto 20rpx;
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.3);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+
+.info-item {
+  text-align: center;
+}
+
+.info-label {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 30rpx;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
+  color: white;
+  box-shadow: 0 8rpx 32rpx rgba(46, 213, 115, 0.4);
+}
+
+.reject-btn {
+  background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+  color: white;
+  box-shadow: 0 8rpx 32rpx rgba(255, 71, 87, 0.4);
+}
+
+.action-btn:active {
+  transform: translateY(2rpx);
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+}
+
+.action-btn:active::before {
+  width: 300rpx;
+  height: 300rpx;
+}
+
+/* Statistics Section */
+.scan-stats {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 12rpx 48rpx rgba(0, 0, 0, 0.15);
+}
+
+.stats-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2rpx);
+}
+
+.stat-number {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* Recent Scans */
+.recent-scans {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: 0 12rpx 48rpx rgba(0, 0, 0, 0.15);
+}
+
+.recent-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.view-all {
+  font-size: 26rpx;
+  color: #667eea;
+  font-weight: normal;
+}
+
+.recent-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+  background: #f8f9fa;
+  border-radius: 12rpx;
+  transition: all 0.3s ease;
+}
+
+.recent-item:hover {
+  background: #e9ecef;
+}
+
+.recent-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24rpx;
+  margin-right: 20rpx;
+}
+
+.recent-info {
+  flex: 1;
+}
+
+.recent-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 6rpx;
+}
+
+.recent-details {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.recent-status {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: white;
+}
+
+.status-success {
+  background: #2ed573;
+}
+
+.status-failed {
+  background: #ff4757;
+}
+
+/* Loading States */
+.loading {
+  position: relative;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40rpx;
+  height: 40rpx;
+  margin: -20rpx 0 0 -20rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 100;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 750rpx) {
+  .camera-overlay {
+    width: 300rpx;
+    height: 300rpx;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .camera-controls {
+    gap: 20rpx;
+  }
+  
+  .control-btn {
+    width: 100rpx;
+    height: 100rpx;
+    font-size: 40rpx;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .scan-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
+  .camera-section,
+  .scan-result,
+  .scan-stats,
+  .recent-scans {
+    background: #2c3e50;
+    color: white;
+  }
+  
+  .candidate-info,
+  .stat-item,
+  .recent-item {
+    background: #34495e;
+  }
+  
+  .info-value,
+  .result-status,
+  .stats-title,
+  .recent-title,
+  .recent-name {
+    color: white;
+  }
+  
+  .info-label,
+  .result-time,
+  .stat-label,
+  .recent-details {
+    color: #bdc3c7;
+  }
+}

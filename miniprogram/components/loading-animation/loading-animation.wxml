@@ -1,0 +1,33 @@
+<view class="loading-animation-container" wx:if="{{show}}">
+  <!-- 脉冲加载动画 -->
+  <view class="pulse-loader" wx:if="{{type === 'pulse'}}">
+    <view class="pulse-dot pulse-dot-1"></view>
+    <view class="pulse-dot pulse-dot-2"></view>
+    <view class="pulse-dot pulse-dot-3"></view>
+  </view>
+
+  <!-- 旋转加载动画 -->
+  <view class="spinner-loader" wx:if="{{type === 'spinner'}}">
+    <view class="spinner"></view>
+  </view>
+
+  <!-- 波浪加载动画 -->
+  <view class="wave-loader" wx:if="{{type === 'wave'}}">
+    <view class="wave-bar wave-bar-1"></view>
+    <view class="wave-bar wave-bar-2"></view>
+    <view class="wave-bar wave-bar-3"></view>
+    <view class="wave-bar wave-bar-4"></view>
+    <view class="wave-bar wave-bar-5"></view>
+  </view>
+
+  <!-- 进度条加载动画 -->
+  <view class="progress-loader" wx:if="{{type === 'progress'}}">
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{progress}}%"></view>
+    </view>
+    <text class="progress-text" wx:if="{{showText}}">{{progress}}%</text>
+  </view>
+
+  <!-- 加载文本 -->
+  <text class="loading-text" wx:if="{{text}}">{{text}}</text>
+</view>

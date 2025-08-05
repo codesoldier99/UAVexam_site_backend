@@ -1,0 +1,97 @@
+<view class="container">
+  <!-- 头部信息 -->
+  <view class="header-info card">
+    <view class="user-info">
+      <view class="avatar">👨‍🎓</view>
+      <view class="user-details">
+        <view class="name">{{candidateInfo.name}}</view>
+        <view class="id-number">{{candidateInfo.id_number}}</view>
+      </view>
+    </view>
+    <view class="logout-btn" bindtap="logout">
+      <text class="logout-icon">⚙️</text>
+    </view>
+  </view>
+
+  <!-- 二维码区域 -->
+  <view class="qrcode-section card">
+    <view class="section-title">我的身份二维码</view>
+    
+    <view wx:if="{{isLoading}}" class="loading">
+      <view class="loading-icon">⏳</view>
+      <view class="loading-text">加载中...</view>
+    </view>
+
+    <view wx:elif="{{nextSchedule && qrCodeUrl}}" class="qrcode-content">
+      <!-- 考试信息 -->
+      <view class="exam-info">
+        <view class="exam-title">{{nextSchedule.activity_name || nextSchedule.exam_product_name}}</view>
+        <view class="exam-time">{{nextSchedule.exam_time}}</view>
+        <view class="exam-venue">{{nextSchedule.venue_name}}</view>
+      </view>
+
+      <!-- 二维码 -->
+      <view class="qrcode-wrapper">
+        <image 
+          class="qrcode-image" 
+          src="{{qrCodeUrl}}" 
+          mode="aspectFit"
+          show-menu-by-longpress="{{false}}"
+        />
+      </view>
+
+      <!-- 二维码信息 -->
+      <view class="qrcode-info">
+        <view class="info-item">
+          <text class="info-label">状态：</text>
+          <text class="info-value status-waiting">{{nextSchedule.status}}</text>
+        </view>
+        <view wx:if="{{qrData.valid_until}}" class="info-item">
+          <text class="info-label">有效期至：</text>
+          <text class="info-value">{{qrData.valid_until}}</text>
+        </view>
+      </view>
+
+      <!-- 使用说明 -->
+      <view class="usage-tips">
+        <view class="tip-title">使用说明</view>
+        <view class="tip-item">1. 请向考务人员出示此二维码</view>
+        <view class="tip-item">2. 二维码会自动更新，请保持最新</view>
+        <view class="tip-item">3. 如无法扫描，请联系现场工作人员</view>
+      </view>
+    </view>
+
+    <view wx:else class="empty-state">
+      <view class="empty-icon">📋</view>
+      <view class="empty-title">暂无可用二维码</view>
+      <view class="empty-desc">
+        <text wx:if="{{!nextSchedule}}">您当前没有待进行的考试安排</text>
+        <text wx:else>二维码生成失败，请刷新重试</text>
+      </view>
+    </view>
+
+    <!-- 刷新按钮 -->
+    <view class="refresh-section">
+      <button 
+        class="btn-secondary refresh-btn" 
+        bindtap="refreshQRCode"
+        disabled="{{refreshing}}"
+      >
+        <text class="refresh-icon">🔄</text>
+        {{refreshing ? '刷新中...' : '手动刷新'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <navigator url="/pages/candidate/schedule/schedule" class="action-item">
+      <view class="action-icon">📅</view>
+      <view class="action-text">我的日程</view>
+    </navigator>
+    <navigator url="/pages/public/dashboard/dashboard" class="action-item">
+      <view class="action-icon">📊</view>
+      <view class="action-text">考场看板</view>
+    </navigator>
+  </view>
+</view>

@@ -1,0 +1,216 @@
+<view class="dashboard-container">
+  <!-- Skeleton Loading State -->
+  <skeleton 
+    show="{{loading}}" 
+    type="dashboard" 
+    rows="{{3}}"
+    avatar="{{true}}"
+    subtitle="{{true}}"
+  />
+
+  <!-- Main Content (hidden when loading) -->
+  <view wx:if="{{!loading}}">
+    <!-- Header Section -->
+    <view class="dashboard-header">
+    <text class="dashboard-title">考试监控中心</text>
+    <view class="refresh-info">
+      <text class="last-update">最后更新: {{lastUpdateTime}}</text>
+      <view class="auto-refresh {{autoRefresh ? 'active' : ''}}" bindtap="toggleAutoRefresh">
+        <text>自动刷新</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Statistics Overview -->
+  <view class="stats-overview">
+    <view class="stat-card">
+      <text class="stat-number">{{stats.totalCandidates}}</text>
+      <text class="stat-label">总考生数</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-number">{{stats.checkedInCandidates}}</text>
+      <text class="stat-label">已签到</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-number">{{stats.activeStaff}}</text>
+      <text class="stat-label">在线工作人员</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-number">{{stats.activeVenues}}</text>
+      <text class="stat-label">活跃考场</text>
+    </view>
+  </view>
+
+  <!-- System Alerts -->
+  <view class="alerts-section" wx:if="{{alerts.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">系统警报</text>
+      <text class="alert-count">{{alerts.length}}</text>
+    </view>
+    <scroll-view class="alerts-list" scroll-y="true">
+      <view class="alert-item alert-{{item.type}}" wx:for="{{alerts}}" wx:key="id">
+        <view class="alert-icon">
+          <text class="icon-{{item.type}}">{{item.type === 'error' ? '⚠️' : item.type === 'warning' ? '⚡' : 'ℹ️'}}</text>
+        </view>
+        <view class="alert-content">
+          <text class="alert-message">{{item.message}}</text>
+          <text class="alert-time">{{item.time}}</text>
+        </view>
+        <view class="alert-action" bindtap="handleAlert" data-id="{{item.id}}">
+          <text>处理</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Venues Status -->
+  <view class="venues-section">
+    <view class="section-header">
+      <text class="section-title">考场状态</text>
+      <view class="filter-tabs">
+        <text class="filter-tab {{venueFilter === 'all' ? 'active' : ''}}" bindtap="filterVenues" data-filter="all">全部</text>
+        <text class="filter-tab {{venueFilter === 'active' ? 'active' : ''}}" bindtap="filterVenues" data-filter="active">进行中</text>
+        <text class="filter-tab {{venueFilter === 'waiting' ? 'active' : ''}}" bindtap="filterVenues" data-filter="waiting">等待中</text>
+      </view>
+    </view>
+    <scroll-view class="venues-grid" scroll-y="true">
+      <view class="venue-card" wx:for="{{filteredVenues}}" wx:key="id">
+        <view class="venue-header">
+          <text class="venue-name">{{item.name}}</text>
+          <view class="venue-status status-{{item.status}}">
+            <text>{{item.statusText}}</text>
+          </view>
+        </view>
+        <view class="venue-info">
+          <view class="info-row">
+            <text class="info-label">考生:</text>
+            <text class="info-value">{{item.checkedIn}}/{{item.capacity}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">监考员:</text>
+            <text class="info-value">{{item.staff}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-label">考试:</text>
+            <text class="info-value">{{item.examName}}</text>
+          </view>
+        </view>
+        <view class="venue-progress">
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{item.checkedIn / item.capacity * 100}}%"></view>
+          </view>
+          <text class="progress-text">{{item.progressPercent}}%</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Staff Status -->
+  <view class="staff-section">
+    <view class="section-header">
+      <text class="section-title">工作人员状态</text>
+      <text class="staff-count">在线: {{onlineStaffCount}}</text>
+    </view>
+    <scroll-view class="staff-list" scroll-y="true">
+      <view class="staff-item" wx:for="{{staffList}}" wx:key="id">
+        <view class="staff-avatar">
+          <text class="avatar-text">{{item.name.charAt(0)}}</text>
+        </view>
+        <view class="staff-info">
+          <text class="staff-name">{{item.name}}</text>
+          <text class="staff-role">{{item.role}}</text>
+          <text class="staff-venue">{{item.venue}}</text>
+        </view>
+        <view class="staff-status">
+          <view class="status-dot status-{{item.status}}"></view>
+          <text class="status-text">{{item.statusText}}</text>
+        </view>
+        <view class="staff-activity">
+          <text class="activity-text">{{item.lastActivity}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Exam Schedules -->
+  <view class="schedules-section">
+    <view class="section-header">
+      <text class="section-title">考试安排</text>
+      <view class="time-filter">
+        <text class="time-tab {{timeFilter === 'current' ? 'active' : ''}}" bindtap="filterTime" data-filter="current">当前</text>
+        <text class="time-tab {{timeFilter === 'upcoming' ? 'active' : ''}}" bindtap="filterTime" data-filter="upcoming">即将开始</text>
+        <text class="time-tab {{timeFilter === 'all' ? 'active' : ''}}" bindtap="filterTime" data-filter="all">全部</text>
+      </view>
+    </view>
+    <scroll-view class="schedules-list" scroll-y="true">
+      <view class="schedule-item" wx:for="{{filteredSchedules}}" wx:key="id">
+        <view class="schedule-time">
+          <text class="time-start">{{item.startTime}}</text>
+          <text class="time-end">{{item.endTime}}</text>
+        </view>
+        <view class="schedule-info">
+          <text class="exam-name">{{item.examName}}</text>
+          <text class="exam-subject">{{item.subject}}</text>
+          <text class="exam-venue">{{item.venue}}</text>
+        </view>
+        <view class="schedule-status">
+          <view class="status-indicator status-{{item.status}}"></view>
+          <text class="status-label">{{item.statusText}}</text>
+        </view>
+        <view class="schedule-progress" wx:if="{{item.status === 'ongoing'}}">
+          <view class="progress-circle">
+            <text class="progress-percent">{{item.progress}}%</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Exam Data Summary -->
+  <view class="exam-data-section">
+    <view class="section-header">
+      <text class="section-title">考试数据</text>
+      <view class="data-refresh" bindtap="refreshExamData">
+        <text>刷新</text>
+      </view>
+    </view>
+    <view class="data-grid">
+      <view class="data-card">
+        <text class="data-title">签到率</text>
+        <text class="data-value">{{examData.checkInRate}}%</text>
+        <view class="data-trend trend-{{examData.checkInTrend}}">
+          <text>{{examData.checkInTrend === 'up' ? '↗' : examData.checkInTrend === 'down' ? '↘' : '→'}}</text>
+        </view>
+      </view>
+      <view class="data-card">
+        <text class="data-title">平均用时</text>
+        <text class="data-value">{{examData.avgDuration}}</text>
+        <view class="data-trend trend-{{examData.durationTrend}}">
+          <text>{{examData.durationTrend === 'up' ? '↗' : examData.durationTrend === 'down' ? '↘' : '→'}}</text>
+        </view>
+      </view>
+      <view class="data-card">
+        <text class="data-title">异常事件</text>
+        <text class="data-value">{{examData.incidents}}</text>
+        <view class="data-trend trend-{{examData.incidentsTrend}}">
+          <text>{{examData.incidentsTrend === 'up' ? '↗' : examData.incidentsTrend === 'down' ? '↘' : '→'}}</text>
+        </view>
+      </view>
+      <view class="data-card">
+        <text class="data-title">系统负载</text>
+        <text class="data-value">{{examData.systemLoad}}%</text>
+        <view class="data-trend trend-{{examData.loadTrend}}">
+          <text>{{examData.loadTrend === 'up' ? '↗' : examData.loadTrend === 'down' ? '↘' : '→'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Action Buttons -->
+  <view class="action-buttons">
+    <button class="action-btn primary" bindtap="exportData">导出数据</button>
+    <button class="action-btn secondary" bindtap="generateReport">生成报告</button>
+    <button class="action-btn" bindtap="refreshAll">全部刷新</button>
+  </view>
+  </view> <!-- End of main content wrapper -->
+</view>

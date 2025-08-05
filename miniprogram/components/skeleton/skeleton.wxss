@@ -1,0 +1,174 @@
+.skeleton-container {
+  padding: 20rpx;
+}
+
+/* 基础骨架线条 */
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 统计卡片骨架屏 */
+.skeleton-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.skeleton-stat-card {
+  flex: 1;
+  min-width: 160rpx;
+  padding: 30rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.skeleton-title {
+  height: 28rpx;
+  width: 80%;
+}
+
+.skeleton-number {
+  height: 48rpx;
+  width: 60%;
+  margin-top: 20rpx;
+}
+
+/* 列表骨架屏 */
+.skeleton-list {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.skeleton-list-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.skeleton-list-item:last-child {
+  border-bottom: none;
+}
+
+.skeleton-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+.skeleton-subtitle {
+  height: 24rpx;
+  width: 50%;
+}
+
+.skeleton-text {
+  height: 20rpx;
+  width: 70%;
+}
+
+/* 卡片骨架屏 */
+.skeleton-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.skeleton-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.skeleton-card-title {
+  height: 32rpx;
+  width: 60%;
+}
+
+.skeleton-card-content {
+  height: 24rpx;
+  width: 80%;
+  margin-top: 20rpx;
+}
+
+.skeleton-card-footer {
+  height: 20rpx;
+  width: 40%;
+  margin-top: 16rpx;
+}
+
+/* 表格骨架屏 */
+.skeleton-table {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.skeleton-table-header {
+  display: flex;
+  padding: 30rpx;
+  background: #f8f9fa;
+  border-bottom: 1rpx solid #e9ecef;
+}
+
+.skeleton-table-row {
+  display: flex;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.skeleton-table-row:last-child {
+  border-bottom: none;
+}
+
+.skeleton-th,
+.skeleton-td {
+  flex: 1;
+  height: 24rpx;
+  margin-right: 20rpx;
+}
+
+.skeleton-th:last-child,
+.skeleton-td:last-child {
+  margin-right: 0;
+}
+
+.skeleton-th {
+  height: 28rpx;
+}
+
+/* 响应式调整 */
+@media (max-width: 750rpx) {
+  .skeleton-stats {
+    flex-direction: column;
+  }
+  
+  .skeleton-stat-card {
+    min-width: auto;
+  }
+}

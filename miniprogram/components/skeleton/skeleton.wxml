@@ -1,0 +1,40 @@
+<view class="skeleton-container" wx:if="{{show}}">
+  <!-- 统计卡片骨架屏 -->
+  <view class="skeleton-stats" wx:if="{{type === 'dashboard' || type === 'stats'}}">
+    <view class="skeleton-stat-card" wx:for="{{4}}" wx:key="index">
+      <view class="skeleton-line skeleton-title"></view>
+      <view class="skeleton-line skeleton-number"></view>
+    </view>
+  </view>
+
+  <!-- 列表骨架屏 -->
+  <view class="skeleton-list" wx:if="{{type === 'dashboard' || type === 'list'}}">
+    <view class="skeleton-list-item" wx:for="{{rows || 3}}" wx:key="index">
+      <view class="skeleton-avatar" wx:if="{{avatar}}"></view>
+      <view class="skeleton-content">
+        <view class="skeleton-line skeleton-title"></view>
+        <view class="skeleton-line skeleton-subtitle" wx:if="{{subtitle}}"></view>
+        <view class="skeleton-line skeleton-text" wx:for="{{lines || 1}}" wx:key="line"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 卡片骨架屏 -->
+  <view class="skeleton-cards" wx:if="{{type === 'cards'}}">
+    <view class="skeleton-card" wx:for="{{rows || 2}}" wx:key="index">
+      <view class="skeleton-line skeleton-card-title"></view>
+      <view class="skeleton-line skeleton-card-content"></view>
+      <view class="skeleton-line skeleton-card-footer"></view>
+    </view>
+  </view>
+
+  <!-- 表格骨架屏 -->
+  <view class="skeleton-table" wx:if="{{type === 'table'}}">
+    <view class="skeleton-table-header">
+      <view class="skeleton-line skeleton-th" wx:for="{{columns || 3}}" wx:key="index"></view>
+    </view>
+    <view class="skeleton-table-row" wx:for="{{rows || 3}}" wx:key="index">
+      <view class="skeleton-line skeleton-td" wx:for="{{columns || 3}}" wx:key="col"></view>
+    </view>
+  </view>
+</view>

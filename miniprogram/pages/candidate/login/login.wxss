@@ -1,0 +1,125 @@
+/* 考生登录页面样式 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header {
+  position: relative;
+  padding: 60rpx 40rpx 40rpx;
+  text-align: center;
+}
+
+.back-btn {
+  position: absolute;
+  left: 40rpx;
+  top: 60rpx;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+.back-icon {
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-top: 20rpx;
+}
+
+.login-form {
+  padding: 0 40rpx;
+}
+
+.form-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.input-group {
+  margin-bottom: 40rpx;
+}
+
+.input-label {
+  font-size: 28rpx;
+  color: #666666;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.input-field {
+  background: #f8f9fa;
+  border: 2rpx solid #e9ecef;
+  border-radius: 16rpx;
+  padding: 32rpx 24rpx;
+  font-size: 32rpx;
+  color: #333333;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  border-color: #1890ff;
+  background: #ffffff;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 40rpx;
+  padding: 32rpx;
+  font-size: 36rpx;
+  font-weight: bold;
+  border-radius: 16rpx;
+}
+
+.login-btn[disabled] {
+  background: #cccccc !important;
+  color: #999999 !important;
+}
+
+.tips {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16rpx;
+  padding: 32rpx;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.tip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tip-icon {
+  font-size: 32rpx;
+  margin-right: 16rpx;
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: #666666;
+  flex: 1;
+}

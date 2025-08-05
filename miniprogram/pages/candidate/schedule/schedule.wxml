@@ -1,0 +1,216 @@
+<!--miniprogram/pages/candidate/schedule/schedule.wxml-->
+<view class="container">
+  <!-- Loading Overlay -->
+  <view class="loading-overlay" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+  </view>
+
+  <!-- Header -->
+  <view class="header">
+    <view class="header-title">Exam Schedule</view>
+    <view class="refresh-btn" bindtap="onRefresh">
+      <image class="refresh-icon" src="/images/icons/refresh.png"></image>
+    </view>
+  </view>
+
+  <!-- Filter Tabs -->
+  <view class="filter-tabs">
+    <view 
+      wx:for="{{filterOptions}}" 
+      wx:key="value"
+      class="tab-item {{currentTab === item.value ? 'active' : ''}}"
+      data-tab="{{item.value}}"
+      bindtap="switchTab"
+    >
+      <text class="tab-label">{{item.label}}</text>
+      <text class="tab-count">{{item.count}}</text>
+    </view>
+  </view>
+
+  <!-- Empty State -->
+  <view class="empty-state" wx:if="{{isEmpty}}">
+    <image class="empty-icon" src="/images/empty-schedule.png"></image>
+    <view class="empty-title">No Exams Found</view>
+    <view class="empty-description">You don't have any exams scheduled yet.</view>
+    <button class="refresh-btn-empty" bindtap="onRefresh">Refresh</button>
+  </view>
+
+  <!-- Exam List -->
+  <view class="exam-list" wx:else>
+    <view 
+      wx:for="{{getFilteredExams()}}" 
+      wx:key="id"
+      class="exam-card"
+      data-exam-id="{{item.id}}"
+      bindtap="showExamDetail"
+    >
+      <!-- Exam Header -->
+      <view class="exam-header">
+        <view class="exam-title">{{item.examName}}</view>
+        <view class="exam-status" style="color: {{getStatusInfo(item.status).color}}; background-color: {{getStatusInfo(item.status).bgColor}}">
+          {{getStatusInfo(item.status).label}}
+        </view>
+      </view>
+
+      <!-- Exam Info -->
+      <view class="exam-info">
+        <view class="info-row">
+          <image class="info-icon" src="/images/icons/calendar.png"></image>
+          <text class="info-text">{{formatDate(item.startTime)}}</text>
+        </view>
+        <view class="info-row">
+          <image class="info-icon" src="/images/icons/clock.png"></image>
+          <text class="info-text">{{formatTime(item.startTime)}} - {{formatTime(item.endTime)}}</text>
+        </view>
+        <view class="info-row">
+          <image class="info-icon" src="/images/icons/location.png"></image>
+          <text class="info-text">{{item.location}}</text>
+        </view>
+        <view class="info-row">
+          <image class="info-icon" src="/images/icons/type.png"></image>
+          <text class="info-text">{{item.examType}} • {{item.duration}} min</text>
+        </view>
+      </view>
+
+      <!-- Time Remaining -->
+      <view class="time-remaining" wx:if="{{item.status === 'upcoming'}}">
+        <text class="remaining-label">Time remaining:</text>
+        <text class="remaining-time">{{getTimeRemaining(item.startTime)}}</text>
+      </view>
+
+      <!-- Score Display -->
+      <view class="score-display" wx:if="{{item.status === 'completed' && item.score}}">
+        <text class="score-label">Score:</text>
+        <text class="score-value">{{item.score}}/{{item.totalMarks}} ({{item.grade}})</text>
+      </view>
+
+      <!-- Action Buttons -->
+      <view class="exam-actions">
+        <button 
+          wx:if="{{item.status === 'upcoming'}}"
+          class="action-btn reminder-btn"
+          data-exam-id="{{item.id}}"
+          bindtap="setReminder"
+          catchtap=""
+        >
+          <image class="btn-icon" src="/images/icons/bell.png"></image>
+          Reminder
+        </button>
+        <button class="action-btn detail-btn">
+          <image class="btn-icon" src="/images/icons/info.png"></image>
+          Details
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- Quick Actions -->
+  <view class="quick-actions">
+    <button class="quick-action-btn" bindtap="goToQRCode">
+      <image class="action-icon" src="/images/icons/qrcode.png"></image>
+      <text class="action-text">My QR Code</text>
+    </button>
+  </view>
+
+  <!-- Exam Detail Modal -->
+  <view class="modal-overlay" wx:if="{{showExamDetail}}" bindtap="hideExamDetail">
+    <view class="exam-detail-modal" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">{{selectedExam.examName}}</text>
+        <view class="close-btn" bindtap="hideExamDetail">×</view>
+      </view>
+      
+      <view class="modal-content">
+        <!-- Basic Info -->
+        <view class="detail-section">
+          <view class="section-title">Basic Information</view>
+          <view class="detail-grid">
+            <view class="detail-item">
+              <text class="detail-label">Type:</text>
+              <text class="detail-value">{{selectedExam.examType}}</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">Duration:</text>
+              <text class="detail-value">{{selectedExam.duration}} minutes</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">Total Marks:</text>
+              <text class="detail-value">{{selectedExam.totalMarks}}</text>
+            </view>
+            <view class="detail-item">
+              <text class="detail-label">Location:</text>
+              <text class="detail-value">{{selectedExam.location}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- Schedule -->
+        <view class="detail-section">
+          <view class="section-title">Schedule</view>
+          <view class="schedule-info">
+            <view class="schedule-item">
+              <text class="schedule-label">Date:</text>
+              <text class="schedule-value">{{formatDate(selectedExam.startTime)}}</text>
+            </view>
+            <view class="schedule-item">
+              <text class="schedule-label">Start Time:</text>
+              <text class="schedule-value">{{formatTime(selectedExam.startTime)}}</text>
+            </view>
+            <view class="schedule-item">
+              <text class="schedule-label">End Time:</text>
+              <text class="schedule-value">{{formatTime(selectedExam.endTime)}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- Requirements -->
+        <view class="detail-section" wx:if="{{selectedExam.requirements && selectedExam.requirements.length > 0}}">
+          <view class="section-title">Requirements</view>
+          <view class="requirements-list">
+            <view 
+              wx:for="{{selectedExam.requirements}}" 
+              wx:key="*this"
+              class="requirement-item"
+            >
+              <image class="check-icon" src="/images/icons/check.png"></image>
+              <text class="requirement-text">{{item}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- Description -->
+        <view class="detail-section" wx:if="{{selectedExam.description}}">
+          <view class="section-title">Description</view>
+          <text class="description-text">{{selectedExam.description}}</text>
+        </view>
+
+        <!-- Score (if completed) -->
+        <view class="detail-section" wx:if="{{selectedExam.status === 'completed' && selectedExam.score}}">
+          <view class="section-title">Result</view>
+          <view class="result-info">
+            <view class="result-score">
+              <text class="score-number">{{selectedExam.score}}</text>
+              <text class="score-total">/{{selectedExam.totalMarks}}</text>
+            </view>
+            <view class="result-grade">Grade: {{selectedExam.grade}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- Modal Actions -->
+      <view class="modal-actions">
+        <button 
+          wx:if="{{selectedExam.status === 'upcoming'}}"
+          class="modal-btn reminder-btn"
+          data-exam-id="{{selectedExam.id}}"
+          bindtap="setReminder"
+        >
+          Set Reminder
+        </button>
+        <button class="modal-btn close-btn" bindtap="hideExamDetail">
+          Close
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
