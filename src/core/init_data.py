@@ -5,10 +5,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.models.role import Role
-from src.models.permission import Permission
+from src.models.permission import Permission, RolePermission
 from src.models.exam_product import ExamProduct
 from src.models.venue import Venue
-from src.core.rbac import UserRole
+from src.core.rbac import UserRole, Permission as PermissionEnum, ROLE_PERMISSIONS
 from datetime import datetime
 
 async def init_roles(db: AsyncSession):
@@ -42,10 +42,7 @@ async def init_roles(db: AsyncSession):
         existing_role = result.scalar_one_or_none()
         
         if not existing_role:
-            role = Role(
-                name=role_data["name"],
-                description=role_data.get("description", "")
-            )
+            role = Role(name=role_data["name"])
             db.add(role)
             print(f"创建角色: {role_data['name']}")
     
@@ -185,11 +182,74 @@ async def init_venues(db: AsyncSession):
     await db.commit()
     print("考场初始化完成")
 
+async def init_permissions(db: AsyncSession):
+    """初始化权限数据"""
+    print("初始化权限数据...")
+    
+    for permission_enum in PermissionEnum:
+        # 检查权限是否已存在
+        result = await db.execute(select(Permission).where(Permission.name == permission_enum.value))
+        existing_permission = result.scalar_one_or_none()
+        
+        if not existing_permission:
+            permission = Permission(name=permission_enum.value)
+            db.add(permission)
+            print(f"创建权限: {permission_enum.value}")
+    
+    await db.commit()
+    print("权限初始化完成")
+
+async def init_role_permissions(db: AsyncSession):
+    """初始化角色权限映射"""
+    print("初始化角色权限映射...")
+    
+    # 获取所有角色
+    roles_result = await db.execute(select(Role))
+    roles = {role.name: role for role in roles_result.scalars().all()}
+    
+    # 获取所有权限
+    permissions_result = await db.execute(select(Permission))
+    permissions = {perm.name: perm for perm in permissions_result.scalars().all()}
+    
+    for role_enum, permission_list in ROLE_PERMISSIONS.items():
+        role = roles.get(role_enum.value)
+        if not role:
+            print(f"警告: 角色 {role_enum.value} 不存在")
+            continue
+            
+        for permission_enum in permission_list:
+            permission = permissions.get(permission_enum.value)
+            if not permission:
+                print(f"警告: 权限 {permission_enum.value} 不存在")
+                continue
+            
+            # 检查角色权限映射是否已存在
+            result = await db.execute(
+                select(RolePermission).where(
+                    (RolePermission.role_id == role.id) & 
+                    (RolePermission.permission_id == permission.id)
+                )
+            )
+            existing_mapping = result.scalar_one_or_none()
+            
+            if not existing_mapping:
+                role_permission = RolePermission(
+                    role_id=role.id,
+                    permission_id=permission.id
+                )
+                db.add(role_permission)
+                print(f"分配权限 {permission_enum.value} 给角色 {role_enum.value}")
+    
+    await db.commit()
+    print("角色权限映射初始化完成")
+
 async def init_system_data(db: AsyncSession):
     """初始化系统基础数据"""
     print("开始初始化系统数据...")
     
     await init_roles(db)
+    await init_permissions(db)
+    await init_role_permissions(db)
     await init_exam_products(db)
     await init_venues(db)
     
