@@ -20,6 +20,12 @@ class Settings:
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     
+    # Redis配置
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
+    REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
+    REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
+    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD", "")
+    
     # 微信认证配置（为未来准备）
     WECHAT_APP_ID: str = os.getenv("WECHAT_APP_ID", "")
     WECHAT_APP_SECRET: str = os.getenv("WECHAT_APP_SECRET", "")
@@ -36,5 +42,8 @@ class Settings:
         # 微信小程序域名
         "https://servicewechat.com",
     ]
+
+def get_settings() -> Settings:
+    return Settings()
 
 settings = Settings()
