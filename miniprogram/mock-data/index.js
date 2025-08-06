@@ -85,8 +85,17 @@ class MockDataManager {
     // 提取URL参数
     const urlParams = this.extractUrlParams(url)
     
+    // 生成默认的用户数据
+    const defaultUserData = {
+      userId: 'CAND_1001',
+      candidateId: 'CAND_1001', 
+      idNumber: '110101199001011234',
+      userType: 'candidate'
+    }
+    
     // 合并上下文
     const fullContext = {
+      ...defaultUserData,
       ...context,
       ...params,
       ...urlParams,
@@ -94,8 +103,14 @@ class MockDataManager {
       timestamp: new Date().toISOString()
     }
     
+    console.log('Processing dynamic data with context:', fullContext)
+    
     // 替换动态变量
-    return this.dynamicGenerator.replaceDynamicVariables(data, fullContext)
+    const result = this.dynamicGenerator.replaceDynamicVariables(data, fullContext)
+    
+    console.log('Dynamic data processing result:', result)
+    
+    return result
   }
   
   // 提取URL参数

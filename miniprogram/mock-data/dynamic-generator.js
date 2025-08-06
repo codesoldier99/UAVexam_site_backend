@@ -93,10 +93,31 @@ class DynamicGenerator {
           return this.generateExpiryTime()
         case 'random_id':
           return this.generateId()
+        case 'user_id':
+          return context.userId || context.candidateId || 'CAND_' + this.generateId()
+        case 'id_number':
+          return context.idNumber || this.generateIdNumber()
         default:
           return context[variable] || match
       }
     })
+  }
+
+  // 生成身份证号码（模拟）
+  generateIdNumber() {
+    const year = 1990 + Math.floor(Math.random() * 30) // 1990-2020年
+    const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')
+    const day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')
+    const area = '110101' // 北京市东城区
+    const sequence = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')
+    const gender = Math.floor(Math.random() * 2) // 0=女, 1=男
+    
+    const base = area + year + month + day + sequence + gender
+    
+    // 简化的校验码计算
+    const checkCode = Math.floor(Math.random() * 10)
+    
+    return base + checkCode
   }
   
   // 生成考试相关的动态数据

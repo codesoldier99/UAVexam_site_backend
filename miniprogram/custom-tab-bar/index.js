@@ -1,8 +1,8 @@
 Component({
   data: {
     selected: 0,
-    color: "#7A7E83",
-    selectedColor: "#3cc51f",
+    color: "#646566",
+    selectedColor: "#1989fa",
     list: [
       {
         pagePath: "/pages/candidate/qrcode/qrcode",
@@ -11,17 +11,17 @@ Component({
       },
       {
         pagePath: "/pages/candidate/schedule/schedule",
-        iconText: "📅",
+        iconText: "☰",
         text: "考试安排"
       },
       {
         pagePath: "/pages/public/dashboard/dashboard",
-        iconText: "📊",
+        iconText: "◈",
         text: "实时看板"
       },
       {
         pagePath: "/pages/candidate/profile/profile",
-        iconText: "👤",
+        iconText: "◐",
         text: "个人信息"
       }
     ]

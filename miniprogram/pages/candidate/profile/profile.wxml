@@ -5,208 +5,230 @@
     <view class="loading-spinner"></view>
   </view>
 
-  <!-- Profile Header -->
-  <view class="profile-header">
-    <view class="header-bg"></view>
-    <view class="profile-content">
-      <view class="avatar-section">
-        <view class="avatar-wrapper" bindtap="chooseAvatar" wx:if="{{isEditing}}">
-          <image class="avatar" src="{{candidateInfo.avatar}}" mode="aspectFill"></image>
-          <view class="avatar-overlay">
-            <image class="camera-icon" src="/images/icons/camera.png"></image>
-          </view>
-        </view>
-        <image wx:else class="avatar" src="{{candidateInfo.avatar}}" mode="aspectFill"></image>
-        
-        <view class="status-badge" bindtap="showStatus">
-          <text class="status-text" style="color: {{getStatusInfo(candidateInfo.status).color}}">
-            {{getStatusInfo(candidateInfo.status).label}}
-          </text>
-        </view>
+  <!-- Hero Section -->
+  <view class="hero-section">
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <!-- Avatar -->
+      <view class="avatar-container">
+        <image class="avatar" src="{{candidateInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="status-dot" style="background-color: {{getStatusColor(candidateInfo.status)}}"></view>
       </view>
       
-      <view class="basic-info">
-        <view class="name">{{candidateInfo.name}}</view>
-        <view class="student-id">ID: {{candidateInfo.studentId}}</view>
-        <view class="department">{{candidateInfo.department}} - {{candidateInfo.major}}</view>
+      <!-- Basic Info -->
+      <view class="user-info">
+        <view class="user-name">{{candidateInfo.name || '考生'}}</view>
+        <view class="user-id">ID: {{candidateInfo.id_number || candidateInfo.studentId || '--'}}</view>
+        <view class="user-status">
+          <text class="status-label">{{getStatusLabel(candidateInfo.status)}}</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <!-- Statistics Cards -->
-  <view class="stats-section">
-    <view class="stats-card" bindtap="goToSchedule">
-      <view class="stat-number">{{examStats.totalExams}}</view>
-      <view class="stat-label">Total Exams</view>
+  <!-- Quick Stats -->
+  <view class="quick-stats">
+    <view class="stat-item" bindtap="goToSchedule">
+      <view class="stat-icon">📅</view>
+      <view class="stat-info">
+        <view class="stat-number">{{examStats.totalExams || 0}}</view>
+        <view class="stat-label">考试安排</view>
+      </view>
     </view>
-    <view class="stats-card">
-      <view class="stat-number">{{examStats.completedExams}}</view>
-      <view class="stat-label">Completed</view>
+    <view class="stat-item">
+      <view class="stat-icon">✅</view>
+      <view class="stat-info">
+        <view class="stat-number">{{examStats.completedExams || 0}}</view>
+        <view class="stat-label">已完成</view>
+      </view>
     </view>
-    <view class="stats-card">
-      <view class="stat-number">{{examStats.upcomingExams}}</view>
-      <view class="stat-label">Upcoming</view>
-    </view>
-    <view class="stats-card">
-      <view class="stat-number">{{examStats.passRate}}%</view>
-      <view class="stat-label">Pass Rate</view>
+    <view class="stat-item">
+      <view class="stat-icon">📊</view>
+      <view class="stat-info">
+        <view class="stat-number">{{examStats.passRate || 0}}%</view>
+        <view class="stat-label">通过率</view>
+      </view>
     </view>
   </view>
 
-  <!-- Profile Information -->
-  <view class="info-section">
-    <view class="section-header">
-      <text class="section-title">Personal Information</text>
+  <!-- Personal Information Card -->
+  <view class="info-card">
+    <view class="card-header">
+      <view class="card-title">
+        <view class="title-icon">👤</view>
+        <text class="title-text">个人信息</text>
+      </view>
       <button class="edit-btn" bindtap="toggleEdit" wx:if="{{!isEditing}}">
-        <image class="edit-icon" src="/images/icons/edit.png"></image>
-        Edit
+        <text class="edit-text">编辑</text>
       </button>
       <view class="edit-actions" wx:else>
-        <button class="save-btn" bindtap="saveProfile">Save</button>
-        <button class="cancel-btn" bindtap="cancelEdit">Cancel</button>
+        <button class="save-btn" bindtap="saveProfile">保存</button>
+        <button class="cancel-btn" bindtap="cancelEdit">取消</button>
       </view>
     </view>
-
-    <view class="info-form">
-      <view class="form-group">
-        <text class="label">Full Name</text>
+    
+    <view class="card-content">
+      <view class="info-item">
+        <view class="item-label">姓名</view>
         <input 
           wx:if="{{isEditing}}"
-          class="input-field" 
+          class="item-input" 
           value="{{candidateInfo.name}}" 
           data-field="name"
           bindinput="onInputChange"
-          placeholder="Enter your full name"
+          placeholder="请输入姓名"
         />
-        <text wx:else class="field-value">{{candidateInfo.name}}</text>
+        <view wx:else class="item-value">{{candidateInfo.name || '--'}}</view>
       </view>
 
-      <view class="form-group">
-        <text class="label">ID Card</text>
+      <view class="info-item">
+        <view class="item-label">身份证号</view>
         <input 
           wx:if="{{isEditing}}"
-          class="input-field" 
-          value="{{candidateInfo.idCard}}" 
-          data-field="idCard"
+          class="item-input" 
+          value="{{candidateInfo.id_number || candidateInfo.idCard}}" 
+          data-field="id_number"
           bindinput="onInputChange"
-          placeholder="Enter ID card number"
+          placeholder="请输入身份证号"
         />
-        <text wx:else class="field-value">{{candidateInfo.idCard}}</text>
+        <view wx:else class="item-value">{{candidateInfo.id_number || candidateInfo.idCard || '--'}}</view>
       </view>
 
-      <view class="form-group">
-        <text class="label">Phone</text>
+      <view class="info-item">
+        <view class="item-label">手机号</view>
         <input 
           wx:if="{{isEditing}}"
-          class="input-field" 
+          class="item-input" 
           value="{{candidateInfo.phone}}" 
           data-field="phone"
           bindinput="onInputChange"
-          placeholder="Enter phone number"
+          placeholder="请输入手机号"
         />
-        <text wx:else class="field-value">{{candidateInfo.phone}}</text>
+        <view wx:else class="item-value">{{candidateInfo.phone || '--'}}</view>
       </view>
 
-      <view class="form-group">
-        <text class="label">Email</text>
+      <view class="info-item">
+        <view class="item-label">邮箱</view>
         <input 
           wx:if="{{isEditing}}"
-          class="input-field" 
+          class="item-input" 
           value="{{candidateInfo.email}}" 
           data-field="email"
           bindinput="onInputChange"
-          placeholder="Enter email address"
+          placeholder="请输入邮箱地址"
         />
-        <text wx:else class="field-value">{{candidateInfo.email}}</text>
+        <view wx:else class="item-value">{{candidateInfo.email || '--'}}</view>
       </view>
+    </view>
+  </view>
 
-      <view class="form-group">
-        <text class="label">Department</text>
-        <input 
-          wx:if="{{isEditing}}"
-          class="input-field" 
-          value="{{candidateInfo.department}}" 
-          data-field="department"
-          bindinput="onInputChange"
-          placeholder="Enter department"
-        />
-        <text wx:else class="field-value">{{candidateInfo.department}}</text>
+  <!-- Institution Card -->
+  <view class="info-card">
+    <view class="card-header">
+      <view class="card-title">
+        <view class="title-icon">🏢</view>
+        <text class="title-text">机构信息</text>
       </view>
-
-      <view class="form-group">
-        <text class="label">Major</text>
-        <input 
-          wx:if="{{isEditing}}"
-          class="input-field" 
-          value="{{candidateInfo.major}}" 
-          data-field="major"
-          bindinput="onInputChange"
-          placeholder="Enter major"
-        />
-        <text wx:else class="field-value">{{candidateInfo.major}}</text>
+    </view>
+    
+    <view class="card-content">
+      <view class="info-item">
+        <view class="item-label">所属机构</view>
+        <view class="item-value">{{candidateInfo.institution_name || candidateInfo.department || '--'}}</view>
       </view>
-
-      <view class="form-group">
-        <text class="label">Grade</text>
-        <input 
-          wx:if="{{isEditing}}"
-          class="input-field" 
-          value="{{candidateInfo.grade}}" 
-          data-field="grade"
-          bindinput="onInputChange"
-          placeholder="Enter grade"
-        />
-        <text wx:else class="field-value">{{candidateInfo.grade}}</text>
+      
+      <view class="info-item">
+        <view class="item-label">考试产品</view>
+        <view class="item-value">{{candidateInfo.exam_product_name || '--'}}</view>
+      </view>
+      
+      <view class="info-item">
+        <view class="item-label">报名时间</view>
+        <view class="item-value">{{formatDate(candidateInfo.created_at) || '--'}}</view>
       </view>
     </view>
   </view>
 
   <!-- Quick Actions -->
-  <view class="actions-section">
-    <view class="action-item" bindtap="goToQRCode">
-      <image class="action-icon" src="/images/icons/qrcode.png"></image>
-      <text class="action-text">My QR Code</text>
-      <image class="arrow-icon" src="/images/icons/arrow-right.png"></image>
+  <view class="action-card">
+    <view class="card-header">
+      <view class="card-title">
+        <view class="title-icon">⚡</view>
+        <text class="title-text">快捷操作</text>
+      </view>
     </view>
     
-    <view class="action-item" bindtap="goToSchedule">
-      <image class="action-icon" src="/images/icons/schedule.png"></image>
-      <text class="action-text">Exam Schedule</text>
-      <image class="arrow-icon" src="/images/icons/arrow-right.png"></image>
-    </view>
-    
-    <view class="action-item" bindtap="onRefresh">
-      <image class="action-icon" src="/images/icons/refresh.png"></image>
-      <text class="action-text">Refresh Data</text>
-      <image class="arrow-icon" src="/images/icons/arrow-right.png"></image>
+    <view class="action-list">
+      <view class="action-item" bindtap="goToQRCode">
+        <view class="action-icon">🔲</view>
+        <view class="action-content">
+          <view class="action-title">我的二维码</view>
+          <view class="action-desc">查看签到二维码</view>
+        </view>
+        <view class="action-arrow">›</view>
+      </view>
+      
+      <view class="action-item" bindtap="goToSchedule">
+        <view class="action-icon">📋</view>
+        <view class="action-content">
+          <view class="action-title">考试安排</view>
+          <view class="action-desc">查看考试时间表</view>
+        </view>
+        <view class="action-arrow">›</view>
+      </view>
+      
+      <view class="action-item" bindtap="viewCheckinHistory">
+        <view class="action-icon">📝</view>
+        <view class="action-content">
+          <view class="action-title">签到记录</view>
+          <view class="action-desc">查看历史签到</view>
+        </view>
+        <view class="action-arrow">›</view>
+      </view>
+      
+      <view class="action-item" bindtap="contactService">
+        <view class="action-icon">💬</view>
+        <view class="action-content">
+          <view class="action-title">联系客服</view>
+          <view class="action-desc">获取帮助支持</view>
+        </view>
+        <view class="action-arrow">›</view>
+      </view>
     </view>
   </view>
 
-  <!-- Logout Button -->
-  <view class="logout-section">
-    <button class="logout-btn" bindtap="logout">
-      <image class="logout-icon" src="/images/icons/logout.png"></image>
-      Logout
-    </button>
+  <!-- Settings -->
+  <view class="settings-card">
+    <view class="setting-item" bindtap="onRefresh">
+      <view class="setting-icon">🔄</view>
+      <view class="setting-text">刷新数据</view>
+      <view class="setting-arrow">›</view>
+    </view>
+    
+    <view class="setting-item logout-item" bindtap="logout">
+      <view class="setting-icon">🚪</view>
+      <view class="setting-text">退出登录</view>
+      <view class="setting-arrow">›</view>
+    </view>
   </view>
 
   <!-- Status Modal -->
   <view class="modal-overlay" wx:if="{{showStatusModal}}" bindtap="hideStatus">
     <view class="status-modal" catchtap="">
       <view class="modal-header">
-        <text class="modal-title">Current Status</text>
+        <text class="modal-title">当前状态</text>
         <view class="close-btn" bindtap="hideStatus">×</view>
       </view>
       <view class="modal-content">
         <view class="current-status">
-          <view class="status-indicator" style="background-color: {{getStatusInfo(candidateInfo.status).color}}"></view>
-          <text class="status-name">{{getStatusInfo(candidateInfo.status).label}}</text>
+          <view class="status-indicator" style="background-color: {{getStatusColor(candidateInfo.status)}}"></view>
+          <text class="status-name">{{getStatusLabel(candidateInfo.status)}}</text>
         </view>
         <view class="status-description">
-          <text wx:if="{{candidateInfo.status === 'registered'}}">You have successfully registered for the exam.</text>
-          <text wx:elif="{{candidateInfo.status === 'confirmed'}}">Your exam registration has been confirmed.</text>
-          <text wx:elif="{{candidateInfo.status === 'checked_in'}}">You have checked in for the exam.</text>
-          <text wx:else>You have completed the exam.</text>
+          <text wx:if="{{candidateInfo.status === 'registered'}}">您已成功注册考试。</text>
+          <text wx:elif="{{candidateInfo.status === 'confirmed'}}">您的考试注册已确认。</text>
+          <text wx:elif="{{candidateInfo.status === 'checked_in'}}">您已完成考试签到。</text>
+          <text wx:else>您已完成考试。</text>
         </view>
       </view>
     </view>

@@ -13,6 +13,12 @@ module.exports = {
       "birth_date": "1990-01-01",
       "address": "北京市朝阳区xxx街道xxx号"
     },
+    "institution_info": {
+      "institution_name": "北京航空培训中心",
+      "department": "无人机驾驶培训部",
+      "exam_type": "无人机驾驶员理论考试",
+      "registration_date": "2025-07-01"
+    },
     "exam_history": [
       {
         "exam_id": "EXAM001",

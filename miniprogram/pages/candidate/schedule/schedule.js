@@ -5,16 +5,17 @@ const app = getApp()
 Page({
   data: {
     examList: [],
+    filteredExamList: [], // Add filtered exam list for template
     currentTab: 'all', // all, upcoming, completed
     isLoading: false,
     isEmpty: false,
     selectedExam: null,
     showExamDetail: false,
     filterOptions: [
-      { value: 'all', label: 'All Exams', count: 0 },
-      { value: 'upcoming', label: 'Upcoming', count: 0 },
-      { value: 'ongoing', label: 'Ongoing', count: 0 },
-      { value: 'completed', label: 'Completed', count: 0 }
+      { value: 'all', label: '全部考试', count: 0 },
+      { value: 'upcoming', label: '即将开始', count: 0 },
+      { value: 'ongoing', label: '进行中', count: 0 },
+      { value: 'completed', label: '已完成', count: 0 }
     ]
   },
 
@@ -63,25 +64,50 @@ Page({
 
       return candidateAPI.getExamSchedule(candidateInfo.id);
     }).then(response => {
+      console.log('Schedule API Response:', response)
+      
       if (response.success && response.data) {
-        const examList = response.data.map(exam => ({
-          id: exam.id,
-          examName: exam.exam_name || exam.examName,
-          examType: exam.exam_type || exam.examType || 'Written',
-          startTime: new Date(exam.exam_time || exam.startTime),
-          endTime: new Date(exam.end_time || exam.endTime || (new Date(exam.exam_time || exam.startTime).getTime() + 2 * 60 * 60 * 1000)),
-          location: exam.venue || exam.location || '待定',
-          status: this.mapExamStatus(exam.status),
-          requirements: exam.requirements || ['身份证', '准考证'],
-          description: exam.description || exam.exam_name || exam.examName,
-          duration: exam.duration || 120,
-          totalMarks: exam.total_marks || exam.totalMarks || 100,
-          score: exam.score,
-          grade: exam.grade
-        }))
+        console.log('Raw exam data:', response.data)
+        
+        const examList = response.data.map(exam => {
+          console.log('Processing exam:', exam)
+          
+          const mappedExam = {
+            id: exam.id,
+            examName: exam.exam_name || exam.examName,
+            examType: exam.exam_type || exam.examType || 'Written',
+            startTime: new Date(exam.exam_time || exam.startTime),
+            endTime: new Date(exam.end_time || exam.endTime || (new Date(exam.exam_time || exam.startTime).getTime() + 2 * 60 * 60 * 1000)),
+            location: exam.venue || exam.location || '待定',
+            status: this.mapExamStatus(exam.status),
+            requirements: exam.requirements || ['身份证', '准考证'],
+            description: exam.description || exam.exam_name || exam.examName,
+            duration: exam.duration || 120,
+            totalMarks: exam.total_marks || exam.totalMarks || 100,
+            score: exam.score,
+            grade: exam.grade
+          }
+          
+          console.log('Mapped exam:', mappedExam)
+          return mappedExam
+        })
+        
+        console.log('Final exam list:', examList)
+        console.log('Final exam list:', examList)
+        
+        // Update filtered list based on current tab
+        let filteredExamList
+        if (this.data.currentTab === 'all') {
+          filteredExamList = examList
+        } else {
+          filteredExamList = examList.filter(exam => exam.status === this.data.currentTab)
+        }
+        
+        console.log('Setting filteredExamList:', filteredExamList)
         
         this.setData({
           examList: examList,
+          filteredExamList: filteredExamList,
           isEmpty: examList.length === 0
         })
 
@@ -126,6 +152,7 @@ Page({
       '已签到': 'ongoing', 
       '已完成': 'completed',
       '缺考': 'completed',
+      'confirmed': 'upcoming',
       'waiting': 'upcoming',
       'checked_in': 'ongoing',
       'completed': 'completed',
@@ -225,9 +252,26 @@ Page({
     this.setData({
       currentTab: tab
     })
+    this.updateFilteredExamList()
   },
 
-  // Get filtered exam list
+  // Update filtered exam list for template
+  updateFilteredExamList: function() {
+    const { examList, currentTab } = this.data
+    
+    let filteredExamList
+    if (currentTab === 'all') {
+      filteredExamList = examList
+    } else {
+      filteredExamList = examList.filter(exam => exam.status === currentTab)
+    }
+    
+    this.setData({
+      filteredExamList: filteredExamList
+    })
+  },
+
+  // Get filtered exam list (kept for compatibility)
   getFilteredExams: function() {
     const { examList, currentTab } = this.data
     
@@ -262,9 +306,9 @@ Page({
   // Get exam status info
   getStatusInfo: function(status) {
     const statusMap = {
-      upcoming: { label: 'Upcoming', color: '#1890ff', bgColor: '#e6f7ff' },
-      ongoing: { label: 'Ongoing', color: '#faad14', bgColor: '#fff7e6' },
-      completed: { label: 'Completed', color: '#52c41a', bgColor: '#f6ffed' }
+      upcoming: { label: '即将开始', color: '#1890ff', bgColor: '#e6f7ff' },
+      ongoing: { label: '进行中', color: '#faad14', bgColor: '#fff7e6' },
+      completed: { label: '已完成', color: '#52c41a', bgColor: '#f6ffed' }
     }
     return statusMap[status] || statusMap.upcoming
   },
@@ -290,19 +334,19 @@ Page({
     const diff = startTime.getTime() - now.getTime()
     
     if (diff <= 0) {
-      return 'Started'
+      return '已开始'
     }
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     
     if (days > 0) {
-      return `${days} days ${hours} hours`
+      return `${days}天 ${hours}小时`
     } else if (hours > 0) {
-      return `${hours} hours`
+      return `${hours}小时`
     } else {
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      return `${minutes} minutes`
+      return `${minutes}分钟`
     }
   },
 

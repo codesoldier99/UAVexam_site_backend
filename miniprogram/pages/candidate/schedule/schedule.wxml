@@ -7,7 +7,7 @@
 
   <!-- Header -->
   <view class="header">
-    <view class="header-title">Exam Schedule</view>
+    <view class="header-title">考试安排</view>
     <view class="refresh-btn" bindtap="onRefresh">
       <image class="refresh-icon" src="/images/icons/refresh.png"></image>
     </view>
@@ -30,15 +30,15 @@
   <!-- Empty State -->
   <view class="empty-state" wx:if="{{isEmpty}}">
     <image class="empty-icon" src="/images/empty-schedule.png"></image>
-    <view class="empty-title">No Exams Found</view>
-    <view class="empty-description">You don't have any exams scheduled yet.</view>
-    <button class="refresh-btn-empty" bindtap="onRefresh">Refresh</button>
+    <view class="empty-title">未找到考试</view>
+    <view class="empty-description">您目前没有安排的考试。</view>
+    <button class="refresh-btn-empty" bindtap="onRefresh">刷新</button>
   </view>
 
   <!-- Exam List -->
   <view class="exam-list" wx:else>
     <view 
-      wx:for="{{getFilteredExams()}}" 
+      wx:for="{{filteredExamList}}" 
       wx:key="id"
       class="exam-card"
       data-exam-id="{{item.id}}"
@@ -74,13 +74,13 @@
 
       <!-- Time Remaining -->
       <view class="time-remaining" wx:if="{{item.status === 'upcoming'}}">
-        <text class="remaining-label">Time remaining:</text>
+        <text class="remaining-label">剩余时间:</text>
         <text class="remaining-time">{{getTimeRemaining(item.startTime)}}</text>
       </view>
 
       <!-- Score Display -->
       <view class="score-display" wx:if="{{item.status === 'completed' && item.score}}">
-        <text class="score-label">Score:</text>
+        <text class="score-label">分数:</text>
         <text class="score-value">{{item.score}}/{{item.totalMarks}} ({{item.grade}})</text>
       </view>
 
@@ -94,11 +94,11 @@
           catchtap=""
         >
           <image class="btn-icon" src="/images/icons/bell.png"></image>
-          Reminder
+          提醒
         </button>
         <button class="action-btn detail-btn">
           <image class="btn-icon" src="/images/icons/info.png"></image>
-          Details
+          详情
         </button>
       </view>
     </view>
@@ -108,7 +108,7 @@
   <view class="quick-actions">
     <button class="quick-action-btn" bindtap="goToQRCode">
       <image class="action-icon" src="/images/icons/qrcode.png"></image>
-      <text class="action-text">My QR Code</text>
+      <text class="action-text">我的二维码</text>
     </button>
   </view>
 
@@ -123,22 +123,22 @@
       <view class="modal-content">
         <!-- Basic Info -->
         <view class="detail-section">
-          <view class="section-title">Basic Information</view>
+          <view class="section-title">基本信息</view>
           <view class="detail-grid">
             <view class="detail-item">
-              <text class="detail-label">Type:</text>
+              <text class="detail-label">类型:</text>
               <text class="detail-value">{{selectedExam.examType}}</text>
             </view>
             <view class="detail-item">
-              <text class="detail-label">Duration:</text>
-              <text class="detail-value">{{selectedExam.duration}} minutes</text>
+              <text class="detail-label">时长:</text>
+              <text class="detail-value">{{selectedExam.duration}} 分钟</text>
             </view>
             <view class="detail-item">
-              <text class="detail-label">Total Marks:</text>
+              <text class="detail-label">总分:</text>
               <text class="detail-value">{{selectedExam.totalMarks}}</text>
             </view>
             <view class="detail-item">
-              <text class="detail-label">Location:</text>
+              <text class="detail-label">地点:</text>
               <text class="detail-value">{{selectedExam.location}}</text>
             </view>
           </view>
@@ -146,18 +146,18 @@
 
         <!-- Schedule -->
         <view class="detail-section">
-          <view class="section-title">Schedule</view>
+          <view class="section-title">时间安排</view>
           <view class="schedule-info">
             <view class="schedule-item">
-              <text class="schedule-label">Date:</text>
+              <text class="schedule-label">日期:</text>
               <text class="schedule-value">{{formatDate(selectedExam.startTime)}}</text>
             </view>
             <view class="schedule-item">
-              <text class="schedule-label">Start Time:</text>
+              <text class="schedule-label">开始时间:</text>
               <text class="schedule-value">{{formatTime(selectedExam.startTime)}}</text>
             </view>
             <view class="schedule-item">
-              <text class="schedule-label">End Time:</text>
+              <text class="schedule-label">结束时间:</text>
               <text class="schedule-value">{{formatTime(selectedExam.endTime)}}</text>
             </view>
           </view>
@@ -165,7 +165,7 @@
 
         <!-- Requirements -->
         <view class="detail-section" wx:if="{{selectedExam.requirements && selectedExam.requirements.length > 0}}">
-          <view class="section-title">Requirements</view>
+          <view class="section-title">考试要求</view>
           <view class="requirements-list">
             <view 
               wx:for="{{selectedExam.requirements}}" 
@@ -180,19 +180,19 @@
 
         <!-- Description -->
         <view class="detail-section" wx:if="{{selectedExam.description}}">
-          <view class="section-title">Description</view>
+          <view class="section-title">考试说明</view>
           <text class="description-text">{{selectedExam.description}}</text>
         </view>
 
         <!-- Score (if completed) -->
         <view class="detail-section" wx:if="{{selectedExam.status === 'completed' && selectedExam.score}}">
-          <view class="section-title">Result</view>
+          <view class="section-title">考试结果</view>
           <view class="result-info">
             <view class="result-score">
               <text class="score-number">{{selectedExam.score}}</text>
               <text class="score-total">/{{selectedExam.totalMarks}}</text>
             </view>
-            <view class="result-grade">Grade: {{selectedExam.grade}}</view>
+            <view class="result-grade">等级: {{selectedExam.grade}}</view>
           </view>
         </view>
       </view>
@@ -205,10 +205,10 @@
           data-exam-id="{{selectedExam.id}}"
           bindtap="setReminder"
         >
-          Set Reminder
+          设置提醒
         </button>
         <button class="modal-btn close-btn" bindtap="hideExamDetail">
-          Close
+          关闭
         </button>
       </view>
     </view>

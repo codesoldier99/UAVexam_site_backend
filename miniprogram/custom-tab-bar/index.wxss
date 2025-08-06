@@ -1,24 +1,18 @@
+/* Vant Weapp inspired clean tab bar */
 .tab-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 120rpx;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
-  backdrop-filter: blur(20rpx);
+  height: 98rpx;
+  background: #fff;
   display: flex;
-  padding: 0 20rpx;
-  box-shadow: 0 -2rpx 20rpx rgba(0, 0, 0, 0.1);
+  border-top: 1rpx solid #ebedf0;
   z-index: 1000;
 }
 
 .tab-bar-border {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1rpx;
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+  display: none;
 }
 
 .tab-bar-item {
@@ -27,90 +21,52 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 10rpx 0 6rpx 0;
   position: relative;
-  padding: 10rpx 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tab-bar-item--active {
-  transform: translateY(-4rpx);
 }
 
 .tab-bar-icon-wrapper {
-  position: relative;
-  width: 48rpx;
-  height: 48rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8rpx;
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 4rpx;
 }
 
 .tab-bar-icon-text {
-  font-size: 40rpx;
-  color: #7A7E83;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 2;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48rpx;
-  height: 48rpx;
+  font-size: 44rpx;
+  color: #646566;
+  line-height: 1;
+  transition: color 0.2s;
 }
 
 .tab-bar-icon-text--active {
-  transform: scale(1.1);
-  color: #667eea;
-}
-
-.tab-bar-icon-bg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  transform: translate(-50%, -50%) scale(0);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
-  z-index: 1;
-}
-
-.tab-bar-icon-bg--active {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 0.15;
+  color: #1989fa;
 }
 
 .tab-bar-text {
-  font-size: 20rpx;
-  color: #7A7E83;
+  font-size: 24rpx;
+  color: #646566;
+  line-height: 1;
   font-weight: 400;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  line-height: 1.2;
+  transition: color 0.2s;
 }
 
 .tab-bar-text--active {
-  color: #667eea;
-  font-weight: 600;
-  transform: scale(1.05);
+  color: #1989fa;
 }
 
 .tab-bar-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 4rpx;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  border-radius: 2rpx;
-  transform: translateX(-50%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: none;
 }
 
-.tab-bar-indicator--active {
-  width: 40rpx;
+/* Safe area support */
+@supports (bottom: env(safe-area-inset-bottom)) {
+  .tab-bar {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(98rpx + env(safe-area-inset-bottom));
+  }
 }
 
 /* 点击动画效果 */
