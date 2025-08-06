@@ -1,5 +1,7 @@
-﻿from fastapi import APIRouter, Query, HTTPException
+﻿from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import Optional
+from src.core.rbac import require_permission, Permission
+from src.db.models import User
 
 router = APIRouter(
     prefix="/schedules",
@@ -12,7 +14,8 @@ async def get_schedules(
     size: int = Query(10, description="每页数量", ge=1, le=100),
     status: Optional[str] = Query(None, description="状态筛选"),
     exam_type: Optional[str] = Query(None, description="考试类型筛选"),
-    venue_name: Optional[str] = Query(None, description="考场筛选")
+    venue_name: Optional[str] = Query(None, description="考场筛选"),
+    current_user: User = Depends(require_permission(Permission.SCHEDULE_READ))
 ):
     """获取考试安排列表 - 增强版本支持分页和筛选"""
     

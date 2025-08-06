@@ -1,5 +1,7 @@
-﻿from fastapi import APIRouter, Query
+﻿from fastapi import APIRouter, Query, Depends
 from typing import Optional
+from src.core.rbac import require_permission, Permission
+from src.db.models import User
 
 router = APIRouter(
     prefix="/exam-products",
@@ -12,7 +14,8 @@ async def get_exam_products(
     size: int = Query(10, description="每页数量", ge=1, le=100),
     category: Optional[str] = Query(None, description="考试类别筛选"),
     status: Optional[str] = Query(None, description="状态筛选"),
-    difficulty: Optional[str] = Query(None, description="难度筛选")
+    difficulty: Optional[str] = Query(None, description="难度筛选"),
+    current_user: User = Depends(require_permission(Permission.EXAM_PRODUCT_MANAGE))
 ):
     """获取考试产品列表 - 增强版本支持分页和筛选"""
     
