@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "message": "登录成功",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdGFmZjAwMSIsIm5hbWUiOiLmnY7ogIPlrpkiLCJpYXQiOjE3MzM0NzIwMDAsImV4cCI6MTczMzQ3NTYwMH0.mock_staff_token",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "user_info": {
+      "id": 1,
+      "username": "staff001",
+      "role": "examiner",
+      "name": "李考官",
+      "status": "active",
+      "user_type": "staff"
+    }
+  },
+  "timestamp": "2025-08-06T11:00:00"
+}

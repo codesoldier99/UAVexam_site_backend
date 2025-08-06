@@ -1,0 +1,145 @@
+<!--miniprogram/pages/candidate/dashboard/dashboard.wxml-->
+<view class="dashboard-container">
+  <!-- Loading State -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <loading-animation></loading-animation>
+  </view>
+
+  <!-- Dashboard Content -->
+  <view wx:else class="dashboard-content">
+    <!-- Header Section -->
+    <view class="header-section">
+      <view class="user-info">
+        <view class="avatar">
+          <text class="avatar-text">{{userInfo.name.charAt(0)}}</text>
+        </view>
+        <view class="user-details">
+          <view class="user-name">{{userInfo.name}}</view>
+          <view class="user-status">{{userInfo.status}} · {{userInfo.exam_product}}</view>
+        </view>
+      </view>
+      <view class="profile-btn" bindtap="goToProfile">
+        <text class="iconfont icon-user"></text>
+      </view>
+    </view>
+
+    <!-- Stats Cards -->
+    <view class="stats-section">
+      <view class="stats-grid">
+        <view class="stat-card">
+          <view class="stat-number">{{stats.totalExams}}</view>
+          <view class="stat-label">Total Exams</view>
+        </view>
+        <view class="stat-card">
+          <view class="stat-number">{{stats.completedExams}}</view>
+          <view class="stat-label">Completed</view>
+        </view>
+        <view class="stat-card">
+          <view class="stat-number">{{stats.passedExams}}</view>
+          <view class="stat-label">Passed</view>
+        </view>
+        <view class="stat-card">
+          <view class="stat-number">{{stats.upcomingExams}}</view>
+          <view class="stat-label">Upcoming</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Upcoming Exams Section -->
+    <view class="section">
+      <view class="section-header">
+        <view class="section-title">Upcoming Exams</view>
+        <view class="section-more" bindtap="goToExamSchedule">View All</view>
+      </view>
+      
+      <view wx:if="{{examSchedule.length === 0}}" class="empty-state">
+        <text class="empty-icon">📅</text>
+        <text class="empty-text">No upcoming exams</text>
+      </view>
+
+      <view wx:else class="exam-list">
+        <view 
+          wx:for="{{examSchedule}}" 
+          wx:key="id" 
+          class="exam-card"
+          bindtap="viewExamDetail"
+          data-exam-id="{{item.id}}"
+        >
+          <view class="exam-header">
+            <view class="exam-name">{{item.exam_name}}</view>
+            <view class="exam-status {{getExamStatusClass(item.status)}}">
+              {{item.status}}
+            </view>
+          </view>
+          <view class="exam-details">
+            <view class="exam-detail-item">
+              <text class="detail-icon">🕒</text>
+              <text class="detail-text">{{formatDateTime(item.exam_time)}}</text>
+            </view>
+            <view class="exam-detail-item">
+              <text class="detail-icon">📍</text>
+              <text class="detail-text">{{item.venue}}</text>
+            </view>
+            <view class="exam-detail-item">
+              <text class="detail-icon">📝</text>
+              <text class="detail-text">{{item.exam_type}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Recent Results Section -->
+    <view class="section">
+      <view class="section-header">
+        <view class="section-title">Recent Results</view>
+        <view class="section-more" bindtap="goToExamResults">View All</view>
+      </view>
+
+      <view wx:if="{{recentResults.length === 0}}" class="empty-state">
+        <text class="empty-icon">📊</text>
+        <text class="empty-text">No results available</text>
+      </view>
+
+      <view wx:else class="results-list">
+        <view 
+          wx:for="{{recentResults}}" 
+          wx:key="id" 
+          class="result-card"
+          bindtap="viewResultDetail"
+          data-result-id="{{item.id}}"
+        >
+          <view class="result-header">
+            <view class="result-name">{{item.exam_name}}</view>
+            <view class="result-score">{{item.score}}/100</view>
+          </view>
+          <view class="result-details">
+            <view class="result-date">{{item.exam_date}}</view>
+            <view class="result-grade {{getGradeClass(item.grade)}}">
+              {{item.grade}}
+            </view>
+            <view class="result-status">{{item.pass_status}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Quick Actions -->
+    <view class="actions-section">
+      <view class="action-grid">
+        <view class="action-item" bindtap="goToExamSchedule">
+          <view class="action-icon">📅</view>
+          <view class="action-text">Exam Schedule</view>
+        </view>
+        <view class="action-item" bindtap="goToExamResults">
+          <view class="action-icon">📊</view>
+          <view class="action-text">My Results</view>
+        </view>
+        <view class="action-item" bindtap="goToProfile">
+          <view class="action-icon">👤</view>
+          <view class="action-text">Profile</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

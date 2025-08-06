@@ -7,14 +7,24 @@ Page({
     username: '',
     password: '',
     isLoading: false,
-    showPassword: false
+    showPassword: false,
+    rememberMe: false,
+    showSuccess: false,
+    inputFocused: false
   },
 
   onLoad() {
     console.log('工作人员登录页面加载')
   },
 
-  // 输入用户名
+  // 输入用户名 (Staff ID)
+  onStaffIdInput(e) {
+    this.setData({
+      username: e.detail.value.trim()
+    })
+  },
+
+  // 输入用户名 (兼容性保留)
   onUsernameInput(e) {
     this.setData({
       username: e.detail.value.trim()
@@ -32,6 +42,38 @@ Page({
   togglePasswordVisibility() {
     this.setData({
       showPassword: !this.data.showPassword
+    })
+  },
+
+  // 切换密码显示/隐藏 (WXML中使用的函数名)
+  togglePassword() {
+    this.setData({
+      showPassword: !this.data.showPassword
+    })
+  },
+
+  // 记住我选项变化
+  onRememberChange(e) {
+    this.setData({
+      rememberMe: e.detail.value.length > 0
+    })
+  },
+
+  // 忘记密码
+  forgotPassword() {
+    wx.showToast({
+      title: '请联系系统管理员重置密码',
+      icon: 'none',
+      duration: 2000
+    })
+  },
+
+  // 联系支持
+  contactSupport() {
+    wx.showToast({
+      title: '技术支持: 400-123-4567',
+      icon: 'none',
+      duration: 3000
     })
   },
 
@@ -100,14 +142,15 @@ Page({
             app.setUserInfo('staff', staffInfo)
           }
           
-          utils.showSuccess('登录成功')
+          // 显示成功动画
+          this.setData({ showSuccess: true })
           
-          // 跳转到扫码页面
+          // 延迟跳转，让用户看到成功动画
           setTimeout(() => {
-            wx.switchTab({
+            wx.redirectTo({
               url: '/pages/staff/scan/scan'
             })
-          }, 1000)
+          }, 2000)
         } else {
           utils.showError('获取用户信息失败')
           TokenManager.clearToken()

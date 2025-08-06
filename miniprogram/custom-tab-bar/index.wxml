@@ -1,0 +1,36 @@
+<cover-view class="tab-bar">
+  <cover-view class="tab-bar-border"></cover-view>
+  <cover-view 
+    wx:for="{{list}}" 
+    wx:key="index" 
+    class="tab-bar-item {{selected === index ? 'tab-bar-item--active' : ''}}"
+    data-path="{{item.pagePath}}" 
+    data-index="{{index}}" 
+    bindtap="switchTab"
+  >
+    <!-- 图标容器 -->
+    <cover-view class="tab-bar-icon-wrapper">
+      <cover-view 
+        class="tab-bar-icon-text {{selected === index ? 'tab-bar-icon-text--active' : ''}}"
+      >
+        {{item.iconText}}
+      </cover-view>
+      <!-- 选中状态的背景圆圈 -->
+      <cover-view 
+        class="tab-bar-icon-bg {{selected === index ? 'tab-bar-icon-bg--active' : ''}}"
+      ></cover-view>
+    </cover-view>
+    
+    <!-- 文字标签 -->
+    <cover-view 
+      class="tab-bar-text {{selected === index ? 'tab-bar-text--active' : ''}}"
+    >
+      {{item.text}}
+    </cover-view>
+    
+    <!-- 选中指示器 -->
+    <cover-view 
+      class="tab-bar-indicator {{selected === index ? 'tab-bar-indicator--active' : ''}}"
+    ></cover-view>
+  </cover-view>
+</cover-view>

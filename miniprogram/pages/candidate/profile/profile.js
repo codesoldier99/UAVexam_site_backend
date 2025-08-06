@@ -12,6 +12,13 @@ Page({
   onLoad() {
     console.log('考生个人信息页面加载')
     this.loadCandidateInfo()
+    
+    // 设置自定义tabBar的选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 3 // 个人信息是第4个tab，索引为3
+      })
+    }
   },
 
   onShow() {

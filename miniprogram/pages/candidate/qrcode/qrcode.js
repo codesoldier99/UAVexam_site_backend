@@ -14,8 +14,15 @@ Page({
   },
 
   onLoad() {
-    console.log('二维码页面加载')
-    this.checkLoginAndInit()
+    console.log('QRCode page loaded')
+    this.loadCandidateData()
+    
+    // 设置自定义tabBar的选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 0 // 二维码是第1个tab，索引为0
+      })
+    }
   },
 
   onShow() {

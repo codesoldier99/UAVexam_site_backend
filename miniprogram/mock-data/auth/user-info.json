@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "message": "获取用户信息成功",
+  "data": {
+    "id": 1,
+    "username": "staff001",
+    "email": "staff001@example.com",
+    "role": "examiner",
+    "name": "李考官",
+    "status": "active",
+    "permissions": ["scan_qr", "manual_checkin", "view_dashboard"],
+    "department": "考务部",
+    "phone": "13900139001",
+    "last_login": "2025-08-06T10:30:00"
+  },
+  "timestamp": "2025-08-06T11:00:00"
+}

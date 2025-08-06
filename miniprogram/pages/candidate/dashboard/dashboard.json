@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "Dashboard",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#667eea",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "loading-animation": "/components/loading-animation/loading-animation"
+  }
+}

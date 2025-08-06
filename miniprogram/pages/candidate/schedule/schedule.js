@@ -20,6 +20,13 @@ Page({
 
   onLoad: function(options) {
     this.loadExamSchedule()
+    
+    // 设置自定义tabBar的选中状态
+    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+      this.getTabBar().setData({
+        selected: 1 // 考试安排是第2个tab，索引为1
+      })
+    }
   },
 
   onShow: function() {

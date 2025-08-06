@@ -16,26 +16,27 @@
     "backgroundColor": "#f8f8f8"
   },
   "tabBar": {
-    "color": "#666666",
-    "selectedColor": "#1890ff",
+    "custom": true,
+    "color": "#7A7E83",
+    "selectedColor": "#667eea",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/candidate/qrcode/qrcode",
-        "text": "📱 二维码"
+        "text": "二维码"
       },
       {
         "pagePath": "pages/candidate/schedule/schedule",
-        "text": "📅 考试安排"
+        "text": "考试安排"
       },
       {
         "pagePath": "pages/public/dashboard/dashboard",
-        "text": "📊 实时看板"
+        "text": "实时看板"
       },
       {
         "pagePath": "pages/candidate/profile/profile",
-        "text": "👤 个人信息"
+        "text": "个人信息"
       }
     ]
   },

@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "message": "登录成功",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IuW8oOS4iSIsImlhdCI6MTczMzQ3MjAwMCwiZXhwIjoxNzMzNDc1NjAwfQ.mock_token_string",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "user_info": {
+      "id": 1,
+      "name": "张三",
+      "id_number": "110101199001011234",
+      "phone": "13800138001",
+      "status": "active",
+      "user_type": "candidate"
+    }
+  },
+  "timestamp": "2025-08-06T11:00:00"
+}

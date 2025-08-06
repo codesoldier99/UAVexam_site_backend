@@ -6,6 +6,9 @@ const { cache } = require('./cache')
 const { loading } = require('./loading')
 const { perf } = require('./performance')
 
+// 导入Mock数据管理器
+const mockManager = require('../mock-data/index.js')
+
 // API基础配置
 const API_CONFIG = {
   baseURL: 'http://10.20.175.146:8000',
@@ -37,7 +40,7 @@ const TokenManager = {
   }
 }
 
-// 增强的通用请求函数
+// 增强的通用请求函数 - 集成Mock数据支持
 function request(url, options = {}) {
   return new Promise(async (resolve, reject) => {
     const { 
@@ -52,6 +55,37 @@ function request(url, options = {}) {
       loadingTitle = '加载中...'
     } = options
 
+    // 🔥 Mock数据集成 - 检查是否使用Mock数据
+    try {
+      const mockResponse = await mockManager.getMockResponse(url, method, data, {
+        needAuth,
+        userId: TokenManager.hasToken() ? 'current_user' : null
+      })
+      
+      if (mockResponse) {
+        console.log(`[Mock API] ${method} ${url}`, mockResponse)
+        
+        // 模拟加载过程
+        if (showLoading) {
+          loading.show(loadingTitle, true)
+          // 等待Mock延迟
+          await new Promise(resolve => setTimeout(resolve, 100))
+          loading.hide()
+        }
+        
+        // 处理Mock认证逻辑
+        if (mockResponse.data && mockResponse.data.access_token) {
+          TokenManager.setToken(mockResponse.data.access_token)
+        }
+        
+        resolve(mockResponse)
+        return
+      }
+    } catch (mockError) {
+      console.warn('Mock data error, falling back to real API:', mockError)
+    }
+
+    // 🌐 真实API调用逻辑（保持原有逻辑）
     // 生成缓存键
     const cacheKey = useCache ? `${method}_${url}_${JSON.stringify(data)}` : null
     
@@ -305,11 +339,12 @@ const realtimeAPI = {
   
   // 获取实时通知
   getNotifications(candidateId, venueId) {
-    const params = new URLSearchParams()
-    if (candidateId) params.append('candidate_id', candidateId)
-    if (venueId) params.append('venue_id', venueId)
+    // 微信小程序兼容的查询参数构建
+    const params = []
+    if (candidateId) params.push(`candidate_id=${candidateId}`)
+    if (venueId) params.push(`venue_id=${venueId}`)
     
-    const queryString = params.toString()
+    const queryString = params.join('&')
     return request(`/realtime/notifications${queryString ? '?' + queryString : ''}`)
   }
 }
