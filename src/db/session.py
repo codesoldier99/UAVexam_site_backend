@@ -8,10 +8,13 @@ from typing import Generator
 engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# 异步引擎
+# 异步引擎 - 产业级配置
+async_database_url = settings.DATABASE_URL.replace("mysql+pymysql://", "mysql+aiomysql://")
 async_engine = create_async_engine(
-    settings.DATABASE_URL.replace("mysql+pymysql://", "mysql+aiomysql://"),
-    echo=True,
+    async_database_url,
+    echo=False,  # 生产级别关闭详细日志
+    pool_pre_ping=True,  # 连接池健康检查
+    pool_recycle=3600,   # 1小时回收连接
 )
 async_session_maker = sessionmaker(
     async_engine, class_=AsyncSession, expire_on_commit=False

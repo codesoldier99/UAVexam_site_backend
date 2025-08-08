@@ -179,20 +179,12 @@ fastapi_users = FastAPIUsers[User, int](
 current_active_user = fastapi_users.current_user(active=True)
 current_superuser = fastapi_users.current_user(active=True, superuser=True)
 
-# 添加简单的Bearer token认证
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-security = HTTPBearer()
-
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """简单的Bearer token认证"""
-    try:
-        # 验证JWT令牌
-        jwt_strategy = get_jwt_strategy()
-        user = await jwt_strategy.read_token(credentials.credentials)
-        if user and user.is_active:
-            return user
-        else:
-            raise HTTPException(status_code=401, detail="无效的认证令牌")
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="认证失败") 
+# 产业级认证依赖导出
+__all__ = [
+    "fastapi_users", 
+    "auth_backend", 
+    "current_active_user", 
+    "current_superuser",
+    "get_user_manager",
+    "UserManager"
+] 
