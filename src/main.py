@@ -5,7 +5,7 @@ from src.routers import batch_operations, wx_miniprogram, qrcode_checkin, realti
 from src.institutions.router import router as institutions_router
 # from src.routers.mobile_checkin import router as mobile_checkin_router  # 暂时注释掉，因为移动端签到功能已经在schedules.py中实现
 from src.auth.social import router as social_router
-from src.auth.fastapi_users_config import fastapi_users, auth_backend
+from src.auth.fastapi_users_config import fastapi_users, auth_backend, current_active_user
 from src.schemas.user import UserRead, UserCreate, UserUpdate
 from src.core.config import settings
 from pydantic import BaseModel
@@ -54,8 +54,18 @@ def custom_openapi():
     }
     
     # 为需要认证的端点添加安全要求
+    protected_paths = ["/exam-products", "/venues", "/candidates", "/schedules", "/auth/users"]
+    public_paths = ["/auth/jwt/login", "/auth/register", "/simple-login", "/health", "/test"]
+    
     for path in openapi_schema["paths"]:
-        if any(operation in path for operation in ["/exam-products", "/venues", "/candidates", "/schedules"]):
+        # 跳过公开端点
+        is_public = any(path.startswith(pub) for pub in public_paths)
+        if is_public:
+            continue
+            
+        # 为受保护的端点添加认证要求
+        needs_auth = any(protected in path for protected in protected_paths)
+        if needs_auth:
             for method in openapi_schema["paths"][path]:
                 if method != "parameters":
                     openapi_schema["paths"][path][method]["security"] = [{"BearerAuth": []}]
@@ -300,9 +310,11 @@ from fastapi import Depends, HTTPException
 security = HTTPBearer()
 
 @app.get("/test-auth")
-async def test_auth(current_user = Depends(security)):
-    """测试Bearer token认证"""
-    return {"message": "认证成功", "user_id": current_user.id}
+async def test_auth():
+    """测试基础端点"""
+    return {"message": "服务器运行正常"}
+
+
 
 # 添加简单的登录端点，匹配测试期望
 @app.post("/simple-login")

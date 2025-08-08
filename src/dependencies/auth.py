@@ -1,12 +1,16 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from src.models.user import User
+"""
+产业级认证依赖模块
+统一使用 FastAPI-Users 认证系统
+"""
+from src.auth.fastapi_users_config import current_active_user, current_superuser
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# 产业级认证依赖 - 直接使用 FastAPI-Users 的认证
+get_current_user = current_active_user
+get_current_active_user = current_active_user  
+get_current_superuser = current_superuser
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    # Placeholder for authentication logic
-    user = User(username="testuser", email="test@example.com")
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return user
+__all__ = [
+    "get_current_user", 
+    "get_current_active_user", 
+    "get_current_superuser"
+]
