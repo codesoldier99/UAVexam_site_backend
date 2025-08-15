@@ -1,0 +1,43 @@
+<!--pages/public/board/board.wxml-->
+<view class="board-container">
+  <view class="header">
+    <text class="title">考场实时动态</text>
+    <text class="update-time">更新时间：{{updateTime}}</text>
+  </view>
+  
+  <view class="venue-list">
+    <view class="venue-card card" wx:for="{{venues}}" wx:key="id">
+      <view class="venue-header">
+        <view class="venue-name">{{item.name}}</view>
+        <view class="venue-status">
+          <view class="status-dot {{item.active ? 'active' : 'idle'}}"></view>
+          <text>{{item.active ? '使用中' : '空闲'}}</text>
+        </view>
+      </view>
+      
+      <view class="venue-body" wx:if="{{item.active}}">
+        <view class="current-info">
+          <text class="label">当前考生：</text>
+          <text class="value">{{item.currentCandidate || '准备中'}}</text>
+        </view>
+        <view class="queue-info">
+          <text class="label">等待人数：</text>
+          <text class="value text-warning">{{item.waitingCount}} 人</text>
+        </view>
+      </view>
+      
+      <view class="queue-list" wx:if="{{item.queueList && item.queueList.length > 0}}">
+        <view class="queue-title">排队列表（前5位）</view>
+        <view class="queue-item" wx:for="{{item.queueList}}" wx:for-item="person" wx:key="position">
+          <text class="position">{{person.position}}</text>
+          <text class="name">{{person.name}}</text>
+          <text class="time">{{person.scheduledTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="empty-state" wx:if="{{venues.length === 0}}">
+    <text>暂无考场信息</text>
+  </view>
+</view>

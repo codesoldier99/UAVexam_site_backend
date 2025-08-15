@@ -1,0 +1,55 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/candidate/home/home",
+    "pages/candidate/qrcode/qrcode",
+    "pages/candidate/schedule/schedule",
+    "pages/staff/scan/scan",
+    "pages/public/board/board"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "无人机考点管理",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#409EFF",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/candidate/home/home",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/candidate/qrcode/qrcode",
+        "text": "我的二维码",
+        "iconPath": "images/qrcode.png",
+        "selectedIconPath": "images/qrcode-active.png"
+      },
+      {
+        "pagePath": "pages/candidate/schedule/schedule",
+        "text": "我的日程",
+        "iconPath": "images/schedule.png",
+        "selectedIconPath": "images/schedule-active.png"
+      },
+      {
+        "pagePath": "pages/public/board/board",
+        "text": "考场看板",
+        "iconPath": "images/board.png",
+        "selectedIconPath": "images/board-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示"
+    }
+  }
+}

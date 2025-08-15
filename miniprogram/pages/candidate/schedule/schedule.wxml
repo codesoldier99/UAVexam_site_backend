@@ -1,0 +1,46 @@
+<!--pages/candidate/schedule/schedule.wxml-->
+<view class="schedule-container">
+  <view class="header card">
+    <view class="header-title">我的考试日程</view>
+    <view class="header-info">
+      <text class="text-info">共 {{schedules.length}} 场考试</text>
+    </view>
+  </view>
+  
+  <view class="schedule-list">
+    <view class="schedule-item card" wx:for="{{schedules}}" wx:key="id">
+      <view class="schedule-header">
+        <view class="activity-name">{{item.activityName}}</view>
+        <view class="status-tag tag tag-{{item.statusType}}">
+          {{item.statusText}}
+        </view>
+      </view>
+      
+      <view class="schedule-body">
+        <view class="info-row">
+          <text class="label">考试时间：</text>
+          <text class="value">{{item.dateTime}}</text>
+        </view>
+        <view class="info-row">
+          <text class="label">考试地点：</text>
+          <text class="value">{{item.venue}}</text>
+        </view>
+        <view class="info-row" wx:if="{{item.queuePosition}}">
+          <text class="label">排队位置：</text>
+          <text class="value text-warning">您在{{item.venue}}当前排在第 {{item.queuePosition}} 位</text>
+        </view>
+      </view>
+      
+      <view class="schedule-footer" wx:if="{{item.status === 'pending'}}">
+        <button class="action-btn" bindtap="showQRCode" data-id="{{item.id}}">
+          显示签到二维码
+        </button>
+      </view>
+    </view>
+  </view>
+  
+  <view class="empty-state" wx:if="{{schedules.length === 0}}">
+    <image class="empty-image" src="/images/empty.png"></image>
+    <text class="empty-text">暂无考试安排</text>
+  </view>
+</view>

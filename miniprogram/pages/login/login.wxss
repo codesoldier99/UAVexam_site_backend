@@ -1,0 +1,80 @@
+/* pages/login/login.wxss */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.logo {
+  width: 150rpx;
+  height: 150rpx;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.form-section {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+}
+
+.form-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 40rpx;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 30rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+}
+
+.input {
+  width: 100%;
+  height: 88rpx;
+  border: 2rpx solid #dcdfe6;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 30rpx;
+  box-sizing: border-box;
+}
+
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  margin-top: 40rpx;
+  font-size: 32rpx;
+}
+
+.tips {
+  text-align: center;
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.staff-entry {
+  text-align: center;
+  margin-top: 40rpx;
+  font-size: 28rpx;
+}
