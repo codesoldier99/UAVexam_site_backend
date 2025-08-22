@@ -10,7 +10,8 @@ import json
 
 from ..models.user import User, UserRole
 from ..models.venue import Venue, VenueStatus
-from ..models.exam import Schedule, ScheduleStatus, ExamProduct, ExamRegistration
+from ..models.schedule import Schedule, ScheduleStatus
+from ..models.exam import ExamProduct, ExamRegistration
 from ..models.checkin import CheckIn, CheckInStatus, CheckInMethod
 from ..utils.security import create_access_token
 from ..config.settings import settings
@@ -131,8 +132,8 @@ class WeChatService:
             venue_data = {
                 "venue_id": venue.id,
                 "venue_name": venue.name,
-                "venue_type": venue.venue_type if hasattr(venue, 'venue_type') else "未知",
-                "status": venue.status.value,
+                "venue_type": "实操" if "实操" in venue.name else "理论",
+                "status": venue.status.value if hasattr(venue.status, 'value') else str(venue.status),
                 "current_candidate": None,
                 "waiting_count": waiting_count,
                 "next_start_time": None,
@@ -179,8 +180,6 @@ class WeChatService:
         checkin = CheckIn(
             user_id=candidate.id,
             venue_id=venue_id,
-            exam_session_id=schedule.registration.exam_session_id,
-            registration_id=schedule.registration.id,
             schedule_id=schedule_id,
             checkin_time=datetime.utcnow(),
             method=CheckInMethod.QR_CODE,
@@ -202,7 +201,7 @@ class WeChatService:
             "schedule_info": {
                 "schedule_id": schedule.id,
                 "venue_name": schedule.venue.name,
-                "exam_product_name": schedule.exam_product.name,
+                "exam_product_name": schedule.registration.exam_product.name,
                 "start_time": schedule.start_time.strftime("%H:%M")
             },
             "checkin_time": checkin.checkin_time

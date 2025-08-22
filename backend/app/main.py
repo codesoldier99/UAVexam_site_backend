@@ -15,7 +15,9 @@ from .routes import (
     candidates_router,
     wechat_router,
     venues_router,
-    schedules_router
+    schedules_router,
+    system_router,
+    health_router
 )
 
 
@@ -59,7 +61,7 @@ app = FastAPI(
 # CORS中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -80,6 +82,8 @@ app.include_router(candidates_router, prefix="/api/v1")
 app.include_router(wechat_router, prefix="/api/v1")
 app.include_router(venues_router, prefix="/api/v1")
 app.include_router(schedules_router, prefix="/api/v1")
+app.include_router(system_router, prefix="/api/v1")
+app.include_router(health_router, prefix="/api/v1")
 
 
 # 系统基础端点

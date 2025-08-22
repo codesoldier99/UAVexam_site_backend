@@ -1,23 +1,19 @@
 """
-数据库模型模块
+数据库模型模块 - 简化版本
 """
 
 from .user import User, UserRole
 from .institution import Institution
 from .venue import Venue, VenueStatus
-from .exam import Exam, ExamSession, ExamRegistration, ExamProduct, ScheduleStatus
+from .exam import ExamRegistration, ExamProduct
 from .checkin import CheckIn
-from .candidate import Candidate, CandidateStatus
-from .rbac import Role, Permission, role_permissions, user_roles
-from .schedule import Schedule, schedule_candidates
+from .schedule import Schedule, ScheduleStatus
 
 __all__ = [
     "User", "UserRole",
     "Institution", 
     "Venue", "VenueStatus",
-    "Exam", "ExamSession", "ExamRegistration", "ExamProduct", "ScheduleStatus",
+    "ExamRegistration", "ExamProduct",
     "CheckIn",
-    "Candidate", "CandidateStatus",
-    "Role", "Permission", "role_permissions", "user_roles",
-    "Schedule", "schedule_candidates"
+    "Schedule", "ScheduleStatus"
 ]

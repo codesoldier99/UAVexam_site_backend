@@ -4,7 +4,7 @@
 
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 
 
 class WeChatLoginRequest(BaseModel):
@@ -24,15 +24,21 @@ class WeChatLoginResponse(BaseModel):
 class CandidateScheduleResponse(BaseModel):
     """考生日程响应"""
     id: int
-    schedule_date: datetime
+    registration_id: int
+    venue_id: int
+    schedule_date: date
     start_time: datetime
     end_time: datetime
     status: str
     queue_position: int
+    created_at: datetime
+    updated_at: datetime
     venue_name: str
     venue_type: str
     exam_product_name: str
     exam_type: str
+    candidate_name: Optional[str] = None
+    candidate_id_card: Optional[str] = None
     
     class Config:
         from_attributes = True

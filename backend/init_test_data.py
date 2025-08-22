@@ -22,14 +22,14 @@ if 'backend' in current_dir:
 else:
     # 在项目根目录运行
     sys.path.append(os.path.join(current_dir, 'backend'))
-    from backend.app.config.database import engine, SessionLocal
-    from backend.app.models import *
-    from backend.app.models.exam import RegistrationStatus
-    from backend.app.services.auth_service import AuthService
-    from backend.app.services.exam_product_service import ExamProductService
-    from backend.app.services.institution_service import InstitutionService
-    from backend.app.services.candidate_service import CandidateService
-    from backend.app.utils.security import get_password_hash
+    from app.config.database import engine, SessionLocal
+    from app.models import *
+    from app.models.exam import RegistrationStatus
+    from app.services.auth_service import AuthService
+    from app.services.exam_product_service import ExamProductService
+    from app.services.institution_service import InstitutionService
+    from app.services.candidate_service import CandidateService
+    from app.utils.security import get_password_hash
 from datetime import datetime, timedelta
 
 def create_test_data():
@@ -41,49 +41,64 @@ def create_test_data():
         
         # 1. 创建超级管理员
         print("📝 创建超级管理员...")
-        admin_user = User(
-            username="admin",
-            password_hash=get_password_hash("admin123"),
-            email="admin@example.com",
-            real_name="系统管理员",
-            role=UserRole.SUPER_ADMIN,
-            is_active=True,
-            is_verified=True
-        )
-        db.add(admin_user)
-        db.commit()
-        print("✅ 超级管理员创建成功")
+        existing_admin = db.query(User).filter(User.username == "admin").first()
+        if existing_admin:
+            print("⚠️ 超级管理员已存在，跳过创建")
+            admin_user = existing_admin
+        else:
+            admin_user = User(
+                username="admin",
+                password_hash=get_password_hash("admin123"),
+                email="admin@example.com",
+                real_name="系统管理员",
+                role=UserRole.SUPER_ADMIN,
+                is_active=True,
+                is_verified=True
+            )
+            db.add(admin_user)
+            db.commit()
+            print("✅ 超级管理员创建成功")
         
         # 2. 创建机构
         print("📝 创建测试机构...")
-        institution = Institution(
-            name="测试培训机构",
-            code="TEST001",
-            contact_person="张老师",
-            contact_phone="13800138000",
-            contact_email="test@example.com",
-            address="北京市朝阳区测试路123号",
-            is_active=True
-        )
-        db.add(institution)
-        db.commit()
-        print("✅ 测试机构创建成功")
+        existing_institution = db.query(Institution).filter(Institution.code == "TEST001").first()
+        if existing_institution:
+            print("⚠️ 测试机构已存在，跳过创建")
+            institution = existing_institution
+        else:
+            institution = Institution(
+                name="测试培训机构",
+                code="TEST001",
+                contact_person="张老师",
+                contact_phone="13800138000",
+                contact_email="test@example.com",
+                address="北京市朝阳区测试路123号",
+                is_active=True
+            )
+            db.add(institution)
+            db.commit()
+            print("✅ 测试机构创建成功")
         
         # 3. 创建机构用户
         print("📝 创建机构用户...")
-        institution_user = User(
-            username="institution_user",
-            password_hash=get_password_hash("123456"),
-            email="institution@example.com",
-            real_name="机构管理员",
-            role=UserRole.OPERATOR,
-            institution_id=institution.id,
-            is_active=True,
-            is_verified=True
-        )
-        db.add(institution_user)
-        db.commit()
-        print("✅ 机构用户创建成功")
+        existing_institution_user = db.query(User).filter(User.username == "institution_user").first()
+        if existing_institution_user:
+            print("⚠️ 机构用户已存在，跳过创建")
+            institution_user = existing_institution_user
+        else:
+            institution_user = User(
+                username="institution_user",
+                password_hash=get_password_hash("123456"),
+                email="institution@example.com",
+                real_name="机构管理员",
+                role=UserRole.OPERATOR,
+                institution_id=institution.id,
+                is_active=True,
+                is_verified=True
+            )
+            db.add(institution_user)
+            db.commit()
+            print("✅ 机构用户创建成功")
         
         # 4. 创建考试产品
         print("📝 创建考试产品...")
@@ -111,11 +126,19 @@ def create_test_data():
             }
         ]
         
+        created_products = 0
         for product_data in exam_products:
-            product = ExamProduct(**product_data)
-            db.add(product)
-        db.commit()
-        print("✅ 考试产品创建成功")
+            existing_product = db.query(ExamProduct).filter(ExamProduct.code == product_data["code"]).first()
+            if not existing_product:
+                product = ExamProduct(**product_data)
+                db.add(product)
+                created_products += 1
+        
+        if created_products > 0:
+            db.commit()
+            print(f"✅ 创建了 {created_products} 个考试产品")
+        else:
+            print("⚠️ 所有考试产品已存在，跳过创建")
         
         # 5. 创建考场
         print("📝 创建考场...")
@@ -155,11 +178,19 @@ def create_test_data():
             }
         ]
         
+        created_venues = 0
         for venue_data in venues:
-            venue = Venue(**venue_data)
-            db.add(venue)
-        db.commit()
-        print("✅ 考场创建成功")
+            existing_venue = db.query(Venue).filter(Venue.code == venue_data["code"]).first()
+            if not existing_venue:
+                venue = Venue(**venue_data)
+                db.add(venue)
+                created_venues += 1
+        
+        if created_venues > 0:
+            db.commit()
+            print(f"✅ 创建了 {created_venues} 个考场")
+        else:
+            print("⚠️ 所有考场已存在，跳过创建")
         
         # 6. 创建测试考生
         print("📝 创建测试考生...")
@@ -187,9 +218,15 @@ def create_test_data():
         # 获取第一个考试产品
         exam_product = db.query(ExamProduct).first()
         
+        created_candidates = 0
         for candidate_data in candidates_data:
             # 生成用户名
             username = f"candidate_{candidate_data['id_card'][-6:]}"
+            
+            # 检查考生是否已存在
+            existing_candidate = db.query(User).filter(User.username == username).first()
+            if existing_candidate:
+                continue
             
             # 创建考生用户
             candidate = User(
@@ -206,19 +243,22 @@ def create_test_data():
             db.add(candidate)
             db.commit()
             db.refresh(candidate)
+            created_candidates += 1
             
             # 创建报名记录
             registration = ExamRegistration(
                 user_id=candidate.id,
                 exam_product_id=exam_product.id,
                 registration_number=f"REG{datetime.now().strftime('%Y%m%d%H%M%S')}{candidate.id}",
-                candidate_number=f"CAN{datetime.now().strftime('%Y%m%d%H%M%S')}{candidate.id}",
                 status=RegistrationStatus.APPROVED
             )
             db.add(registration)
         
         db.commit()
-        print("✅ 测试考生创建成功")
+        if created_candidates > 0:
+            print(f"✅ 创建了 {created_candidates} 个测试考生")
+        else:
+            print("⚠️ 所有测试考生已存在，跳过创建")
         
         print("\n🎉 测试数据创建完成!")
         print("\n📋 测试账号信息:")

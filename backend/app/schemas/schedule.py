@@ -10,7 +10,6 @@ from datetime import datetime, date
 class ScheduleBase(BaseModel):
     """日程基础模式"""
     registration_id: int = Field(..., description="报名ID")
-    exam_product_id: int = Field(..., description="考试产品ID")
     venue_id: int = Field(..., description="考场ID")
     schedule_date: date = Field(..., description="安排日期")
     start_time: datetime = Field(..., description="开始时间")
@@ -31,7 +30,6 @@ class ScheduleCreate(ScheduleBase):
 class ScheduleUpdate(BaseModel):
     """更新日程模式"""
     registration_id: Optional[int] = Field(None, description="报名ID")
-    exam_product_id: Optional[int] = Field(None, description="考试产品ID")
     venue_id: Optional[int] = Field(None, description="考场ID")
     schedule_date: Optional[date] = Field(None, description="安排日期")
     start_time: Optional[datetime] = Field(None, description="开始时间")
@@ -40,18 +38,28 @@ class ScheduleUpdate(BaseModel):
     status: Optional[str] = Field(None, description="状态")
 
 
-class ScheduleResponse(ScheduleBase):
+class ScheduleResponse(BaseModel):
     """日程响应模式"""
     id: int
+    registration_id: int = Field(..., description="报名ID")
+    venue_id: int = Field(..., description="考场ID")
+    schedule_date: date = Field(..., description="安排日期")
+    start_time: datetime = Field(..., description="开始时间")
+    end_time: datetime = Field(..., description="结束时间")
     status: str
+    queue_position: int = Field(0, description="排队位置")
     created_at: datetime
     updated_at: datetime
     
-    # 关联信息
+    # 必需的关联信息
+    venue_name: str = Field(..., description="考场名称")
+    venue_type: str = Field(..., description="考场类型")
+    exam_product_name: str = Field(..., description="考试产品名称")
+    exam_type: str = Field(..., description="考试类型")
+    
+    # 可选的关联信息
     candidate_name: Optional[str] = None
     candidate_id_card: Optional[str] = None
-    exam_product_name: Optional[str] = None
-    venue_name: Optional[str] = None
     institution_name: Optional[str] = None
     
     class Config:

@@ -34,19 +34,10 @@ class CheckIn(Base):
     
     # 关联信息
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    user = relationship("User", back_populates="checkins")
-    
-    candidate_id = Column(Integer, ForeignKey("candidates.id"), nullable=False)
-    candidate = relationship("Candidate", back_populates="checkins")
+    user = relationship("User", back_populates="checkins", foreign_keys=[user_id])
     
     venue_id = Column(Integer, ForeignKey("venues.id"), nullable=False)
     venue = relationship("Venue", back_populates="checkins")
-    
-    exam_session_id = Column(Integer, ForeignKey("exam_sessions.id"))
-    exam_session = relationship("ExamSession", back_populates="checkins")
-    
-    registration_id = Column(Integer, ForeignKey("exam_registrations.id"))
-    registration = relationship("ExamRegistration", back_populates="checkins")
     
     schedule_id = Column(Integer, ForeignKey("schedules.id"), nullable=False)
     schedule = relationship("Schedule", back_populates="checkins")

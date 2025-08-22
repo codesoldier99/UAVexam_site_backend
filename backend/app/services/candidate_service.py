@@ -54,9 +54,39 @@ class CandidateService:
         
         return query.offset(skip).limit(limit).all()
     
+    def get_candidates_count(
+        self,
+        institution_id: Optional[int] = None,
+        exam_product_id: Optional[int] = None,
+        status: Optional[str] = None
+    ) -> int:
+        """获取考生总数"""
+        query = self.db.query(User).filter(User.role == UserRole.CANDIDATE)
+        
+        # 应用过滤条件
+        if institution_id:
+            query = query.filter(User.institution_id == institution_id)
+        
+        if exam_product_id:
+            # 通过报名记录过滤
+            query = query.join(ExamRegistration).filter(
+                ExamRegistration.exam_product_id == exam_product_id
+            )
+        
+        if status:
+            # 通过报名状态过滤
+            query = query.join(ExamRegistration).filter(
+                ExamRegistration.status == RegistrationStatus(status)
+            )
+        
+        return query.count()
+    
     def get_candidate_by_id(self, candidate_id: int) -> Optional[User]:
         """根据ID获取考生"""
-        return self.db.query(User).filter(
+        from sqlalchemy.orm import joinedload
+        return self.db.query(User).options(
+            joinedload(User.exam_registrations)
+        ).filter(
             and_(
                 User.id == candidate_id,
                 User.role == UserRole.CANDIDATE
@@ -124,7 +154,6 @@ class CandidateService:
             user_id=candidate.id,
             exam_product_id=candidate_data.exam_product_id,
             registration_number=self._generate_registration_number(),
-            candidate_number=self._generate_candidate_number(),
             status=RegistrationStatus.APPROVED  # 默认已通过
         )
         

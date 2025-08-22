@@ -112,7 +112,7 @@ async def checkin_candidate(
     db: Session = Depends(get_db)
 ):
     """考务人员扫码签到"""
-    if current_user.role not in [UserRole.ADMIN, UserRole.EXAMINER]:
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.EXAMINER]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="只有考务人员可以执行签到操作"

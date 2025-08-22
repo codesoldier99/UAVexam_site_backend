@@ -42,6 +42,7 @@ class CandidateResponse(CandidateBase):
     created_at: datetime
     updated_at: datetime
     last_login: Optional[datetime]
+    registrations: Optional[List[Dict[str, Any]]] = Field(None, description="报名记录")
     
     class Config:
         from_attributes = True

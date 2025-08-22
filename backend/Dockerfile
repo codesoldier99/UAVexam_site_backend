@@ -1,5 +1,5 @@
-# 使用Python 3.11官方镜像
-FROM python:3.11-slim
+# 使用精确的Python 3.11.9版本确保环境一致性
+FROM python:3.11.9-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -16,9 +16,10 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# 复制并安装Python依赖
+# 复制并安装Python依赖（使用锁定版本确保一致性）
+COPY requirements.lock .
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.lock
 
 # 复制应用代码
 COPY . .

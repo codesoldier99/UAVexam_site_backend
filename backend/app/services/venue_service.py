@@ -8,7 +8,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from ..models.venue import Venue, VenueStatus
-from ..models.exam import Schedule, ScheduleStatus
+from ..models.schedule import Schedule, ScheduleStatus
 from ..models.institution import Institution
 from ..schemas.venue import VenueCreate, VenueUpdate
 

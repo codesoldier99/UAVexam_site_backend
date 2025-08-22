@@ -88,7 +88,7 @@ async def get_schedule(
     return schedule
 
 
-@router.post("/", response_model=ScheduleResponse, summary="创建日程")
+@router.post("/", summary="创建日程")
 async def create_schedule(
     schedule_data: ScheduleCreate,
     current_user: User = Depends(AuthService.require_admin),
@@ -99,12 +99,11 @@ async def create_schedule(
     try:
         schedule = service.create_schedule(
             registration_id=schedule_data.registration_id,
-            exam_product_id=schedule_data.exam_product_id,
             venue_id=schedule_data.venue_id,
             start_time=schedule_data.start_time,
             end_time=schedule_data.end_time
         )
-        return schedule
+        return schedule  # 现在返回的是字典格式，符合ScheduleResponse模式
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

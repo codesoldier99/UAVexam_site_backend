@@ -45,6 +45,12 @@ async def get_venues(
         status=status,
         venue_type=venue_type
     )
+    
+    # 手动转换枚举为字符串以避免序列化问题
+    for venue in venues:
+        if hasattr(venue.status, 'value'):
+            venue.status = venue.status.value
+    
     return venues
 
 

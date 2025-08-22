@@ -58,7 +58,6 @@ class Venue(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # 反向关系
-    exam_sessions = relationship("ExamSession", back_populates="venue")
     checkins = relationship("CheckIn", back_populates="venue")
     schedules = relationship("Schedule", back_populates="venue")
     

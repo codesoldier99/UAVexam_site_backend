@@ -31,7 +31,6 @@ class User(Base):
     
     # 基本信息
     real_name = Column(String(50))
-    full_name = Column(String(50))  # 添加全名字段以兼容RBAC
     id_card = Column(String(20))
     avatar = Column(String(255))
     
@@ -55,22 +54,7 @@ class User(Base):
     # 关系定义
     institution = relationship("Institution", back_populates="users")
     exam_registrations = relationship("ExamRegistration", back_populates="user")
-    checkins = relationship("CheckIn", back_populates="user")
-    
-    # RBAC 关系
-    roles = relationship("Role", secondary="user_roles", back_populates="users")
+    checkins = relationship("CheckIn", back_populates="user", foreign_keys="CheckIn.user_id")
     
     def __repr__(self):
         return f"<User {self.username}>"
-    
-    def has_permission(self, permission_name: str) -> bool:
-        """检查用户是否有指定权限"""
-        for role in self.roles:
-            for permission in role.permissions:
-                if permission.name == permission_name:
-                    return True
-        return False
-    
-    def has_role(self, role_name: str) -> bool:
-        """检查用户是否有指定角色"""
-        return any(role.name == role_name for role in self.roles)

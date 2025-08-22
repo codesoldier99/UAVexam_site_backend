@@ -6,11 +6,11 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 创建数据库（如果不存在）
-CREATE DATABASE IF NOT EXISTS `uav_exam_management` 
+CREATE DATABASE IF NOT EXISTS `exam_site_dev_db` 
 DEFAULT CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE `uav_exam_management`;
+USE `exam_site_dev_db`;
 
 -- 优化配置
 SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO';

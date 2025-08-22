@@ -9,6 +9,8 @@ from .exam_products import router as exam_products_router
 from .candidates import router as candidates_router
 from .wechat import router as wechat_router
 from .schedules import router as schedules_router
+from .system import router as system_router
+from .health import router as health_router
 
 __all__ = [
     "auth_router",
@@ -17,5 +19,7 @@ __all__ = [
     "exam_products_router",
     "candidates_router",
     "wechat_router",
-    "schedules_router"
+    "schedules_router",
+    "system_router",
+    "health_router"
 ]

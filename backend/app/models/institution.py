@@ -49,9 +49,6 @@ class Institution(Base):
     # 反向关系
     users = relationship("User", back_populates="institution")
     venues = relationship("Venue", back_populates="institution")
-    exams = relationship("Exam", back_populates="institution")
-    candidates = relationship("Candidate", back_populates="institution")
-    schedules = relationship("Schedule", back_populates="institution")
     
     def __repr__(self):
         return f"<Institution {self.name}>"
