@@ -1,0 +1,100 @@
+// 全局样式
+
+// 重置样式
+* {
+  box-sizing: border-box;
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+// 卡片样式
+.el-card {
+  margin-bottom: 20px;
+  
+  .el-card__header {
+    padding: 15px 20px;
+    font-weight: 500;
+  }
+  
+  .el-card__body {
+    padding: 20px;
+  }
+}
+
+// 表格样式
+.el-table {
+  .el-table__header th {
+    background-color: #f5f7fa;
+    color: #606266;
+    font-weight: 500;
+  }
+}
+
+// 分页样式
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// 表单样式
+.el-form {
+  .el-form-item__label {
+    font-weight: 500;
+  }
+}
+
+// 按钮样式
+.el-button {
+  &.is-round {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+// 图标样式
+.el-icon {
+  vertical-align: middle;
+}
+
+// 标签样式
+.el-tag {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+// 弹窗样式
+.el-dialog {
+  .el-dialog__header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ebeef5;
+    
+    .el-dialog__title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+  
+  .el-dialog__footer {
+    padding: 15px 20px;
+    border-top: 1px solid #ebeef5;
+  }
+}
