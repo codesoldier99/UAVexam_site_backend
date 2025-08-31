@@ -49,10 +49,10 @@ class Settings(BaseSettings):
     max_file_size: int = 10 * 1024 * 1024  # 10MB
     
     # 安全配置
-    cors_origins: str = "*"  # 生产环境应该配置具体域名
+    cors_origins: str = "http://localhost:3001,http://localhost:3000,http://localhost:8080,http://127.0.0.1:3001,http://127.0.0.1:3000,http://127.0.0.1:8080"  # 添加3001端口和其他常见的前端开发端口
     
     @property
-    def cors_origins_list(self) -> list:
+    def cors_origins_list(self) -> list[str]:
         """将CORS_ORIGINS字符串转换为列表"""
         if self.cors_origins == "*":
             return ["*"]

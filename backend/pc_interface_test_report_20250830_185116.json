@@ -1,0 +1,124 @@
+{
+  "summary": {
+    "total_tests": 14,
+    "passed_tests": 6,
+    "failed_tests": 8,
+    "success_rate": 42.857142857142854,
+    "duration": 33.120805978775024,
+    "timestamp": "2025-08-30T18:51:16.034214"
+  },
+  "test_results": [
+    {
+      "test_name": "服务器健康检查",
+      "success": true,
+      "message": "服务器运行正常",
+      "timestamp": "2025-08-30T18:50:44.996394",
+      "data": null
+    },
+    {
+      "test_name": "PC端认证功能",
+      "success": false,
+      "message": "测试异常: 'NoneType' object has no attribute 'get'",
+      "timestamp": "2025-08-30T18:50:48.132184",
+      "data": null
+    },
+    {
+      "test_name": "获取用户信息",
+      "success": true,
+      "message": "获取成功，角色: admin",
+      "timestamp": "2025-08-30T18:50:50.706423",
+      "data": null
+    },
+    {
+      "test_name": "仪表板统计数据",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:50:53.277475",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "最近考试列表",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:50:55.335995",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "系统活动日志",
+      "success": true,
+      "message": "获取成功，活动数量: 1",
+      "timestamp": "2025-08-30T18:50:57.381211",
+      "data": null
+    },
+    {
+      "test_name": "获取考生列表",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:50:59.931559",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "搜索考生功能",
+      "success": false,
+      "message": "搜索失败",
+      "timestamp": "2025-08-30T18:51:01.964819",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "考生统计数据",
+      "success": true,
+      "message": "统计获取成功",
+      "timestamp": "2025-08-30T18:51:04.010288",
+      "data": null
+    },
+    {
+      "test_name": "创建考生",
+      "success": false,
+      "message": "创建失败",
+      "timestamp": "2025-08-30T18:51:06.303436",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "获取签到记录",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:51:08.859788",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "手动签到查询",
+      "success": true,
+      "message": "查询接口正常响应",
+      "timestamp": "2025-08-30T18:51:10.933539",
+      "data": null
+    },
+    {
+      "test_name": "签到统计数据",
+      "success": false,
+      "message": "统计获取失败",
+      "timestamp": "2025-08-30T18:51:12.980678",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "用户登出",
+      "success": true,
+      "message": "登出成功",
+      "timestamp": "2025-08-30T18:51:15.531518",
+      "data": null
+    }
+  ]
+}

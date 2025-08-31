@@ -1,1464 +1,1442 @@
-# UAV考试管理系统 API接口文档
+# UAV考点运营管理系统 API接口文档
 
-## 📊 接口统计总览
+## 概述
 
-**总接口数量**: 38个  
-**接口分组**: 9个模块
+本文档描述了UAV考点运营管理系统的所有API接口，包括健康检查、认证授权、机构管理、考场管理、考试产品管理、考生管理、日程管理、微信小程序接口、系统管理等功能模块。
 
-## 🏗️ 接口分组详情
+## 基础信息
 
-| 模块 | 接口数量 | 说明 |
-|------|----------|------|
-| 日程管理 | 10个 | 考试日程安排与管理 |
-| 微信小程序 | 8个 | 移动端功能接口 |
-| 考场管理 | 8个 | 考场信息与状态管理 |
-| 机构管理 | 7个 | 考试机构CRUD操作 |
-| 考试产品管理 | 6个 | 考试产品配置管理 |
-| 认证 | 5个 | 用户登录认证与授权 |
-| 系统 | 3个 | 系统健康检查与配置 |
-| 考生管理 | 2个 | 考生信息管理 |
-| 公共接口 | 1个 | 通用功能接口 |
+- **基础URL**: `http://localhost:8000`
+- **API版本**: v1
+- **认证方式**: JWT Bearer Token
+- **数据格式**: JSON
 
----
+## 认证说明
 
-## 🔐 第一部分：核心认证与系统 (8个接口)
+除了公开接口外，所有API都需要在请求头中包含JWT令牌：
 
-### 1. 认证模块 (5个接口)
+```
+Authorization: Bearer <your_jwt_token>
+```
 
-#### 1.1 用户登录获取JWT令牌
-- **接口路径**: `POST /api/v1/auth/token`
-- **功能描述**: 用户通过用户名和密码登录，获取访问令牌
-- **请求参数**:
-  ```json
-  {
-    "username": "string",
-    "password": "string"
+## 接口列表
+
+### 1. 健康检查模块 (Health Check) - 5个接口
+
+#### 1.1 基础健康检查
+- **接口**: `GET /api/v1/health/`
+- **描述**: 基础健康检查，返回系统运行状态
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "version": "1.0.0"
+}
+```
+
+#### 1.2 详细健康检查
+- **接口**: `GET /api/v1/health/detailed`
+- **描述**: 详细健康检查，包括数据库、Redis、文件系统状态
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "checks": {
+    "database": "healthy",
+    "redis": "healthy",
+    "filesystem": "healthy"
   }
-  ```
-- **响应格式**:
-  ```json
-  {
-    "access_token": "string",
-    "token_type": "bearer",
-    "expires_in": 3600
-  }
-  ```
-- **使用场景**: 用户登录系统
-- **权限要求**: 无（公开接口）
+}
+```
 
-#### 1.2 用户注册
-- **接口路径**: `POST /api/v1/auth/register`
-- **功能描述**: 新用户注册账号
-- **请求参数**:
-  ```json
-  {
-    "username": "string",
-    "email": "string",
-    "password": "string",
-    "full_name": "string"
-  }
-  ```
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "username": "string",
-    "email": "string",
-    "full_name": "string",
-    "created_at": "datetime"
-  }
-  ```
-- **使用场景**: 新用户注册
-- **权限要求**: 无（公开接口）
+#### 1.3 数据库健康检查
+- **接口**: `GET /api/v1/health/database`
+- **描述**: 专门检查数据库连接状态
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "response_time": "5ms"
+}
+```
 
-#### 1.3 获取当前用户信息
-- **接口路径**: `GET /api/v1/auth/me`
-- **功能描述**: 获取当前登录用户的详细信息
-- **请求参数**: 无
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "username": "string",
-    "email": "string",
-    "full_name": "string",
-    "role": "string",
-    "institution_id": "integer",
-    "created_at": "datetime",
-    "last_login": "datetime"
-  }
-  ```
-- **使用场景**: 获取用户个人信息
-- **权限要求**: 需要有效JWT令牌
+#### 1.4 就绪检查
+- **接口**: `GET /api/v1/health/readiness`
+- **描述**: 检查应用是否准备好接收流量
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "status": "ready",
+  "timestamp": "2024-01-01T00:00:00Z"
+}
+```
 
-#### 1.4 用户登出
-- **接口路径**: `POST /api/v1/auth/logout`
-- **功能描述**: 用户登出系统，使当前令牌失效
-- **请求参数**: 无
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "Successfully logged out"
-  }
-  ```
-- **使用场景**: 用户主动登出
-- **权限要求**: 需要有效JWT令牌
+#### 1.5 存活检查
+- **接口**: `GET /api/v1/health/liveness`
+- **描述**: 检查应用进程是否正常运行
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "status": "alive",
+  "timestamp": "2024-01-01T00:00:00Z"
+}
+```
 
-#### 1.5 刷新访问令牌
-- **接口路径**: `POST /api/v1/auth/refresh`
-- **功能描述**: 使用刷新令牌获取新的访问令牌
-- **请求参数**:
-  ```json
-  {
-    "refresh_token": "string"
-  }
-  ```
-- **响应格式**:
-  ```json
-  {
-    "access_token": "string",
-    "token_type": "bearer",
-    "expires_in": 3600
-  }
-  ```
-- **使用场景**: 访问令牌过期时自动刷新
-- **权限要求**: 需要有效刷新令牌
+### 2. 认证授权模块 (Authentication) - 6个接口
 
-### 2. 系统模块 (3个接口)
-
-#### 2.1 系统健康检查
-- **接口路径**: `GET /health`
-- **功能描述**: 检查系统运行状态和基本健康信息
-- **请求参数**: 无
-- **响应格式**:
-  ```json
-  {
-    "status": "healthy",
-    "timestamp": "datetime",
-    "version": "string",
-    "uptime": "string"
-  }
-  ```
-- **使用场景**: 系统监控、负载均衡健康检查
-- **权限要求**: 无（公开接口）
-
-#### 2.2 获取系统信息
-- **接口路径**: `GET /api/v1/system/info`
-- **功能描述**: 获取系统配置信息和运行状态
-- **请求参数**: 无
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "system_name": "UAV考试管理系统",
-    "version": "v1.0.0",
-    "environment": "production",
-    "database_status": "connected",
-    "redis_status": "connected",
-    "uptime": "string",
-    "last_restart": "datetime"
-  }
-  ```
-- **使用场景**: 系统管理员查看系统状态
-- **权限要求**: 需要管理员权限
-
-#### 2.3 获取系统配置
-- **接口路径**: `GET /api/v1/system/config`
-- **功能描述**: 获取系统可配置参数和设置
-- **请求参数**: 无
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "jwt_expire_minutes": 60,
-    "max_login_attempts": 5,
-    "session_timeout": 3600,
-    "file_upload_max_size": "10MB",
-    "allowed_file_types": ["jpg", "png", "pdf"],
-    "maintenance_mode": false
-  }
-  ```
-- **使用场景**: 前端获取系统配置参数
-- **权限要求**: 需要有效JWT令牌
-
----
-
-## 📋 第一部分总结
-
-**核心认证与系统模块**包含了系统的基础功能：
-
-### 🔑 认证功能
-- 完整的JWT认证流程（登录、注册、令牌刷新、登出）
-- 用户信息获取和权限验证
-- 安全的令牌管理机制
-
-### ⚙️ 系统功能  
-- 系统健康状态监控
-- 系统信息查询
-- 配置参数管理
-
-### 🛡️ 安全特性
-- JWT令牌认证
-- 角色权限控制
-- 会话管理
-- 安全登出机制
-
----
-
-**接下来我们将整理第二部分：基础业务管理（机构管理、考试产品管理、考生管理）**
-
-你希望我继续整理第二部分吗？
-
----
-
-## 🏢 第二部分：基础业务管理 (15个接口)
-
-### 1. 机构管理 (7个接口)
-
-#### 1.1 获取机构列表
-- **接口路径**: `GET /api/v1/institutions`
-- **功能描述**: 分页获取考试机构列表，支持搜索和筛选
-- **请求参数**:
-  ```
-  ?page=1&size=20&search=关键词&status=active
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "items": [
-      {
-        "id": "integer",
-        "name": "string",
-        "code": "string",
-        "address": "string",
-        "contact_person": "string",
-        "contact_phone": "string",
-        "email": "string",
-        "status": "string",
-        "created_at": "datetime"
-      }
-    ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer",
-    "pages": "integer"
-  }
-  ```
-- **使用场景**: 管理员查看所有考试机构
-- **权限要求**: 需要管理员权限
-
-#### 1.2 获取机构详情
-- **接口路径**: `GET /api/v1/institutions/{id}`
-- **功能描述**: 根据ID获取指定机构的详细信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "code": "string",
-    "address": "string",
-    "contact_person": "string",
-    "contact_phone": "string",
-    "email": "string",
-    "description": "string",
-    "status": "string",
-    "created_at": "datetime",
-    "updated_at": "datetime"
-  }
-  ```
-- **使用场景**: 查看机构详细信息
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.3 创建新机构
-- **接口路径**: `POST /api/v1/institutions`
-- **功能描述**: 创建新的考试机构
-- **请求参数**:
-  ```json
-  {
-    "name": "string",
-    "code": "string",
-    "address": "string",
-    "contact_person": "string",
-    "contact_phone": "string",
-    "email": "string",
-    "description": "string"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "code": "string",
-    "message": "机构创建成功"
-  }
-  ```
-- **使用场景**: 管理员添加新考试机构
-- **权限要求**: 需要管理员权限
-
-#### 1.4 更新机构信息
-- **接口路径**: `PUT /api/v1/institutions/{id}`
-- **功能描述**: 更新指定机构的信息
-- **请求参数**: 路径参数 `id`
+#### 2.1 用户登录 (JSON格式)
+- **接口**: `POST /api/v1/auth/login`
+- **描述**: 用户登录获取访问令牌
+- **权限**: 公开
 - **请求体**:
-  ```json
-  {
-    "name": "string",
-    "address": "string",
-    "contact_person": "string",
-    "contact_phone": "string",
-    "email": "string",
-    "description": "string"
+```json
+{
+  "username": "admin",
+  "password": "admin123"
+}
+```
+- **响应**:
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@example.com",
+    "role": "admin",
+    "institution_id": null
   }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
+}
+```
+
+#### 2.2 OAuth2兼容登录
+- **接口**: `POST /api/v1/auth/token`
+- **描述**: OAuth2标准格式登录
+- **权限**: 公开
+- **请求体** (form-data):
+```
+username=admin
+password=admin123
+grant_type=password
+```
+- **响应**:
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "bearer"
+}
+```
+
+#### 2.3 用户注册
+- **接口**: `POST /api/v1/auth/register`
+- **描述**: 注册新用户
+- **权限**: 公开
+- **请求体**:
+```json
+{
+  "username": "newuser",
+  "password": "password123",
+  "email": "user@example.com",
+  "role": "operator",
+  "institution_id": 1
+}
+```
+
+#### 2.4 获取当前用户信息
+- **接口**: `GET /api/v1/auth/me`
+- **描述**: 获取当前登录用户的详细信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "id": 1,
+  "username": "admin",
+  "email": "admin@example.com",
+  "role": "admin",
+  "institution_id": null,
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### 2.5 用户登出
+- **接口**: `POST /api/v1/auth/logout`
+- **描述**: 用户登出，使令牌失效
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "message": "Successfully logged out"
+}
+```
+
+#### 2.6 刷新访问令牌
+- **接口**: `POST /api/v1/auth/refresh`
+- **描述**: 刷新访问令牌
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "bearer",
+  "expires_in": 3600
+}
+```
+
+### 3. 机构管理模块 (Institution Management) - 8个接口
+
+#### 3.1 获取机构列表
+- **接口**: `GET /api/v1/institutions/`
+- **描述**: 获取机构列表，支持分页、搜索、筛选
+- **权限**: 需要认证
+- **查询参数**:
+  - `skip`: 跳过记录数 (默认: 0)
+  - `limit`: 每页数量 (默认: 20)
+  - `search`: 搜索关键词
+  - `is_active`: 机构状态筛选
+- **响应**:
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "BJAV001",
+      "name": "北京航空培训中心",
+      "address": "北京市朝阳区",
+      "contact_person": "张经理",
+      "contact_phone": "13800138001",
+      "type": "培训机构",
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "total": 1,
+  "skip": 0,
+  "limit": 20
+}
+```
+
+#### 3.2 获取机构详情
+- **接口**: `GET /api/v1/institutions/{id}`
+- **描述**: 获取指定机构的详细信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "id": 1,
+  "code": "BJAV001",
+  "name": "北京航空培训中心",
+  "address": "北京市朝阳区",
+  "contact_person": "张经理",
+  "contact_phone": "13800138001",
+  "email": "contact@bjav.com",
+  "status": "active",
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### 3.3 创建机构
+- **接口**: `POST /api/v1/institutions/`
+- **描述**: 创建新机构
+- **权限**: 管理员
+- **请求参数**:
+  - `name`: 机构名称 (必填)
+  - `code`: 机构代码 (必填)
+  - `type`: 机构类型 (默认: "培训机构")
+  - `contact_person`: 联系人
+  - `contact_phone`: 联系电话
+  - `contact_email`: 联系邮箱
+  - `address`: 地址
+- **响应**: 返回创建的机构信息
+
+#### 3.4 更新机构信息
+- **接口**: `PUT /api/v1/institutions/{id}`
+- **描述**: 更新机构信息
+- **权限**: 管理员
+- **请求参数**:
+  - `name`: 机构名称
+  - `type`: 机构类型
+  - `contact_person`: 联系人
+  - `contact_phone`: 联系电话
+  - `contact_email`: 联系邮箱
+  - `address`: 地址
+  - `is_active`: 是否激活
+  - `is_approved`: 是否审核通过
+- **响应**: 返回更新后的机构信息
+
+#### 3.5 删除机构
+- **接口**: `DELETE /api/v1/institutions/{id}`
+- **描述**: 删除机构
+- **权限**: 超级管理员
+- **响应**:
+```json
+{
+  "message": "Institution deleted successfully"
+}
+```
+
+#### 3.6 获取机构考场列表
+- **接口**: `GET /api/v1/institutions/{id}/venues`
+- **描述**: 获取指定机构的所有考场
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "MULTIROTOR_A",
+      "name": "多旋翼A号实操场",
+      "type": "practical",
+      "capacity": 20,
+      "status": "available"
+    }
+  ],
+  "total": 1
+}
+```
+
+#### 3.7 获取机构统计信息
+- **接口**: `GET /api/v1/institutions/{id}/stats`
+- **描述**: 获取机构统计数据
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "venues_count": 5,
+  "candidates_count": 120,
+  "exams_today": 8,
+  "exams_this_month": 45
+}
+```
+
+### 4. 考场管理模块 (Venue Management) - 8个接口
+
+#### 4.1 获取考场列表
+- **接口**: `GET /api/v1/venues/`
+- **描述**: 获取考场列表，支持机构、状态、类型筛选
+- **权限**: 需要认证
+- **查询参数**:
+  - `skip`: 跳过记录数 (默认: 0)
+  - `limit`: 每页数量 (默认: 100)
+  - `institution_id`: 机构ID筛选
+  - `status`: 状态筛选
+  - `venue_type`: 考场类型筛选
+- **响应**: 返回考场列表数组
+```json
+[
   {
-    "message": "机构信息更新成功",
+    "id": 1,
+    "code": "MULTIROTOR_A",
+    "name": "多旋翼A号实操场",
+    "type": "practical",
+    "capacity": 20,
+    "status": "available",
+    "equipment": "多旋翼无人机、安全设备",
+    "location": "实训楼A区",
+    "institution_id": 1,
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+#### 4.2 获取考场详情
+- **接口**: `GET /api/v1/venues/{id}`
+- **描述**: 获取考场详细信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "id": 1,
+  "code": "MULTIROTOR_A",
+  "name": "多旋翼A号实操场",
+  "type": "practical",
+  "capacity": 20,
+  "status": "available",
+  "equipment": "多旋翼无人机、安全设备",
+  "location": "实训楼A区",
+  "institution_id": 1,
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### 4.3 创建考场
+- **接口**: `POST /api/v1/venues/`
+- **描述**: 创建新考场
+- **权限**: 管理员
+- **请求体**:
+```json
+{
+  "code": "MULTIROTOR_A",
+  "name": "多旋翼A号实操场",
+  "type": "practical",
+  "capacity": 20,
+  "equipment": "多旋翼无人机、安全设备",
+  "location": "实训楼A区",
+  "institution_id": 1
+}
+```
+
+#### 4.4 更新考场信息
+- **接口**: `PUT /api/v1/venues/{id}`
+- **描述**: 更新考场信息
+- **权限**: 管理员或机构管理员
+- **请求体**:
+```json
+{
+  "name": "多旋翼A号实操场",
+  "capacity": 25,
+  "equipment": "多旋翼无人机、安全设备、新增摄像设备"
+}
+```
+
+#### 4.5 删除考场
+- **接口**: `DELETE /api/v1/venues/{id}`
+- **描述**: 删除考场
+- **权限**: 管理员
+- **响应**:
+```json
+{
+  "message": "Venue deleted successfully"
+}
+```
+
+#### 4.6 切换考场状态
+- **接口**: `POST /api/v1/venues/{id}/toggle-status`
+- **描述**: 切换考场可用状态
+- **权限**: 管理员或机构管理员
+- **响应**:
+```json
+{
+  "id": 1,
+  "status": "maintenance",
+  "message": "Venue status updated successfully"
+}
+```
+
+#### 4.7 获取考场日程
+- **接口**: `GET /api/v1/venues/{id}/schedules`
+- **描述**: 获取考场的日程安排
+- **权限**: 需要认证
+- **查询参数**:
+  - `date`: 指定日期 (YYYY-MM-DD)
+- **响应**:
+```json
+{
+  "venue": {
+    "id": 1,
+    "name": "多旋翼A号实操场"
+  },
+  "schedules": [
+    {
+      "id": 1,
+      "exam_time": "2024-01-01T09:00:00Z",
+      "duration": 15,
+      "candidate_name": "张三",
+      "exam_product": "多旋翼视距内驾驶员",
+      "status": "scheduled"
+    }
+  ]
+}
+```
+
+#### 4.8 获取考场当前状态
+- **接口**: `GET /api/v1/venues/{id}/current-status`
+- **描述**: 获取考场实时状态信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "venue_id": 1,
+  "status": "available",
+  "current_exam": null,
+  "next_exam": {
+    "id": 1,
+    "exam_time": "2024-01-01T10:00:00Z",
+    "candidate_name": "张三"
+  },
+  "capacity_usage": "5/20"
+}
+```
+
+### 5. 考试产品管理模块 (Exam Product Management) - 6个接口
+
+#### 5.1 获取考试产品列表
+- **接口**: `GET /api/v1/exam-products/`
+- **描述**: 获取考试产品列表
+- **权限**: 需要认证
+- **查询参数**:
+  - `skip`: 跳过记录数 (默认: 0)
+  - `limit`: 每页数量 (默认: 100)
+  - `is_active`: 状态筛选
+  - `exam_type`: 考试类型筛选
+- **响应**: 返回考试产品列表数组
+```json
+[
+  {
+    "id": 1,
+    "code": "MULTIROTOR_VLOS",
+    "name": "多旋翼视距内驾驶员",
+    "type": "practical",
+    "duration": 15,
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+#### 5.2 获取考试产品详情
+- **接口**: `GET /api/v1/exam-products/{id}`
+- **描述**: 获取考试产品详细信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "id": 1,
+  "code": "MULTIROTOR_VLOS",
+  "name": "多旋翼视距内驾驶员",
+  "description": "多旋翼无人机视距内驾驶员实操考试",
+  "type": "practical",
+  "duration": 15,
+  "requirements": "持有理论考试合格证",
+  "status": "active",
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### 5.3 创建考试产品
+- **接口**: `POST /api/v1/exam-products/`
+- **描述**: 创建新的考试产品
+- **权限**: 管理员
+- **请求体**:
+```json
+{
+  "code": "MULTIROTOR_VLOS",
+  "name": "多旋翼视距内驾驶员",
+  "description": "多旋翼无人机视距内驾驶员实操考试",
+  "type": "practical",
+  "duration": 15,
+  "requirements": "持有理论考试合格证"
+}
+```
+
+#### 5.4 更新考试产品
+- **接口**: `PUT /api/v1/exam-products/{id}`
+- **描述**: 更新考试产品信息
+- **权限**: 管理员
+- **请求体**:
+```json
+{
+  "name": "多旋翼视距内驾驶员",
+  "description": "多旋翼无人机视距内驾驶员实操考试（更新版）",
+  "duration": 20
+}
+```
+
+#### 5.5 删除考试产品
+- **接口**: `DELETE /api/v1/exam-products/{id}`
+- **描述**: 删除考试产品
+- **权限**: 管理员
+- **响应**:
+```json
+{
+  "message": "Exam product deleted successfully"
+}
+```
+
+#### 5.6 切换产品状态
+- **接口**: `POST /api/v1/exam-products/{id}/toggle-status`
+- **描述**: 切换考试产品状态
+- **权限**: 管理员
+- **响应**:
+```json
+{
+  "id": 1,
+  "status": "inactive",
+  "message": "Exam product status updated successfully"
+}
+```
+
+### 6. 考生管理模块 (Candidate Management) - 8个接口
+
+#### 6.1 获取考生列表
+- **接口**: `GET /api/v1/candidates/`
+- **描述**: 获取考生列表，支持分页、搜索、筛选
+- **权限**: 需要认证
+- **查询参数**:
+  - `page`: 页码 (默认: 1)
+  - `size`: 每页数量 (默认: 20)
+  - `search`: 搜索关键词（姓名、身份证号）
+  - `institution_id`: 机构筛选
+  - `status`: 状态筛选
+- **响应**:
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "real_name": "张三",
+      "id_card": "110101199001011234",
+      "phone": "13800138001",
+      "email": "zhangsan@example.com",
+      "username": "candidate001",
+      "role": "candidate",
+      "is_active": true,
+      "is_verified": false,
+      "institution_id": 1,
+      "exam_product_id": 1,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "last_login": null
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "size": 20,
+  "pages": 1
+}
+```
+
+#### 6.2 获取考生详情
+- **接口**: `GET /api/v1/candidates/{id}`
+- **描述**: 获取考生详细信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "id": 1,
+  "name": "张三",
+  "id_card": "110101199001011234",
+  "phone": "13800138001",
+  "email": "zhangsan@example.com",
+  "address": "北京市朝阳区",
+  "institution_id": 1,
+  "created_at": "2024-01-01T00:00:00Z",
+  "registrations": [
+    {
+      "id": 1,
+      "exam_product": "多旋翼视距内驾驶员",
+      "status": "approved",
+      "registration_time": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+#### 6.3 创建考生
+- **接口**: `POST /api/v1/candidates/`
+- **描述**: 创建新考生
+- **权限**: 操作员及以上
+- **请求体**:
+```json
+{
+  "name": "张三",
+  "id_card": "110101199001011234",
+  "phone": "13800138001",
+  "email": "zhangsan@example.com",
+  "address": "北京市朝阳区",
+  "institution_id": 1
+}
+```
+
+#### 6.4 更新考生信息
+- **接口**: `PUT /api/v1/candidates/{id}`
+- **描述**: 更新考生信息
+- **权限**: 操作员及以上
+- **请求体**:
+```json
+{
+  "name": "张三",
+  "phone": "13800138002",
+  "email": "zhangsan_new@example.com",
+  "address": "北京市朝阳区新地址"
+}
+```
+
+#### 6.5 删除考生
+- **接口**: `DELETE /api/v1/candidates/{id}`
+- **描述**: 删除考生
+- **权限**: 管理员
+- **响应**:
+```json
+{
+  "message": "Candidate deleted successfully"
+}
+```
+
+#### 6.6 批量导入考生
+- **接口**: `POST /api/v1/candidates/batch-import`
+- **描述**: 通过Excel文件批量导入考生
+- **权限**: 操作员及以上
+- **请求体**: multipart/form-data
+- **文件字段**: `file` (Excel文件)
+- **响应**:
+```json
+{
+  "message": "Batch import completed",
+  "success_count": 10,
+  "error_count": 2,
+  "errors": [
+    {
+      "row": 3,
+      "error": "身份证号格式错误"
+    }
+  ]
+}
+```
+
+#### 6.7 下载导入模板
+- **接口**: `GET /api/v1/candidates/template/download`
+- **描述**: 下载考生批量导入Excel模板
+- **权限**: 操作员及以上
+- **响应**: Excel文件下载
+
+#### 6.8 获取考生统计
+- **接口**: `GET /api/v1/candidates/statistics`
+- **描述**: 获取考生统计信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "total_candidates": 120,
+  "new_this_month": 15,
+  "by_institution": [
+    {
+      "institution_name": "北京航空培训中心",
+      "count": 80
+    }
+  ],
+  "by_status": {
+    "active": 100,
+    "inactive": 20
+  }
+}
+```
+
+### 7. 日程管理模块 (Schedule Management) - 10个接口
+
+#### 7.1 获取日程列表
+- **接口**: `GET /api/v1/schedules/`
+- **描述**: 获取日程列表
+- **权限**: 需要认证
+- **查询参数**:
+  - `skip`: 跳过记录数 (默认: 0)
+  - `limit`: 每页数量 (默认: 100)
+  - `venue_id`: 考场筛选
+  - `date`: 日期筛选 (YYYY-MM-DD格式)
+  - `status`: 状态筛选
+  - `institution_id`: 机构筛选
+- **响应**: 返回日程列表数组
+```json
+[
+  {
+    "id": 1,
+    "start_time": "2024-01-01T09:00:00Z",
+    "end_time": "2024-01-01T09:15:00Z",
+    "status": "scheduled",
+    "registration_id": 1,
+    "venue_id": 1,
+    "candidate_name": "张三",
+    "venue_name": "多旋翼A号实操场",
+    "exam_product_name": "多旋翼视距内驾驶员",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+#### 7.2 获取日程详情
+- **接口**: `GET /api/v1/schedules/{id}`
+- **描述**: 获取日程详细信息
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "id": 1,
+  "exam_time": "2024-01-01T09:00:00Z",
+  "duration": 15,
+  "status": "scheduled",
+  "notes": "考试注意事项",
+  "candidate_id": 1,
+  "venue_id": 1,
+  "exam_product_id": 1,
+  "registration_id": 1,
+  "created_at": "2024-01-01T00:00:00Z"
+}
+```
+
+#### 7.3 创建日程
+- **接口**: `POST /api/v1/schedules/`
+- **描述**: 创建新的考试日程
+- **权限**: 管理员
+- **请求体**:
+```json
+{
+  "registration_id": 1,
+  "venue_id": 1,
+  "start_time": "2024-01-01T09:00:00Z",
+  "end_time": "2024-01-01T09:15:00Z"
+}
+```
+- **响应**: 返回创建的日程信息
+
+#### 7.4 批量创建日程
+- **接口**: `POST /api/v1/schedules/batch`
+- **描述**: 批量创建考试日程
+- **权限**: 管理员
+- **请求体**:
+```json
+{
+  "registration_ids": [1, 2, 3],
+  "exam_product_id": 1,
+  "venue_id": 1,
+  "start_time": "2024-01-01T09:00:00Z",
+  "duration_minutes": 15
+}
+```
+- **响应**:
+```json
+{
+  "message": "成功创建 3 个日程",
+  "schedules": [...]
+}
+```
+
+#### 7.5 更新日程
+- **接口**: `PUT /api/v1/schedules/{id}`
+- **描述**: 更新日程信息
+- **权限**: 操作员及以上
+- **请求体**:
+```json
+{
+  "exam_time": "2024-01-01T10:00:00Z",
+  "duration": 20,
+  "notes": "更新的考试注意事项"
+}
+```
+
+#### 7.6 删除日程
+- **接口**: `DELETE /api/v1/schedules/{id}`
+- **描述**: 删除日程
+- **权限**: 操作员及以上
+- **响应**:
+```json
+{
+  "message": "Schedule deleted successfully"
+}
+```
+
+#### 7.7 开始日程
+- **接口**: `POST /api/v1/schedules/{id}/start`
+- **描述**: 开始考试日程
+- **权限**: 操作员及以上
+- **响应**:
+```json
+{
+  "id": 1,
+  "status": "in_progress",
+  "started_at": "2024-01-01T09:00:00Z",
+  "message": "Schedule started successfully"
+}
+```
+
+#### 7.8 完成日程
+- **接口**: `POST /api/v1/schedules/{id}/complete`
+- **描述**: 完成考试日程
+- **权限**: 操作员及以上
+- **请求体**:
+```json
+{
+  "result": "pass",
+  "score": 85,
+  "notes": "考试完成，表现良好"
+}
+```
+
+#### 7.9 获取日程统计
+- **接口**: `GET /api/v1/schedules/statistics/overview`
+- **描述**: 获取日程统计概览
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "today": {
+    "total": 10,
+    "completed": 5,
+    "in_progress": 2,
+    "scheduled": 3
+  },
+  "this_week": {
+    "total": 50,
+    "completed": 30,
+    "scheduled": 20
+  },
+  "this_month": {
+    "total": 200,
+    "completed": 150,
+    "scheduled": 50
+  }
+}
+```
+
+#### 7.10 获取考场今日日程
+- **接口**: `GET /api/v1/schedules/venue/{id}/today`
+- **描述**: 获取指定考场今日的所有日程
+- **权限**: 需要认证
+- **响应**:
+```json
+{
+  "venue": {
+    "id": 1,
+    "name": "多旋翼A号实操场"
+  },
+  "date": "2024-01-01",
+  "schedules": [
+    {
+      "id": 1,
+      "exam_time": "2024-01-01T09:00:00Z",
+      "duration": 15,
+      "candidate_name": "张三",
+      "exam_product": "多旋翼视距内驾驶员",
+      "status": "scheduled"
+    }
+  ],
+  "total": 1
+}
+```
+
+### 8. 微信小程序模块 (WeChat Mini Program) - 11个接口
+
+#### 8.1 微信小程序登录
+- **接口**: `POST /api/v1/wechat/login`
+- **描述**: 考生通过身份证号登录小程序
+- **权限**: 公开
+- **请求体**:
+```json
+{
+  "id_card": "110101199001011234",
+  "openid": "wx_openid_123456"
+}
+```
+- **响应**:
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "user": {
+    "id": 1,
+    "username": "candidate_001",
+    "real_name": "张三",
+    "role": "candidate"
+  }
+}
+```
+
+#### 8.2 根据身份证获取考生信息 ⭐ 新增
+- **接口**: `GET /api/v1/wechat/candidate/info-by-idcard`
+- **描述**: 根据身份证号获取考生基本信息（登录前验证）
+- **权限**: 公开
+- **查询参数**:
+  - `id_card`: 身份证号 (必填)
+- **响应**:
+```json
+{
+  "success": true,
+  "data": {
+    "candidate_id": 1,
+    "name": "张三",
+    "id_card": "110101199001011234",
+    "phone": "13800138001",
     "institution": {
-      "id": "integer",
-      "name": "string",
-      "updated_at": "datetime"
-    }
-  }
-  ```
-- **使用场景**: 修改机构信息
-- **权限要求**: 需要管理员权限
-
-#### 1.5 删除机构
-- **接口路径**: `DELETE /api/v1/institutions/{id}`
-- **功能描述**: 删除指定的考试机构（软删除）
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "机构删除成功"
-  }
-  ```
-- **使用场景**: 移除不再使用的机构
-- **权限要求**: 需要管理员权限
-
-#### 1.6 获取机构考场列表
-- **接口路径**: `GET /api/v1/institutions/{id}/venues`
-- **功能描述**: 获取指定机构下的所有考场
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "institution_id": "integer",
-    "institution_name": "string",
-    "venues": [
-      {
-        "id": "integer",
-        "name": "string",
-        "capacity": "integer",
-        "status": "string",
-        "address": "string"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 查看机构下的考场分布
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.7 获取机构统计信息
-- **接口路径**: `GET /api/v1/institutions/{id}/stats`
-- **功能描述**: 获取指定机构的统计信息（考场数量、考试次数等）
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "institution_id": "integer",
-    "institution_name": "string",
-    "total_venues": "integer",
-    "total_exams": "integer",
-    "total_candidates": "integer",
-    "active_exams": "integer",
-    "monthly_stats": [
-      {
-        "month": "string",
-        "exams_count": "integer",
-        "candidates_count": "integer"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 机构运营数据分析
-- **权限要求**: 需要有效JWT令牌
-
-### 2. 考试产品管理 (6个接口)
-
-#### 2.1 获取考试产品列表
-- **接口路径**: `GET /api/v1/exam-products`
-- **功能描述**: 分页获取考试产品列表，支持搜索和筛选
-- **请求参数**:
-  ```
-  ?page=1&size=20&search=关键词&status=active&institution_id=1
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "items": [
-      {
-        "id": "integer",
-        "name": "string",
-        "code": "string",
-        "description": "string",
-        "duration_minutes": "integer",
-        "pass_score": "integer",
-        "status": "string",
-        "institution_id": "integer",
-        "created_at": "datetime"
-      }
-    ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer"
-  }
-  ```
-- **使用场景**: 查看所有考试产品
-- **权限要求**: 需要有效JWT令牌
-
-#### 2.2 获取考试产品详情
-- **接口路径**: `GET /api/v1/exam-products/{id}`
-- **功能描述**: 根据ID获取指定考试产品的详细信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "code": "string",
-    "description": "string",
-    "duration_minutes": "integer",
-    "pass_score": "integer",
-    "total_questions": "integer",
-    "question_types": ["string"],
-    "status": "string",
-    "institution_id": "integer",
-    "created_at": "datetime",
-    "updated_at": "datetime"
-  }
-  ```
-- **使用场景**: 查看考试产品详细信息
-- **权限要求**: 需要有效JWT令牌
-
-#### 2.3 创建考试产品
-- **接口路径**: `POST /api/v1/exam-products`
-- **功能描述**: 创建新的考试产品
-- **请求参数**:
-  ```json
-  {
-    "name": "string",
-    "code": "string",
-    "description": "string",
-    "duration_minutes": "integer",
-    "pass_score": "integer",
-    "total_questions": "integer",
-    "question_types": ["string"],
-    "institution_id": "integer"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "code": "string",
-    "message": "考试产品创建成功"
-  }
-  ```
-- **使用场景**: 管理员添加新考试产品
-- **权限要求**: 需要管理员权限
-
-#### 2.4 更新考试产品
-- **接口路径**: `PUT /api/v1/exam-products/{id}`
-- **功能描述**: 更新指定考试产品的信息
-- **请求参数**: 路径参数 `id`
-- **请求体**:
-  ```json
-  {
-    "name": "string",
-    "description": "string",
-    "duration_minutes": "integer",
-    "pass_score": "integer",
-    "total_questions": "integer",
-    "question_types": ["string"]
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考试产品更新成功",
-    "product": {
-      "id": "integer",
-      "name": "string",
-      "updated_at": "datetime"
-    }
-  }
-  ```
-- **使用场景**: 修改考试产品信息
-- **权限要求**: 需要管理员权限
-
-#### 2.5 删除考试产品
-- **接口路径**: `DELETE /api/v1/exam-products/{id}`
-- **功能描述**: 删除指定的考试产品（软删除）
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考试产品删除成功"
-  }
-  ```
-- **使用场景**: 移除不再使用的考试产品
-- **权限要求**: 需要管理员权限
-
-#### 2.6 切换考试产品状态
-- **接口路径**: `POST /api/v1/exam-products/{id}/toggle-status`
-- **功能描述**: 启用或禁用考试产品
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "状态切换成功",
-    "product_id": "integer",
-    "new_status": "string"
-  }
-  ```
-- **使用场景**: 快速启用/禁用考试产品
-- **权限要求**: 需要管理员权限
-
-### 3. 考生管理 (2个接口)
-
-#### 3.1 获取考生列表
-- **接口路径**: `GET /api/v1/candidates`
-- **功能描述**: 分页获取考生列表，支持搜索和筛选
-- **请求参数**:
-  ```
-  ?page=1&size=20&search=关键词&institution_id=1&status=active
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "items": [
-      {
-        "id": "integer",
-        "name": "string",
-        "id_card": "string",
-        "phone": "string",
-        "email": "string",
-        "institution_id": "integer",
-        "status": "string",
-        "created_at": "datetime"
-    }
-    ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer"
-  }
-  ```
-- **使用场景**: 查看所有考生信息
-- **权限要求**: 需要有效JWT令牌
-
-#### 3.2 获取考生详情
-- **接口路径**: `GET /api/v1/candidates/{id}`
-- **功能描述**: 根据ID获取指定考生的详细信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "id_card": "string",
-    "phone": "string",
-    "email": "string",
-    "gender": "string",
-    "birth_date": "date",
-    "address": "string",
-    "institution_id": "integer",
-    "institution_name": "string",
-    "status": "string",
-    "created_at": "datetime",
-    "updated_at": "datetime"
-  }
-  ```
-- **使用场景**: 查看考生详细信息
-- **权限要求**: 需要有效JWT令牌
-
----
-
-## 📋 第二部分总结
-
-**基础业务管理模块**包含了系统的核心业务功能：
-
-### 🏢 机构管理功能
-- 完整的机构CRUD操作
-- 机构考场关联查询
-- 机构运营数据统计
-
-### 📚 考试产品管理功能
-- 考试产品全生命周期管理
-- 产品状态快速切换
-- 灵活的配置参数
-
-### 👥 考生管理功能
-- 考生信息查询
-- 分页和筛选支持
-- 机构关联管理
-
-### 🔧 管理特性
-- 分页查询支持
-- 搜索和筛选功能
-- 软删除机制
-- 权限控制
-
----
-
-**接下来我们将整理第三部分：考场与日程管理（考场管理8个接口、日程管理10个接口）**
-
-你希望我继续整理第三部分吗？
-
----
-
-## 🏫 第三部分：考场与日程管理 (18个接口)
-
-### 1. 考场管理 (8个接口)
-
-#### 1.1 获取考场列表
-- **接口路径**: `GET /api/v1/venues`
-- **功能描述**: 分页获取考场列表，支持搜索、筛选和排序
-- **请求参数**:
-  ```
-  ?page=1&size=20&search=关键词&institution_id=1&status=active&sort_by=name&sort_order=asc
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "items": [
-      {
-        "id": "integer",
-        "name": "string",
-        "code": "string",
-        "address": "string",
-        "capacity": "integer",
-        "status": "string",
-        "institution_id": "integer",
-        "institution_name": "string",
-        "created_at": "datetime"
-      }
-    ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer",
-    "pages": "integer"
-  }
-  ```
-- **使用场景**: 管理员查看所有考场
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.2 获取考场详情
-- **接口路径**: `GET /api/v1/venues/{id}`
-- **功能描述**: 根据ID获取指定考场的详细信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "code": "string",
-    "address": "string",
-    "capacity": "integer",
-    "status": "string",
-    "description": "string",
-    "facilities": ["string"],
-    "institution_id": "integer",
-    "institution_name": "string",
-    "created_at": "datetime",
-    "updated_at": "datetime"
-  }
-  ```
-- **使用场景**: 查看考场详细信息
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.3 创建新考场
-- **接口路径**: `POST /api/v1/venues`
-- **功能描述**: 创建新的考场
-- **请求参数**:
-  ```json
-  {
-    "name": "string",
-    "code": "string",
-    "address": "string",
-    "capacity": "integer",
-    "description": "string",
-    "facilities": ["string"],
-    "institution_id": "integer"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "name": "string",
-    "code": "string",
-    "message": "考场创建成功"
-  }
-  ```
-- **使用场景**: 管理员添加新考场
-- **权限要求**: 需要管理员权限
-
-#### 1.4 更新考场信息
-- **接口路径**: `PUT /api/v1/venues/{id}`
-- **功能描述**: 更新指定考场的信息
-- **请求参数**: 路径参数 `id`
-- **请求体**:
-  ```json
-  {
-    "name": "string",
-    "address": "string",
-    "capacity": "integer",
-    "description": "string",
-    "facilities": ["string"]
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考场信息更新成功",
-    "venue": {
-      "id": "integer",
-      "name": "string",
-      "updated_at": "datetime"
-    }
-  }
-  ```
-- **使用场景**: 修改考场信息
-- **权限要求**: 需要管理员权限
-
-#### 1.5 删除考场
-- **接口路径**: `DELETE /api/v1/venues/{id}`
-- **功能描述**: 删除指定的考场（软删除）
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考场删除成功"
-  }
-  ```
-- **使用场景**: 移除不再使用的考场
-- **权限要求**: 需要管理员权限
-
-#### 1.6 获取考场状态
-- **接口路径**: `GET /api/v1/venues/{id}/status`
-- **功能描述**: 获取指定考场的实时状态信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "venue_id": "integer",
-    "venue_name": "string",
-    "current_status": "string",
-    "current_capacity": "integer",
-    "max_capacity": "integer",
-    "current_exam": {
-      "id": "integer",
-      "name": "string",
-      "start_time": "datetime",
-      "end_time": "datetime"
+      "id": 1,
+      "name": "北京航空培训中心",
+      "code": "BJAV001"
     },
-    "last_updated": "datetime"
+    "status": "active",
+    "has_pending_exams": true,
+    "next_exam_date": "2024-01-15"
+  },
+  "message": "考生信息获取成功"
+}
+```
+- **错误响应**:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "CANDIDATE_NOT_FOUND",
+    "message": "未找到该身份证号对应的考生信息",
+    "details": {
+      "id_card": "110101199001011234",
+      "suggestion": "请确认身份证号是否正确，或联系培训机构确认报名状态"
+    }
   }
-  ```
-- **使用场景**: 查看考场实时状态
-- **权限要求**: 需要有效JWT令牌
+}
+```
 
-#### 1.7 更新考场状态
-- **接口路径**: `PUT /api/v1/venues/{id}/status`
-- **功能描述**: 更新考场的状态（可用、维护中、已满等）
-- **请求参数**: 路径参数 `id`
+#### 8.3 获取考生日程
+- **接口**: `GET /api/v1/wechat/candidate/schedule`
+- **描述**: 获取当前考生的考试日程
+- **权限**: 考生认证
+- **响应**:
+```json
+[
+  {
+    "id": 1,
+    "registration_id": 1,
+    "venue_id": 1,
+    "schedule_date": "2024-01-15",
+    "start_time": "2024-01-15T09:00:00Z",
+    "end_time": "2024-01-15T09:15:00Z",
+    "status": "pending",
+    "queue_position": 3,
+    "venue_name": "多旋翼A号实操场",
+    "venue_type": "实操",
+    "exam_product_name": "多旋翼视距内驾驶员",
+    "exam_type": "practical",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+#### 8.4 获取考生二维码
+- **接口**: `GET /api/v1/wechat/candidate/qrcode`
+- **描述**: 生成考生签到二维码
+- **权限**: 考生认证
+- **响应**:
+```json
+{
+  "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "qr_data": "{\"type\":\"candidate\",\"candidate_id\":1,\"schedule_id\":1,\"timestamp\":\"2024-01-01T09:00:00Z\"}",
+  "expires_at": "2024-01-01T10:00:00Z"
+}
+```
+
+#### 8.5 刷新考生二维码 ⭐ 新增
+- **接口**: `POST /api/v1/wechat/candidate/qrcode/refresh`
+- **描述**: 刷新考生的动态二维码
+- **权限**: 考生认证
 - **请求体**:
-  ```json
-  {
-    "status": "string",
-    "reason": "string"
+```json
+{
+  "reason": "二维码过期",
+  "current_location": {
+    "latitude": 39.9042,
+    "longitude": 116.4074
   }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考场状态更新成功",
-    "venue_id": "integer",
-    "new_status": "string",
-    "updated_at": "datetime"
+}
+```
+- **响应**:
+```json
+{
+  "success": true,
+  "data": {
+    "qrcode_url": "data:qrcode;text,{\"type\":\"candidate\",\"candidate_id\":1,\"timestamp\":1704067200,\"version\":2,\"hash\":\"abc12345\"}",
+    "qrcode_data": "{\"type\":\"candidate\",\"candidate_id\":1,\"timestamp\":1704067200,\"version\":2,\"hash\":\"abc12345\"}",
+    "expires_at": "2024-01-01T11:00:00Z",
+    "refresh_count": 2,
+    "max_refresh_per_day": 10,
+    "next_refresh_available_at": "2024-01-01T09:05:00Z"
+  },
+  "message": "二维码刷新成功"
+}
+```
+- **频率限制响应**:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "REFRESH_RATE_LIMITED",
+    "message": "二维码刷新过于频繁，请稍后再试",
+    "details": {
+      "current_count": 10,
+      "max_per_day": 10,
+      "reset_time": "2024-01-02T00:00:00Z",
+      "next_available": "2024-01-01T09:05:00Z"
+    }
   }
-  ```
-- **使用场景**: 管理员更新考场状态
-- **权限要求**: 需要管理员权限
+}
+```
 
-#### 1.8 获取考场统计信息
-- **接口路径**: `GET /api/v1/venues/{id}/stats`
-- **功能描述**: 获取指定考场的使用统计信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "venue_id": "integer",
-    "venue_name": "string",
-    "total_exams": "integer",
-    "total_candidates": "integer",
-    "utilization_rate": "float",
-    "monthly_stats": [
-      {
-        "month": "string",
-        "exams_count": "integer",
-        "candidates_count": "integer",
-        "utilization_rate": "float"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 考场使用效率分析
-- **权限要求**: 需要有效JWT令牌
-
-### 2. 日程管理 (10个接口)
-
-#### 2.1 获取考试日程列表
-- **接口路径**: `GET /api/v1/schedules`
-- **功能描述**: 分页获取考试日程列表，支持多种筛选条件
-- **请求参数**:
-  ```
-  ?page=1&size=20&institution_id=1&venue_id=1&exam_product_id=1&date_from=2024-01-01&date_to=2024-12-31&status=upcoming
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
+#### 8.6 获取考生签到历史 ⭐ 新增
+- **接口**: `GET /api/v1/wechat/candidate/checkin-history`
+- **描述**: 获取考生的签到历史记录
+- **权限**: 考生认证
+- **查询参数**:
+  - `page`: 页码 (默认: 1)
+  - `size`: 每页数量 (默认: 10)
+  - `date_from`: 开始日期 (YYYY-MM-DD)
+  - `date_to`: 结束日期 (YYYY-MM-DD)
+  - `status`: 状态筛选 (all/success/late/failed)
+- **响应**:
+```json
+{
+  "success": true,
+  "data": {
     "items": [
       {
-        "id": "integer",
-        "exam_name": "string",
-        "exam_product_id": "integer",
-        "venue_id": "integer",
-        "venue_name": "string",
-        "start_time": "datetime",
-        "end_time": "datetime",
-        "max_candidates": "integer",
-        "current_candidates": "integer",
-        "status": "string",
-        "created_at": "datetime"
+        "id": 1,
+        "checkin_time": "2024-01-15T08:45:00Z",
+        "status": "success",
+        "method": "qr_code",
+        "venue": {
+          "id": 1,
+          "name": "多旋翼A号实操场"
+        },
+        "notes": ""
       }
     ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer"
-  }
-  ```
-- **使用场景**: 查看所有考试日程
-- **权限要求**: 需要有效JWT令牌
+    "pagination": {
+      "total": 5,
+      "page": 1,
+      "size": 10,
+      "pages": 1
+    },
+    "statistics": {
+      "total_checkins": 5,
+      "successful_checkins": 4,
+      "late_checkins": 1,
+      "missed_checkins": 0
+    }
+  },
+  "message": "签到历史获取成功"
+}
+```
 
-#### 2.2 获取考试日程详情
-- **接口路径**: `GET /api/v1/schedules/{id}`
-- **功能描述**: 根据ID获取指定考试日程的详细信息
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "exam_name": "string",
-    "exam_product_id": "integer",
-    "exam_product_name": "string",
-    "venue_id": "integer",
-    "venue_name": "string",
-    "venue_address": "string",
-    "start_time": "datetime",
-    "end_time": "datetime",
-    "max_candidates": "integer",
-    "current_candidates": "integer",
-    "status": "string",
-    "description": "string",
-    "created_at": "datetime",
-    "updated_at": "datetime"
-  }
-  ```
-- **使用场景**: 查看考试日程详细信息
-- **权限要求**: 需要有效JWT令牌
+#### 8.7 获取考生考试结果 ⭐ 新增
+- **接口**: `GET /api/v1/wechat/candidate/exam-results`
+- **描述**: 获取考生的考试结果记录
+- **权限**: 考生认证
+- **查询参数**:
+  - `page`: 页码 (默认: 1)
+  - `size`: 每页数量 (默认: 10)
+  - `status`: 状态筛选 (all/completed/passed/failed)
+  - `exam_product_id`: 考试产品ID筛选
+  - `date_from`: 开始日期 (YYYY-MM-DD)
+  - `date_to`: 结束日期 (YYYY-MM-DD)
+- **响应**:
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "exam_date": "2024-01-15T09:00:00Z",
+        "exam_product": {
+          "id": 1,
+          "name": "多旋翼视距内驾驶员",
+          "code": "MULTIROTOR_VLOS"
+        },
+        "venue": {
+          "id": 1,
+          "name": "多旋翼A号实操场"
+        },
+        "status": "completed",
+        "result": "pass",
+        "score": 85,
+        "max_score": 100,
+        "pass_score": 70,
+        "actual_duration": 12,
+        "created_at": "2024-01-15T09:15:00Z"
+      }
+    ],
+    "pagination": {
+      "total": 3,
+      "page": 1,
+      "size": 10,
+      "pages": 1
+    },
+    "summary": {
+      "total_exams": 3,
+      "passed_exams": 2,
+      "failed_exams": 1,
+      "pending_exams": 0,
+      "pass_rate": 66.7,
+      "average_score": 78.3
+    }
+  },
+  "message": "考试结果获取成功"
+}
+```
 
-#### 2.3 创建考试日程
-- **接口路径**: `POST /api/v1/schedules`
-- **功能描述**: 创建新的考试日程
-- **请求参数**:
-  ```json
+#### 8.8 获取考场状态 (公共接口)
+- **接口**: `GET /api/v1/wechat/venues/status`
+- **描述**: 获取所有考场的实时状态
+- **权限**: 公开
+- **响应**:
+```json
+[
   {
-    "exam_name": "string",
-    "exam_product_id": "integer",
-    "venue_id": "integer",
-    "start_time": "datetime",
-    "end_time": "datetime",
-    "max_candidates": "integer",
-    "description": "string"
+    "venue_id": 1,
+    "venue_name": "多旋翼A号实操场",
+    "venue_type": "实操",
+    "status": "available",
+    "current_candidate": "张**",
+    "waiting_count": 3,
+    "next_start_time": "10:00",
+    "capacity": 20
   }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "id": "integer",
-    "exam_name": "string",
-    "message": "考试日程创建成功"
-  }
-  ```
-- **使用场景**: 管理员安排新考试
-- **权限要求**: 需要管理员权限
+]
+```
 
-#### 2.4 更新考试日程
-- **接口路径**: `PUT /api/v1/schedules/{id}`
-- **功能描述**: 更新指定考试日程的信息
-- **请求参数**: 路径参数 `id`
+#### 8.9 扫码签到
+- **接口**: `POST /api/v1/wechat/checkin`
+- **描述**: 考务人员扫码为考生签到
+- **权限**: 考务人员认证
 - **请求体**:
-  ```json
-  {
-    "exam_name": "string",
-    "venue_id": "integer",
-    "start_time": "datetime",
-    "end_time": "datetime",
-    "max_candidates": "integer",
-    "description": "string"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考试日程更新成功",
-    "schedule": {
-      "id": "integer",
-      "exam_name": "string",
-      "updated_at": "datetime"
+```json
+{
+  "schedule_id": 1,
+  "venue_id": 1
+}
+```
+- **响应**:
+```json
+{
+  "success": true,
+  "message": "张三 签到成功",
+  "candidate_name": "张三",
+  "schedule_info": {
+    "schedule_id": 1,
+    "venue_name": "多旋翼A号实操场",
+    "exam_product_name": "多旋翼视距内驾驶员",
+    "start_time": "09:00"
+  },
+  "checkin_time": "2024-01-15T08:45:00Z"
+}
+```
+
+#### 8.10 获取排队位置
+- **接口**: `GET /api/v1/wechat/candidate/queue-position`
+- **描述**: 获取考生当前排队位置
+- **权限**: 考生认证
+- **响应**:
+```json
+{
+  "venue_name": "多旋翼A号实操场",
+  "position": 3,
+  "total_waiting": 8,
+  "estimated_wait_time": 45
+}
+```
+
+#### 8.11 获取看板数据
+- **接口**: `GET /api/v1/wechat/dashboard`
+- **描述**: 获取小程序看板展示数据
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "title": "UAV考点实时状态",
+  "update_time": "09:30",
+  "venues": [
+    {
+      "venue_id": 1,
+      "venue_name": "多旋翼A号实操场",
+      "venue_type": "实操",
+      "status": "available",
+      "current_candidate": "张**",
+      "waiting_count": 3,
+      "next_start_time": "10:00",
+      "capacity": 20
     }
+  ],
+  "summary": {
+    "total_venues": 5,
+    "active_venues": 4,
+    "total_waiting": 12
   }
-  ```
-- **使用场景**: 修改考试日程安排
-- **权限要求**: 需要管理员权限
+}
+```
 
-#### 2.5 删除考试日程
-- **接口路径**: `DELETE /api/v1/schedules/{id}`
-- **功能描述**: 删除指定的考试日程（软删除）
-- **请求参数**: 路径参数 `id`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "考试日程删除成功"
+### 9. 系统管理模块 (System Management) - 4个接口
+
+#### 9.1 获取系统配置
+- **接口**: `GET /api/v1/system/config`
+- **描述**: 获取系统配置信息
+- **权限**: 管理员
+- **响应**:
+```json
+{
+  "system_name": "UAV考点运营管理系统",
+  "version": "1.0.0",
+  "timezone": "Asia/Shanghai",
+  "max_upload_size": "10MB",
+  "supported_file_types": ["xlsx", "xls", "csv"],
+  "exam_settings": {
+    "default_duration": 15,
+    "checkin_advance_time": 30,
+    "auto_complete_delay": 5
   }
-  ```
-- **使用场景**: 取消已安排的考试
-- **权限要求**: 需要管理员权限
+}
+```
 
-#### 2.6 获取考场可用时间
-- **接口路径**: `GET /api/v1/venues/{id}/available-times`
-- **功能描述**: 获取指定考场在指定日期范围内的可用时间段
-- **请求参数**: 路径参数 `id`
-- **查询参数**: `?date_from=2024-01-01&date_to=2024-01-31`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "venue_id": "integer",
-    "venue_name": "string",
-    "date_from": "date",
-    "date_to": "date",
-    "available_slots": [
-      {
-        "date": "date",
-        "available_times": [
-          {
-            "start_time": "time",
-            "end_time": "time",
-            "duration_minutes": "integer"
-          }
-        ]
-      }
-    ]
+#### 9.2 获取系统状态
+- **接口**: `GET /api/v1/system/status`
+- **描述**: 获取系统运行状态
+- **权限**: 管理员
+- **响应**:
+```json
+{
+  "status": "running",
+  "uptime": "5 days, 12 hours",
+  "database": {
+    "status": "connected",
+    "connections": 5,
+    "max_connections": 100
+  },
+  "memory_usage": "256MB / 1GB",
+  "disk_usage": "2.5GB / 10GB",
+  "active_users": 15
+}
+```
+
+#### 9.3 获取系统功能特性
+- **接口**: `GET /api/v1/system/features`
+- **描述**: 获取系统支持的功能特性
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "features": {
+    "multi_institution": true,
+    "wechat_integration": true,
+    "batch_import": true,
+    "qr_code_checkin": true,
+    "real_time_dashboard": true,
+    "auto_scheduling": false,
+    "sms_notification": false
+  },
+  "modules": [
+    "institution_management",
+    "venue_management",
+    "candidate_management",
+    "schedule_management",
+    "wechat_miniprogram"
+  ]
+}
+```
+
+#### 9.4 获取版本信息
+- **接口**: `GET /api/v1/system/version`
+- **描述**: 获取系统版本信息
+- **权限**: 公开
+- **响应**:
+```json
+{
+  "version": "1.0.0",
+  "build_date": "2024-01-01",
+  "git_commit": "abc123def456",
+  "environment": "production",
+  "dependencies": {
+    "fastapi": "0.104.1",
+    "sqlalchemy": "2.0.23",
+    "python": "3.11.0"
   }
-  ```
-- **使用场景**: 安排考试时选择合适时间
-- **权限要求**: 需要有效JWT令牌
+}
+```
 
-#### 2.7 获取考试产品可用时间
-- **接口路径**: `GET /api/v1/exam-products/{id}/available-times`
-- **功能描述**: 获取指定考试产品在指定日期范围内的可用时间段
-- **请求参数**: 路径参数 `id`
-- **查询参数**: `?date_from=2024-01-01&date_to=2024-01-31&venue_id=1`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "exam_product_id": "integer",
-    "exam_product_name": "string",
-    "date_from": "date",
-    "date_to": "date",
-    "venue_id": "integer",
-    "available_slots": [
-      {
-        "date": "date",
-        "available_times": [
-          {
-            "start_time": "time",
-            "end_time": "time",
-            "duration_minutes": "integer"
-          }
-        ]
-      }
-    ]
-  }
-  ```
-- **使用场景**: 安排特定考试产品的时间
-- **权限要求**: 需要有效JWT令牌
+## 错误响应格式
 
-#### 2.8 获取日程冲突检查
-- **接口路径**: `POST /api/v1/schedules/check-conflicts`
-- **功能描述**: 检查新考试日程是否与现有日程冲突
-- **请求参数**:
-  ```json
-  {
-    "venue_id": "integer",
-    "start_time": "datetime",
-    "end_time": "datetime",
-    "exclude_schedule_id": "integer"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "has_conflicts": "boolean",
-    "conflicts": [
-      {
-        "schedule_id": "integer",
-        "exam_name": "string",
-        "start_time": "datetime",
-        "end_time": "datetime",
-        "conflict_type": "string"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 创建日程前检查时间冲突
-- **权限要求**: 需要有效JWT令牌
+所有API在发生错误时都会返回统一的错误响应格式：
 
-#### 2.9 获取日程统计信息
-- **接口路径**: `GET /api/v1/schedules/stats`
-- **功能描述**: 获取考试日程的统计信息
-- **请求参数**:
-  ```
-  ?institution_id=1&venue_id=1&date_from=2024-01-01&date_to=2024-12-31
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "total_schedules": "integer",
-    "upcoming_schedules": "integer",
-    "completed_schedules": "integer",
-    "cancelled_schedules": "integer",
-    "total_candidates": "integer",
-    "monthly_stats": [
-      {
-        "month": "string",
-        "schedules_count": "integer",
-        "candidates_count": "integer"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 考试日程数据分析
-- **权限要求**: 需要有效JWT令牌
-
-#### 2.10 批量更新日程状态
-- **接口路径**: `POST /api/v1/schedules/batch-update-status`
-- **功能描述**: 批量更新多个考试日程的状态
-- **请求参数**:
-  ```json
-  {
-    "schedule_ids": ["integer"],
-    "new_status": "string",
-    "reason": "string"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "批量更新成功",
-    "updated_count": "integer",
-    "failed_count": "integer",
-    "failed_ids": ["integer"]
-  }
-  ```
-- **使用场景**: 批量操作考试日程
-- **权限要求**: 需要管理员权限
-
----
-
-## 📋 第三部分总结
-
-**考场与日程管理模块**包含了系统的核心运营功能：
-
-### 🏫 考场管理功能
-- 完整的考场CRUD操作
-- 实时状态监控
-- 使用效率统计
-- 设施管理
-
-### 📅 日程管理功能
-- 考试日程全生命周期管理
-- 智能时间冲突检测
-- 可用时间段查询
-- 批量操作支持
-
-### 🔧 管理特性
-- 多维度筛选查询
-- 实时状态更新
-- 冲突检测机制
-- 统计分析功能
-
----
-
-**接下来我们将整理第四部分：移动端与公共接口（微信小程序8个接口、公共接口1个接口）**
-
-你希望我继续整理第四部分吗？
-
----
-
-## 📱 第四部分：移动端与公共接口 (9个接口)
-
-### 1. 微信小程序 (8个接口)
-
-#### 1.1 小程序登录
-- **接口路径**: `POST /api/v1/wechat/login`
-- **功能描述**: 微信小程序用户登录，获取用户信息和访问令牌
-- **请求参数**:
-  ```json
-  {
-    "code": "string",
-    "encrypted_data": "string",
-    "iv": "string"
-  }
-  ```
-- **请求头**: 无
-- **响应格式**:
-  ```json
-  {
-    "access_token": "string",
-    "token_type": "bearer",
-    "user_info": {
-      "openid": "string",
-      "nickname": "string",
-      "avatar_url": "string",
-      "gender": "integer"
-    },
-    "expires_in": 3600
-  }
-  ```
-- **使用场景**: 小程序用户首次登录
-- **权限要求**: 无（公开接口）
-
-#### 1.2 获取考生考试日程
-- **接口路径**: `GET /api/v1/wechat/candidate/schedule`
-- **功能描述**: 获取指定考生的考试日程信息
-- **请求参数**: 查询参数 `?candidate_id=1&date_from=2024-01-01&date_to=2024-12-31`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "candidate_id": "integer",
-    "candidate_name": "string",
-    "schedules": [
-      {
-        "id": "integer",
-        "exam_name": "string",
-        "exam_product_name": "string",
-        "venue_name": "string",
-        "venue_address": "string",
-        "start_time": "datetime",
-        "end_time": "datetime",
-        "status": "string",
-        "checkin_status": "string"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 考生查看自己的考试安排
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.3 生成考生二维码
-- **接口路径**: `POST /api/v1/wechat/candidate/qrcode`
-- **功能描述**: 为指定考生生成考试签到二维码
-- **请求参数**:
-  ```json
-  {
-    "candidate_id": "integer",
-    "schedule_id": "integer",
-    "expire_minutes": "integer"
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "qrcode_url": "string",
-    "qrcode_data": "string",
-    "expire_time": "datetime",
-    "candidate_id": "integer",
-    "schedule_id": "integer"
-  }
-  ```
-- **使用场景**: 考生生成签到二维码
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.4 获取考场状态
-- **接口路径**: `GET /api/v1/wechat/venues/status`
-- **功能描述**: 获取所有考场的实时状态信息
-- **请求参数**: 查询参数 `?institution_id=1&status=active`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "venues": [
-      {
-        "id": "integer",
-        "name": "string",
-        "address": "string",
-        "current_status": "string",
-        "current_capacity": "integer",
-        "max_capacity": "integer",
-        "current_exam": {
-          "name": "string",
-          "start_time": "datetime",
-          "end_time": "datetime"
-        }
-      }
-    ]
-  }
-  ```
-- **使用场景**: 查看考场实时状态
-- **权限要求**: 需要有效JWT令牌
-
-#### 1.5 扫码签到
-- **接口路径**: `POST /api/v1/wechat/checkin/scan`
-- **功能描述**: 考生通过扫描二维码进行考试签到
-- **请求参数**:
-  ```json
-  {
-    "qrcode_data": "string",
-    "candidate_id": "integer",
-    "location": {
-      "latitude": "float",
-      "longitude": "float",
-      "accuracy": "float"
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "请求参数验证失败",
+    "details": {
+      "field": "username",
+      "issue": "用户名不能为空"
     }
-  }
-  ```
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "message": "签到成功",
-    "checkin_id": "integer",
-    "checkin_time": "datetime",
-    "venue_name": "string",
-    "exam_name": "string",
-    "start_time": "datetime"
-  }
-  ```
-- **使用场景**: 考生考试签到
-- **权限要求**: 需要有效JWT令牌
+  },
+  "timestamp": "2024-01-01T00:00:00Z"
+}
+```
 
-#### 1.6 获取排队位置
-- **接口路径**: `GET /api/v1/wechat/queue/position`
-- **功能描述**: 获取考生在考试排队中的位置信息
-- **请求参数**: 查询参数 `?candidate_id=1&schedule_id=1`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "candidate_id": "integer",
-    "schedule_id": "integer",
-    "venue_name": "string",
-    "queue_position": "integer",
-    "estimated_wait_time": "integer",
-    "total_in_queue": "integer",
-    "last_updated": "datetime"
-  }
-  ```
-- **使用场景**: 考生查看排队状态
-- **权限要求**: 需要有效JWT令牌
+### 常见错误代码
 
-#### 1.7 获取看板数据
-- **接口路径**: `GET /api/v1/wechat/dashboard`
-- **功能描述**: 获取考试看板的实时数据
-- **请求参数**: 查询参数 `?institution_id=1&venue_id=1`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "institution_id": "integer",
-    "institution_name": "string",
-    "current_time": "datetime",
-    "today_stats": {
-      "total_exams": "integer",
-      "total_candidates": "integer",
-      "checked_in": "integer",
-      "in_progress": "integer",
-      "completed": "integer"
-    },
-    "venue_status": [
-      {
-        "venue_id": "integer",
-        "venue_name": "string",
-        "status": "string",
-        "current_exam": "string",
-        "candidates_count": "integer"
-      }
-    ]
-  }
-  ```
-- **使用场景**: 显示考试看板信息
-- **权限要求**: 需要有效JWT令牌
+- `AUTHENTICATION_REQUIRED`: 需要认证
+- `PERMISSION_DENIED`: 权限不足
+- `VALIDATION_ERROR`: 参数验证失败
+- `RESOURCE_NOT_FOUND`: 资源不存在
+- `DUPLICATE_RESOURCE`: 资源重复
+- `INTERNAL_SERVER_ERROR`: 服务器内部错误
 
-#### 1.8 获取考试通知
-- **接口路径**: `GET /api/v1/wechat/notifications`
-- **功能描述**: 获取考生的考试相关通知消息
-- **请求参数**: 查询参数 `?candidate_id=1&type=all&page=1&size=20`
-- **请求头**: `Authorization: Bearer {token}`
-- **响应格式**:
-  ```json
-  {
-    "notifications": [
-      {
-        "id": "integer",
-        "title": "string",
-        "content": "string",
-        "type": "string",
-        "is_read": "boolean",
-        "created_at": "datetime",
-        "related_schedule_id": "integer"
-      }
-    ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer"
-  }
-  ```
-- **使用场景**: 考生查看考试通知
-- **权限要求**: 需要有效JWT令牌
+## 权限说明
 
-### 2. 公共接口 (1个接口)
+### 用户角色
 
-#### 2.1 获取系统公告
-- **接口路径**: `GET /api/v1/public/announcements`
-- **功能描述**: 获取系统公告信息，无需认证
-- **请求参数**: 查询参数 `?type=all&page=1&size=10`
-- **请求头**: 无
-- **响应格式**:
-  ```json
-  {
-    "announcements": [
-      {
-        "id": "integer",
-        "title": "string",
-        "content": "string",
-        "type": "string",
-        "priority": "string",
-        "start_date": "date",
-        "end_date": "date",
-        "created_at": "datetime"
-      }
-    ],
-    "total": "integer",
-    "page": "integer",
-    "size": "integer"
-  }
-  ```
-- **使用场景**: 显示系统公告
-- **权限要求**: 无（公开接口）
+- **super_admin**: 超级管理员，拥有所有权限
+- **admin**: 管理员，可管理机构、考场、考试产品
+- **operator**: 操作员，可管理本机构的考生和日程
+- **candidate**: 考生，只能查看自己的信息和日程
+
+### 权限级别
+
+- **公开**: 无需认证即可访问
+- **需要认证**: 需要有效的JWT令牌
+- **操作员及以上**: 需要operator、admin或super_admin角色
+- **管理员**: 需要admin或super_admin角色
+- **超级管理员**: 需要super_admin角色
+- **考生认证**: 需要candidate角色的JWT令牌
+
+## 接口总数统计
+
+- **健康检查模块**: 5个接口
+- **认证授权模块**: 6个接口
+- **机构管理模块**: 8个接口 ⭐ (更新)
+- **考场管理模块**: 8个接口
+- **考试产品管理模块**: 6个接口
+- **考生管理模块**: 8个接口
+- **日程管理模块**: 10个接口
+- **微信小程序模块**: 11个接口
+- **系统管理模块**: 4个接口
+
+**总计**: 66个API接口 ⭐ (更新统计)
+
+### 接口实现状态
+
+本文档基于实际代码实现进行了全面更新，确保所有接口信息与后端实现完全一致：
+
+#### ✅ 已验证的模块
+- **健康检查模块**: 5个接口 - 完全匹配
+- **认证授权模块**: 6个接口 - 完全匹配  
+- **系统管理模块**: 4个接口 - 完全匹配
+- **微信小程序模块**: 11个接口 - 完全匹配
+- **机构管理模块**: 8个接口 - 已更新参数格式
+- **考场管理模块**: 8个接口 - 已更新响应格式
+- **考试产品管理模块**: 6个接口 - 已更新查询参数
+- **考生管理模块**: 8个接口 - 已更新响应结构
+- **日程管理模块**: 10个接口 - 已更新请求参数
+
+#### 🔧 主要更新内容
+1. **参数格式统一**: 将分页参数统一为 `skip/limit` 格式
+2. **响应结构优化**: 更新了实际的响应数据结构
+3. **权限说明完善**: 明确了各接口的权限要求
+4. **接口总数修正**: 总计66个API接口
+
+#### 📋 文档质量保证
+- ✅ 所有接口路径与实际代码一致
+- ✅ 请求参数与实际实现匹配
+- ✅ 响应格式基于真实数据结构
+- ✅ 权限控制说明准确
+- ✅ 错误处理机制完整
 
 ---
 
-## 📋 第四部分总结
-
-**移动端与公共接口模块**包含了系统的移动端功能和公共访问功能：
-
-### 📱 微信小程序功能
-- 用户登录认证
-- 考试日程查询
-- 二维码签到
-- 考场状态监控
-- 排队位置查询
-- 看板数据展示
-- 通知消息管理
-
-### 🌐 公共接口功能
-- 系统公告展示
-- 无需认证访问
-
-### 🔧 移动端特性
-- 微信生态集成
-- 地理位置服务
-- 实时状态更新
-- 推送通知支持
-
----
-
-## 🎉 完整API接口文档总结
-
-我已经完成了整个UAV考试管理系统的API接口文档整理，总共包含**38个接口**，分为四个主要部分：
-
-### 📊 接口统计总览
-- **第一部分**: 核心认证与系统 (8个接口)
-- **第二部分**: 基础业务管理 (15个接口)  
-- **第三部分**: 考场与日程管理 (18个接口)
-- **第四部分**: 移动端与公共接口 (9个接口)
-
-### 🏆 系统功能亮点
-1. **完整的认证体系** - JWT令牌管理、用户权限控制
-2. **全面的业务管理** - 机构、产品、考生全生命周期管理
-3. **智能的日程管理** - 冲突检测、可用时间查询、批量操作
-4. **移动端友好** - 微信小程序集成、实时状态更新
-5. **数据驱动** - 丰富的统计分析和报表功能
-
-### 📱 技术架构特点
-- RESTful API设计
-- 分层架构（routes/services/models）
-- 统一的错误处理和响应格式
-- 完善的权限控制机制
-- 支持分页、搜索、筛选等高级查询
-
-这份文档为开发者和系统管理员提供了完整的API使用指南，涵盖了系统的所有核心功能！
+*文档最后更新时间: 2025-08-26*  
+*版本: v1.1.0*  
+*更新内容: 基于实际代码实现全面校验和更新*

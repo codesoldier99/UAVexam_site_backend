@@ -20,6 +20,20 @@ from .routes import (
     health_router
 )
 
+# PC端路由
+from .routes.pc.auth import router as pc_auth_router
+from .routes.pc.dashboard import router as pc_dashboard_router
+from .routes.pc.candidates import router as pc_candidates_router
+from .routes.pc.checkins import router as pc_checkins_router
+from .routes.pc.venues import router as pc_venues_router
+from .routes.pc.exam_products import router as pc_exam_products_router
+from .routes.pc.institutions import router as pc_institutions_router
+from .routes.pc.schedules import router as pc_schedules_router
+from .routes.pc.registrations import router as pc_registrations_router
+from .routes.pc.system import router as pc_system_router
+from .routes.pc.reports import router as pc_reports_router
+from .routes.pc.notifications import router as pc_notifications_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,17 +66,17 @@ app = FastAPI(
     - **认证**: JWT Token
     - **部署**: Docker + Docker Compose
     """,
-    openapi_url="/api/v1/openapi.json",
-    docs_url="/api/v1/docs",
-    redoc_url="/api/v1/redoc",
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
     lifespan=lifespan
 )
 
-# CORS中间件
+# CORS中间件 - 临时使用最宽松的配置进行调试
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -74,7 +88,7 @@ app.add_middleware(
 )
 
 
-# 注册路由
+# 注册原有路由（保持兼容性）
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(institutions_router, prefix="/api/v1")
 app.include_router(exam_products_router, prefix="/api/v1")
@@ -84,6 +98,20 @@ app.include_router(venues_router, prefix="/api/v1")
 app.include_router(schedules_router, prefix="/api/v1")
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(health_router, prefix="/api/v1")
+
+# 注册PC端专用路由
+app.include_router(pc_auth_router, prefix="/api/v1/pc/auth", tags=["PC-认证"])
+app.include_router(pc_dashboard_router, prefix="/api/v1/pc", tags=["PC-仪表板"])
+app.include_router(pc_candidates_router, prefix="/api/v1/pc", tags=["PC-考生管理"])
+app.include_router(pc_checkins_router, prefix="/api/v1/pc", tags=["PC-签到管理"])
+app.include_router(pc_venues_router, prefix="/api/v1/pc", tags=["PC-考场管理"])
+app.include_router(pc_exam_products_router, prefix="/api/v1/pc", tags=["PC-考试产品"])
+app.include_router(pc_institutions_router, prefix="/api/v1/pc", tags=["PC-机构管理"])
+app.include_router(pc_schedules_router, prefix="/api/v1/pc", tags=["PC-考试安排"])
+app.include_router(pc_registrations_router, prefix="/api/v1/pc", tags=["PC-考试报名"])
+app.include_router(pc_system_router, prefix="/api/v1/pc", tags=["PC-系统管理"])
+app.include_router(pc_reports_router, prefix="/api/v1/pc", tags=["PC-报表分析"])
+app.include_router(pc_notifications_router, prefix="/api/v1/pc", tags=["PC-通知管理"])
 
 
 # 系统基础端点

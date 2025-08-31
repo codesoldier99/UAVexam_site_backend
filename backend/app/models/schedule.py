@@ -39,6 +39,14 @@ class Schedule(Base):
     # 状态信息
     status = Column(Enum(ScheduleStatus), default=ScheduleStatus.PENDING, nullable=False, index=True)
     
+    # 考试结果 (新增字段，向后兼容)
+    exam_result = Column(String(20))  # pass, fail, absent, pending
+    exam_score = Column(Integer)      # 考试分数
+    max_score = Column(Integer, default=100)  # 满分
+    pass_score = Column(Integer, default=70)  # 及格分
+    actual_duration = Column(Integer)  # 实际考试时长(分钟)
+    result_notes = Column(Text)       # 考试结果备注
+    
     # 备注
     remarks = Column(Text)
     

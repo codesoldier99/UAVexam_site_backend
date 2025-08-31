@@ -1,0 +1,63 @@
+{
+  "summary": {
+    "total_tests": 7,
+    "passed_tests": 1,
+    "failed_tests": 6,
+    "success_rate": 14.285714285714285,
+    "duration": 7.924781084060669,
+    "timestamp": "2025-08-30T18:38:54.631951"
+  },
+  "test_results": [
+    {
+      "test_name": "服务器健康检查",
+      "success": true,
+      "message": "服务器运行正常",
+      "timestamp": "2025-08-30T18:38:48.772763",
+      "data": null
+    },
+    {
+      "test_name": "PC端管理员登录",
+      "success": false,
+      "message": "登录失败",
+      "timestamp": "2025-08-30T18:38:51.620419",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "获取用户信息",
+      "success": false,
+      "message": "未登录，跳过测试",
+      "timestamp": "2025-08-30T18:38:52.121331",
+      "data": null
+    },
+    {
+      "test_name": "仪表板测试",
+      "success": false,
+      "message": "未登录，跳过测试",
+      "timestamp": "2025-08-30T18:38:52.622128",
+      "data": null
+    },
+    {
+      "test_name": "考生管理测试",
+      "success": false,
+      "message": "未登录，跳过测试",
+      "timestamp": "2025-08-30T18:38:53.122573",
+      "data": null
+    },
+    {
+      "test_name": "签到管理测试",
+      "success": false,
+      "message": "未登录，跳过测试",
+      "timestamp": "2025-08-30T18:38:53.623081",
+      "data": null
+    },
+    {
+      "test_name": "用户登出",
+      "success": false,
+      "message": "未登录，跳过测试",
+      "timestamp": "2025-08-30T18:38:54.123251",
+      "data": null
+    }
+  ]
+}

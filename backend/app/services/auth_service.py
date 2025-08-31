@@ -77,6 +77,16 @@ class AuthService:
         
         return user
     
+    def change_user_password(self, user_id: int, new_password: str) -> bool:
+        """修改用户密码"""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return False
+        
+        user.password_hash = get_password_hash(new_password)
+        self.db.commit()
+        return True
+    
     def get_user_by_id(self, user_id: int) -> User:
         """根据ID获取用户"""
         return self.db.query(User).filter(User.id == user_id).first()

@@ -2,7 +2,7 @@
 认证相关的Pydantic模型
 """
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 from typing import Optional
 from datetime import datetime
 
@@ -29,13 +29,15 @@ class UserRegister(BaseModel):
     full_name: str  # 与API文档保持一致
     phone: Optional[str] = None
 
-    @validator('username')
+    @field_validator('username')
+    @classmethod
     def username_must_be_valid(cls, v):
         if len(v) < 3:
             raise ValueError('用户名长度至少3个字符')
         return v
 
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def password_must_be_valid(cls, v):
         if len(v) < 6:
             raise ValueError('密码长度至少6个字符')
@@ -59,6 +61,9 @@ class TokenResponse(BaseModel):
     token_type: str
     expires_in: int
     user: dict
+    # 考生登录时的额外字段
+    current_exam: Optional[dict] = None
+    has_valid_schedule: Optional[bool] = None
 
     class Config:
         json_schema_extra = {
@@ -72,7 +77,16 @@ class TokenResponse(BaseModel):
                     "email": "admin@example.com",
                     "role": "admin",
                     "full_name": "管理员"
-                }
+                },
+                "current_exam": {
+                    "schedule_id": 123,
+                    "venue_id": 456,
+                    "exam_date": "2024-01-15",
+                    "start_time": "09:00",
+                    "venue_name": "考场A",
+                    "exam_name": "理论考试"
+                },
+                "has_valid_schedule": True
             }
         }
 
@@ -146,5 +160,21 @@ class LogoutResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "message": "登出成功"
+            }
+        }
+
+
+class ChangePasswordRequest(BaseModel):
+    """修改密码请求模型"""
+    old_password: str
+    new_password: str
+    confirm_password: str
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "old_password": "oldpassword123",
+                "new_password": "newpassword123",
+                "confirm_password": "newpassword123"
             }
         }

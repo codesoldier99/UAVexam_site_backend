@@ -22,6 +22,12 @@ router = APIRouter(prefix="/auth", tags=["认证"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
+@router.options("/login", summary="登录接口预检请求")
+async def login_options():
+    """处理登录接口的OPTIONS预检请求"""
+    return {"message": "OK"}
+
+
 @router.post("/login", response_model=TokenResponse, summary="用户登录")
 async def login(
     user_login: UserLogin,
@@ -50,7 +56,8 @@ async def login(
         expires_delta=access_token_expires
     )
     
-    return {
+    # 构建基本响应
+    response_data = {
         "access_token": access_token,
         "token_type": "bearer",
         "expires_in": settings.access_token_expire_minutes * 60,
@@ -62,6 +69,20 @@ async def login(
             "full_name": user.real_name
         }
     }
+    
+    # 如果是考生，添加考试安排信息
+    if user.role.value == 'candidate':
+        from ..services.wechat_service import WeChatService
+        wechat_service = WeChatService(db)
+        exam_schedules = wechat_service.get_candidate_exam_schedules(user.id)
+        current_exam = exam_schedules[0] if exam_schedules else None
+        
+        response_data.update({
+            "current_exam": current_exam.dict() if current_exam else None,
+            "has_valid_schedule": len(exam_schedules) > 0
+        })
+    
+    return response_data
 
 
 @router.post("/token", summary="用户登录获取访问令牌（OAuth2兼容）")

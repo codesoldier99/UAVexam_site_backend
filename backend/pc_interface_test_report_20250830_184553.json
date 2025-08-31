@@ -1,0 +1,182 @@
+{
+  "summary": {
+    "total_tests": 14,
+    "passed_tests": 5,
+    "failed_tests": 9,
+    "success_rate": 35.714285714285715,
+    "duration": 32.630988121032715,
+    "timestamp": "2025-08-30T18:45:53.228898"
+  },
+  "test_results": [
+    {
+      "test_name": "服务器健康检查",
+      "success": true,
+      "message": "服务器运行正常",
+      "timestamp": "2025-08-30T18:45:22.669662",
+      "data": null
+    },
+    {
+      "test_name": "PC端认证功能",
+      "success": false,
+      "message": "测试异常: 'NoneType' object has no attribute 'get'",
+      "timestamp": "2025-08-30T18:45:25.495890",
+      "data": null
+    },
+    {
+      "test_name": "获取用户信息",
+      "success": true,
+      "message": "获取成功，角色: admin",
+      "timestamp": "2025-08-30T18:45:28.058541",
+      "data": null
+    },
+    {
+      "test_name": "仪表板统计数据",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:45:30.619606",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "最近考试列表",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:45:32.659925",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "系统活动日志",
+      "success": true,
+      "message": "获取成功，活动数量: 1",
+      "timestamp": "2025-08-30T18:45:34.721073",
+      "data": null
+    },
+    {
+      "test_name": "获取考生列表",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:45:37.296303",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "搜索考生功能",
+      "success": false,
+      "message": "搜索失败",
+      "timestamp": "2025-08-30T18:45:39.347239",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "考生统计数据",
+      "success": true,
+      "message": "统计获取成功",
+      "timestamp": "2025-08-30T18:45:41.428822",
+      "data": null
+    },
+    {
+      "test_name": "创建考生",
+      "success": false,
+      "message": "创建失败",
+      "timestamp": "2025-08-30T18:45:43.485997",
+      "data": {
+        "status_code": 422,
+        "data": {
+          "detail": [
+            {
+              "type": "missing",
+              "loc": [
+                "body",
+                "exam_product_id"
+              ],
+              "msg": "Field required",
+              "input": {
+                "real_name": "测试考生",
+                "id_card": "110101199901010001",
+                "phone": "13800000001",
+                "email": "test@example.com",
+                "institution_id": 1
+              },
+              "url": "https://errors.pydantic.dev/2.4/v/missing"
+            }
+          ]
+        },
+        "headers": {
+          "date": "Sat, 30 Aug 2025 10:45:43 GMT",
+          "server": "uvicorn",
+          "content-length": "273",
+          "content-type": "application/json"
+        }
+      }
+    },
+    {
+      "test_name": "获取签到记录",
+      "success": false,
+      "message": "获取失败",
+      "timestamp": "2025-08-30T18:45:46.051544",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "手动签到查询",
+      "success": false,
+      "message": "查询失败",
+      "timestamp": "2025-08-30T18:45:48.108743",
+      "data": {
+        "status_code": 422,
+        "data": {
+          "detail": [
+            {
+              "type": "missing",
+              "loc": [
+                "query",
+                "real_name"
+              ],
+              "msg": "Field required",
+              "input": null,
+              "url": "https://errors.pydantic.dev/2.4/v/missing"
+            },
+            {
+              "type": "missing",
+              "loc": [
+                "query",
+                "id_card"
+              ],
+              "msg": "Field required",
+              "input": null,
+              "url": "https://errors.pydantic.dev/2.4/v/missing"
+            }
+          ]
+        },
+        "headers": {
+          "date": "Sat, 30 Aug 2025 10:45:47 GMT",
+          "server": "uvicorn",
+          "content-length": "276",
+          "content-type": "application/json"
+        }
+      }
+    },
+    {
+      "test_name": "签到统计数据",
+      "success": false,
+      "message": "统计获取失败",
+      "timestamp": "2025-08-30T18:45:50.155733",
+      "data": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    {
+      "test_name": "用户登出",
+      "success": true,
+      "message": "登出成功",
+      "timestamp": "2025-08-30T18:45:52.725027",
+      "data": null
+    }
+  ]
+}
