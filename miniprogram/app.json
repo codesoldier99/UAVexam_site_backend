@@ -3,10 +3,14 @@
     "pages/index/index",
     "pages/candidate/login/login",
     "pages/candidate/qrcode/qrcode",
+    "pages/candidate/qrcode/qrcode-enhanced",
     "pages/candidate/profile/profile",
     "pages/candidate/schedule/schedule",
+    "pages/candidate/dashboard/dashboard",
     "pages/staff/login/login",
     "pages/staff/scan/scan",
+    "pages/staff/dashboard/dashboard",
+    "pages/staff/scanner/scanner",
     "pages/public/dashboard/dashboard"
   ],
   "window": {
@@ -23,7 +27,7 @@
     "borderStyle": "white",
     "list": [
       {
-        "pagePath": "pages/candidate/qrcode/qrcode",
+        "pagePath": "pages/candidate/qrcode/qrcode-enhanced",
         "text": "二维码"
       },
       {
@@ -31,7 +35,7 @@
         "text": "考试安排"
       },
       {
-        "pagePath": "pages/public/dashboard/dashboard",
+        "pagePath": "pages/candidate/dashboard/dashboard",
         "text": "实时看板"
       },
       {

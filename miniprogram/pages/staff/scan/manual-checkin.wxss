@@ -1,0 +1,272 @@
+/* 手动签到模态框样式 */
+.manual-checkin-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.manual-checkin-modal {
+  width: 90%;
+  max-width: 600rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+  animation: modal-in 0.3s ease-out;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.manual-checkin-step {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.modal-header {
+  padding: 24rpx;
+  border-bottom: 1rpx solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+  padding: 0 10rpx;
+}
+
+.modal-content {
+  padding: 30rpx 24rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.input-group {
+  margin-bottom: 24rpx;
+}
+
+.input-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.modal-input {
+  width: 100%;
+  height: 80rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  padding: 0 16rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.modal-footer {
+  padding: 20rpx 24rpx;
+  border-top: 1rpx solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 0 30rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  margin-left: 16rpx;
+}
+
+.modal-btn.cancel {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.modal-btn.back {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.modal-btn.confirm {
+  background-color: #07c160;
+  color: #fff;
+}
+
+.modal-btn[disabled] {
+  background-color: #ccc;
+  color: #fff;
+}
+
+/* 考生信息样式 */
+.candidate-info {
+  background-color: #f9f9f9;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-bottom: 24rpx;
+}
+
+.info-item {
+  display: flex;
+  margin-bottom: 10rpx;
+}
+
+.info-label {
+  width: 120rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.info-value {
+  flex: 1;
+  color: #333;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 考试安排选择样式 */
+.schedule-selection {
+  margin-top: 30rpx;
+}
+
+.selection-title {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.schedule-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  border: 1rpx solid #eee;
+  border-radius: 8rpx;
+  margin-bottom: 16rpx;
+  position: relative;
+}
+
+.schedule-item.selected {
+  border-color: #07c160;
+  background-color: rgba(7, 193, 96, 0.05);
+}
+
+.schedule-item.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  color: #07c160;
+  font-size: 32rpx;
+}
+
+.schedule-item.disabled {
+  opacity: 0.6;
+  background-color: #f5f5f5;
+}
+
+.schedule-info {
+  flex: 1;
+}
+
+.exam-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.exam-time {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+}
+
+.venue-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.schedule-status {
+  font-size: 24rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+.schedule-status.can-checkin {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.schedule-status.checked-in {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+/* 签到结果样式 */
+.success-icon {
+  font-size: 80rpx;
+  color: #07c160;
+  text-align: center;
+  margin: 20rpx 0;
+}
+
+.success-message {
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.checkin-details {
+  background-color: #f9f9f9;
+  padding: 20rpx;
+  border-radius: 8rpx;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 10rpx;
+}
+
+.detail-label {
+  width: 120rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.detail-value {
+  flex: 1;
+  color: #333;
+  font-size: 28rpx;
+}

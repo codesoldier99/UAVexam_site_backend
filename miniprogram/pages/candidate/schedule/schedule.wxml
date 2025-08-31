@@ -1,24 +1,17 @@
-<!--miniprogram/pages/candidate/schedule/schedule.wxml-->
-<view class="container">
-  <!-- Loading Overlay -->
-  <view class="loading-overlay" wx:if="{{isLoading}}">
-    <view class="loading-spinner"></view>
+<!-- miniprogram/pages/candidate/schedule/schedule.wxml -->
+<view class="schedule-container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">考试安排</text>
+    <text class="page-subtitle">查看您的考试时间安排</text>
   </view>
 
-  <!-- Header -->
-  <view class="header">
-    <view class="header-title">考试安排</view>
-    <view class="refresh-btn" bindtap="onRefresh">
-      <image class="refresh-icon" src="/images/icons/refresh.png"></image>
-    </view>
-  </view>
-
-  <!-- Filter Tabs -->
+  <!-- 筛选标签 -->
   <view class="filter-tabs">
     <view 
       wx:for="{{filterOptions}}" 
       wx:key="value"
-      class="tab-item {{currentTab === item.value ? 'active' : ''}}"
+      class="filter-tab {{currentTab === item.value ? 'active' : ''}}"
       data-tab="{{item.value}}"
       bindtap="switchTab"
     >
@@ -27,186 +20,147 @@
     </view>
   </view>
 
-  <!-- Empty State -->
-  <view class="empty-state" wx:if="{{isEmpty}}">
-    <image class="empty-icon" src="/images/empty-schedule.png"></image>
-    <view class="empty-title">未找到考试</view>
-    <view class="empty-description">您目前没有安排的考试。</view>
-    <button class="refresh-btn-empty" bindtap="onRefresh">刷新</button>
+  <!-- 加载状态 -->
+  <view wx:if="{{isLoading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
   </view>
 
-  <!-- Exam List -->
-  <view class="exam-list" wx:else>
+  <!-- 空状态 -->
+  <view wx:elif="{{isEmpty}}" class="empty-container">
+    <image class="empty-icon" src="/images/empty-schedule.png" mode="aspectFit"></image>
+    <text class="empty-title">暂无考试安排</text>
+    <text class="empty-subtitle">请联系管理员确认考试信息</text>
+    <button class="refresh-btn" bindtap="onRefresh">刷新</button>
+  </view>
+
+  <!-- 考试列表 -->
+  <view wx:else class="exam-list">
     <view 
       wx:for="{{filteredExamList}}" 
       wx:key="id"
-      class="exam-card"
+      class="exam-card {{item.status}}"
       data-exam-id="{{item.id}}"
       bindtap="showExamDetail"
     >
-      <!-- Exam Header -->
+      <!-- 考试基本信息 -->
       <view class="exam-header">
-        <view class="exam-title">{{item.examName}}</view>
-        <view class="exam-status" style="color: {{getStatusInfo(item.status).color}}; background-color: {{getStatusInfo(item.status).bgColor}}">
-          {{getStatusInfo(item.status).label}}
+        <view class="exam-title-row">
+          <text class="exam-name">{{item.examName}}</text>
+          <view class="exam-status {{item.status}}">
+            <text class="status-text">{{getStatusInfo(item.status).label}}</text>
+          </view>
+        </view>
+        <text class="exam-type">{{item.examType}}</text>
+      </view>
+
+      <!-- 时间信息 -->
+      <view class="exam-time">
+        <view class="time-row">
+          <text class="time-icon">📅</text>
+          <text class="time-text">{{item.formattedDate}}</text>
+        </view>
+        <view class="time-row">
+          <text class="time-icon">⏰</text>
+          <text class="time-text">{{item.formattedTimeRange}}</text>
+        </view>
+        <view wx:if="{{item.status === 'upcoming'}}" class="time-row">
+          <text class="time-icon">⏳</text>
+          <text class="time-text remaining">{{getTimeRemaining(item.startTime)}}</text>
         </view>
       </view>
 
-      <!-- Exam Info -->
-      <view class="exam-info">
-        <view class="info-row">
-          <image class="info-icon" src="/images/icons/calendar.png"></image>
-          <text class="info-text">{{formatDate(item.startTime)}}</text>
-        </view>
-        <view class="info-row">
-          <image class="info-icon" src="/images/icons/clock.png"></image>
-          <text class="info-text">{{formatTime(item.startTime)}} - {{formatTime(item.endTime)}}</text>
-        </view>
-        <view class="info-row">
-          <image class="info-icon" src="/images/icons/location.png"></image>
-          <text class="info-text">{{item.location}}</text>
-        </view>
-        <view class="info-row">
-          <image class="info-icon" src="/images/icons/type.png"></image>
-          <text class="info-text">{{item.examType}} • {{item.duration}} min</text>
-        </view>
+      <!-- 地点信息 -->
+      <view class="exam-location">
+        <text class="location-icon">📍</text>
+        <text class="location-text">{{item.locationDetail}}</text>
       </view>
 
-      <!-- Time Remaining -->
-      <view class="time-remaining" wx:if="{{item.status === 'upcoming'}}">
-        <text class="remaining-label">剩余时间:</text>
-        <text class="remaining-time">{{getTimeRemaining(item.startTime)}}</text>
+      <!-- 成绩信息（已完成的考试） -->
+      <view wx:if="{{item.status === 'completed' && item.score}}" class="exam-result">
+        <text class="result-label">成绩：</text>
+        <text class="result-score">{{item.score}}/{{item.totalMarks}}</text>
+        <text wx:if="{{item.grade}}" class="result-grade">{{item.grade}}</text>
       </view>
 
-      <!-- Score Display -->
-      <view class="score-display" wx:if="{{item.status === 'completed' && item.score}}">
-        <text class="score-label">分数:</text>
-        <text class="score-value">{{item.score}}/{{item.totalMarks}} ({{item.grade}})</text>
-      </view>
-
-      <!-- Action Buttons -->
+      <!-- 操作按钮 -->
       <view class="exam-actions">
         <button 
-          wx:if="{{item.status === 'upcoming'}}"
+          wx:if="{{item.status === 'upcoming'}}" 
           class="action-btn reminder-btn"
           data-exam-id="{{item.id}}"
           bindtap="setReminder"
-          catchtap=""
+          catchtap="setReminder"
         >
-          <image class="btn-icon" src="/images/icons/bell.png"></image>
-          提醒
+          设置提醒
         </button>
-        <button class="action-btn detail-btn">
-          <image class="btn-icon" src="/images/icons/info.png"></image>
-          详情
-        </button>
+        <button class="action-btn detail-btn">查看详情</button>
       </view>
     </view>
   </view>
 
-  <!-- Quick Actions -->
-  <view class="quick-actions">
-    <button class="quick-action-btn" bindtap="goToQRCode">
-      <image class="action-icon" src="/images/icons/qrcode.png"></image>
-      <text class="action-text">我的二维码</text>
-    </button>
-  </view>
-
-  <!-- Exam Detail Modal -->
-  <view class="modal-overlay" wx:if="{{showExamDetail}}" bindtap="hideExamDetail">
-    <view class="exam-detail-modal" catchtap="">
+  <!-- 考试详情弹窗 -->
+  <view wx:if="{{showExamDetail}}" class="modal-overlay" bindtap="hideExamDetail">
+    <view class="modal-container" catchtap="">
       <view class="modal-header">
         <text class="modal-title">{{selectedExam.examName}}</text>
-        <view class="close-btn" bindtap="hideExamDetail">×</view>
+        <text class="modal-close" bindtap="hideExamDetail">×</text>
       </view>
       
       <view class="modal-content">
-        <!-- Basic Info -->
+        <!-- 基本信息 -->
         <view class="detail-section">
-          <view class="section-title">基本信息</view>
-          <view class="detail-grid">
-            <view class="detail-item">
-              <text class="detail-label">类型:</text>
-              <text class="detail-value">{{selectedExam.examType}}</text>
-            </view>
-            <view class="detail-item">
-              <text class="detail-label">时长:</text>
-              <text class="detail-value">{{selectedExam.duration}} 分钟</text>
-            </view>
-            <view class="detail-item">
-              <text class="detail-label">总分:</text>
-              <text class="detail-value">{{selectedExam.totalMarks}}</text>
-            </view>
-            <view class="detail-item">
-              <text class="detail-label">地点:</text>
-              <text class="detail-value">{{selectedExam.location}}</text>
-            </view>
+          <text class="section-title">考试信息</text>
+          <view class="detail-row">
+            <text class="detail-label">考试类型：</text>
+            <text class="detail-value">{{selectedExam.examType}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">考试时间：</text>
+            <text class="detail-value">{{selectedExam.formattedDate}} {{selectedExam.formattedTimeRange}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">考试地点：</text>
+            <text class="detail-value">{{selectedExam.locationDetail}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">考试时长：</text>
+            <text class="detail-value">{{selectedExam.duration}}分钟</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">总分：</text>
+            <text class="detail-value">{{selectedExam.totalMarks}}分</text>
           </view>
         </view>
 
-        <!-- Schedule -->
+        <!-- 考试要求 -->
         <view class="detail-section">
-          <view class="section-title">时间安排</view>
-          <view class="schedule-info">
-            <view class="schedule-item">
-              <text class="schedule-label">日期:</text>
-              <text class="schedule-value">{{formatDate(selectedExam.startTime)}}</text>
-            </view>
-            <view class="schedule-item">
-              <text class="schedule-label">开始时间:</text>
-              <text class="schedule-value">{{formatTime(selectedExam.startTime)}}</text>
-            </view>
-            <view class="schedule-item">
-              <text class="schedule-label">结束时间:</text>
-              <text class="schedule-value">{{formatTime(selectedExam.endTime)}}</text>
-            </view>
-          </view>
-        </view>
-
-        <!-- Requirements -->
-        <view class="detail-section" wx:if="{{selectedExam.requirements && selectedExam.requirements.length > 0}}">
-          <view class="section-title">考试要求</view>
+          <text class="section-title">考试要求</text>
           <view class="requirements-list">
-            <view 
-              wx:for="{{selectedExam.requirements}}" 
-              wx:key="*this"
-              class="requirement-item"
-            >
-              <image class="check-icon" src="/images/icons/check.png"></image>
-              <text class="requirement-text">{{item}}</text>
+            <view wx:for="{{selectedExam.requirements}}" wx:key="*this" class="requirement-item">
+              <text class="requirement-text">• {{item}}</text>
             </view>
           </view>
         </view>
 
-        <!-- Description -->
-        <view class="detail-section" wx:if="{{selectedExam.description}}">
-          <view class="section-title">考试说明</view>
+        <!-- 考试说明 -->
+        <view wx:if="{{selectedExam.description}}" class="detail-section">
+          <text class="section-title">考试说明</text>
           <text class="description-text">{{selectedExam.description}}</text>
         </view>
 
-        <!-- Score (if completed) -->
-        <view class="detail-section" wx:if="{{selectedExam.status === 'completed' && selectedExam.score}}">
-          <view class="section-title">考试结果</view>
-          <view class="result-info">
-            <view class="result-score">
-              <text class="score-number">{{selectedExam.score}}</text>
-              <text class="score-total">/{{selectedExam.totalMarks}}</text>
-            </view>
-            <view class="result-grade">等级: {{selectedExam.grade}}</view>
+        <!-- 成绩信息 -->
+        <view wx:if="{{selectedExam.status === 'completed' && selectedExam.score}}" class="detail-section">
+          <text class="section-title">考试成绩</text>
+          <view class="score-display">
+            <text class="score-number">{{selectedExam.score}}</text>
+            <text class="score-total">/{{selectedExam.totalMarks}}</text>
+            <text wx:if="{{selectedExam.grade}}" class="score-grade">{{selectedExam.grade}}</text>
           </view>
         </view>
       </view>
 
-      <!-- Modal Actions -->
-      <view class="modal-actions">
-        <button 
-          wx:if="{{selectedExam.status === 'upcoming'}}"
-          class="modal-btn reminder-btn"
-          data-exam-id="{{selectedExam.id}}"
-          bindtap="setReminder"
-        >
-          设置提醒
-        </button>
+      <view class="modal-footer">
         <button class="modal-btn close-btn" bindtap="hideExamDetail">
           关闭
         </button>

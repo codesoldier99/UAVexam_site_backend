@@ -17,7 +17,9 @@ class MockDataManager {
     try {
       // 检查是否应该使用Mock
       const module = this.extractModuleFromUrl(url)
-      if (!this.config.shouldUseMock(module)) {
+      const forceMock = context.forceMock || false
+      
+      if (!forceMock && !this.config.shouldUseMock(module)) {
         return null // 返回null表示应该使用真实API
       }
       
@@ -58,6 +60,12 @@ class MockDataManager {
   
   // 从URL提取模块名
   extractModuleFromUrl(url) {
+    // 新的标准API路径 /api/v1/
+    if (url.includes('/api/v1/auth/')) return 'auth'
+    if (url.includes('/api/v1/candidate/')) return 'candidate'
+    if (url.includes('/api/v1/wechat/')) return 'candidate'
+    
+    // 旧的API路径（保持兼容）
     if (url.includes('/auth/') || url.includes('/wx/login')) return 'auth'
     if (url.includes('/wx-miniprogram/') || url.includes('/wx/candidate')) return 'candidate'
     if (url.includes('/qrcode/')) return 'qrcode'
@@ -100,10 +108,18 @@ class MockDataManager {
       ...params,
       ...urlParams,
       url,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      qrCode: params.qr_code || params.qrCode || '',
+      staffId: context.staffId || 'STAFF_1001',
+      staffName: context.staffName || '系统管理员'
     }
     
     console.log('Processing dynamic data with context:', fullContext)
+    
+    // 特殊处理扫码相关的API
+    if (url.includes('/checkin') && (params.qr_code || params.qrCode)) {
+      return this.processScanData(data, fullContext)
+    }
     
     // 替换动态变量
     const result = this.dynamicGenerator.replaceDynamicVariables(data, fullContext)
@@ -111,6 +127,40 @@ class MockDataManager {
     console.log('Dynamic data processing result:', result)
     
     return result
+  }
+
+  // 处理扫码数据
+  processScanData(data, context) {
+    const scanResult = this.dynamicGenerator.generateScanResult(context)
+    
+    if (scanResult.success) {
+      // 使用成功的Mock数据模板，并填充扫码结果
+      const successContext = {
+        ...context,
+        candidateId: scanResult.candidateId,
+        candidateName: scanResult.candidateName,
+        examName: scanResult.examName,
+        examTime: scanResult.examTime,
+        venue: scanResult.venue,
+        scheduleId: scanResult.scheduleId,
+        staffId: scanResult.staffId,
+        staffName: scanResult.staffName
+      }
+      return this.dynamicGenerator.replaceDynamicVariables(data, successContext)
+    } else {
+      // 返回失败结果
+      return {
+        success: false,
+        message: scanResult.errorMessage,
+        error_code: scanResult.errorCode,
+        data: {
+          qr_code: scanResult.qrCode,
+          reason: scanResult.reason,
+          timestamp: context.timestamp
+        },
+        timestamp: context.timestamp
+      }
+    }
   }
   
   // 提取URL参数

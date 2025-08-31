@@ -3,7 +3,7 @@
 .container {
   min-height: 100vh;
   background: #f7f8fa;
-  padding-bottom: 40rpx;
+  padding-bottom: 180rpx;
 }
 
 /* Loading Overlay */
@@ -34,17 +34,17 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Hero Section */
+/* Hero Section - 优化渐变色彩 */
 .hero-section {
   position: relative;
   background: #fff;
-  margin-bottom: 24rpx;
+  margin-bottom: 30rpx;
   overflow: hidden;
 }
 
 .hero-bg {
-  height: 240rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 260rpx;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   position: relative;
 }
 
@@ -61,8 +61,8 @@
 
 .hero-content {
   position: relative;
-  padding: 0 40rpx 40rpx;
-  margin-top: -100rpx;
+  padding: 0 40rpx 50rpx;
+  margin-top: -120rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,26 +71,37 @@
 
 .avatar-container {
   position: relative;
-  margin-bottom: 24rpx;
+  margin-bottom: 30rpx;
 }
 
-.avatar {
-  width: 140rpx;
-  height: 140rpx;
-  border-radius: 70rpx;
-  border: 6rpx solid #ffffff;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+.avatar-placeholder {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 80rpx;
+  border: 8rpx solid #ffffff;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-text {
+  font-size: 60rpx;
+  font-weight: bold;
+  color: #ffffff;
+  text-transform: uppercase;
 }
 
 .status-dot {
   position: absolute;
-  bottom: 8rpx;
-  right: 8rpx;
-  width: 28rpx;
-  height: 28rpx;
-  border-radius: 14rpx;
+  bottom: 12rpx;
+  right: 12rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 16rpx;
   border: 4rpx solid #ffffff;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
 }
 
 .user-info {
@@ -98,40 +109,40 @@
 }
 
 .user-name {
-  font-size: 40rpx;
+  font-size: 44rpx;
   font-weight: bold;
   color: #1a1a1a;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
 }
 
 .user-id {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #8a8a8a;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .user-status {
   display: inline-block;
-  padding: 8rpx 20rpx;
+  padding: 12rpx 24rpx;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 20rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
 .status-label {
-  font-size: 24rpx;
+  font-size: 26rpx;
   font-weight: 600;
-  color: #667eea;
+  color: #4a90e2;
 }
 
-/* Quick Stats */
+/* Quick Stats - 优化设计 */
 .quick-stats {
   display: flex;
   background: #fff;
-  margin: 0 24rpx 24rpx;
-  border-radius: 20rpx;
-  padding: 32rpx 20rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  margin: 0 30rpx 30rpx;
+  border-radius: 24rpx;
+  padding: 40rpx 20rpx;
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.08);
 }
 
 .stat-item {
@@ -139,17 +150,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 16rpx;
-  transition: transform 0.2s ease;
+  padding: 0 20rpx;
+  transition: all 0.3s ease;
 }
 
 .stat-item:active {
   transform: scale(0.95);
-}
-
-.stat-icon {
-  font-size: 48rpx;
-  margin-bottom: 12rpx;
 }
 
 .stat-info {
@@ -157,23 +163,23 @@
 }
 
 .stat-number {
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: bold;
   color: #1a1a1a;
-  margin-bottom: 4rpx;
+  margin-bottom: 8rpx;
 }
 
 .stat-label {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #8a8a8a;
 }
 
-/* Info Cards */
-.info-card, .action-card, .settings-card {
+/* Info Cards - 优化卡片设计 */
+.info-card {
   background: #fff;
-  margin: 0 24rpx 24rpx;
-  border-radius: 20rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  margin: 0 30rpx 30rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -181,8 +187,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32rpx;
-  border-bottom: 2rpx solid #f5f5f5;
+  padding: 40rpx;
+  border-bottom: 2rpx solid #f8f9fa;
 }
 
 .card-title {
@@ -190,63 +196,22 @@
   align-items: center;
 }
 
-.title-icon {
-  font-size: 32rpx;
-  margin-right: 12rpx;
-}
-
 .title-text {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: bold;
   color: #1a1a1a;
 }
 
-.edit-btn {
-  padding: 12rpx 24rpx;
-  background: #667eea;
-  color: #fff;
-  border: none;
-  border-radius: 20rpx;
-  font-size: 24rpx;
-  font-weight: 500;
-}
-
-.edit-text {
-  color: #fff;
-}
-
-.edit-actions {
-  display: flex;
-  gap: 12rpx;
-}
-
-.save-btn, .cancel-btn {
-  padding: 12rpx 20rpx;
-  border: none;
-  border-radius: 16rpx;
-  font-size: 24rpx;
-  font-weight: 500;
-}
-
-.save-btn {
-  background: #52c41a;
-  color: #fff;
-}
-
-.cancel-btn {
-  background: #f5f5f5;
-  color: #666;
-}
 
 .card-content {
-  padding: 32rpx;
+  padding: 40rpx;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24rpx 0;
+  padding: 28rpx 0;
   border-bottom: 2rpx solid #f8f9fa;
 }
 
@@ -256,133 +221,65 @@
 }
 
 .item-label {
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #666;
-  min-width: 140rpx;
+  min-width: 160rpx;
+  font-weight: 500;
 }
 
 .item-value {
   flex: 1;
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #1a1a1a;
   font-weight: 500;
   text-align: right;
 }
 
-.item-input {
-  flex: 1;
-  padding: 16rpx 20rpx;
-  background: #f8f9fa;
-  border: 2rpx solid #e9ecef;
-  border-radius: 12rpx;
-  font-size: 28rpx;
-  color: #1a1a1a;
-  text-align: right;
-  transition: all 0.3s ease;
+
+/* Logout Section - 主流小程序风格 */
+.logout-section {
+  margin: 40rpx 30rpx 120rpx;
+  position: relative;
+  z-index: 10;
 }
 
-.item-input:focus {
-  border-color: #667eea;
+.logout-btn {
+  width: 100%;
+  height: 88rpx;
   background: #fff;
-  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.1);
-}
-
-/* Action List */
-.action-list {
-  padding: 0;
-}
-
-.action-item {
+  border: 2rpx solid #ff4d4f;
+  border-radius: 44rpx;
   display: flex;
   align-items: center;
-  padding: 32rpx;
-  border-bottom: 2rpx solid #f8f9fa;
-  transition: background-color 0.2s ease;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4rpx 16rpx rgba(255, 77, 79, 0.1);
+  position: relative;
+  overflow: visible;
 }
 
-.action-item:last-child {
-  border-bottom: none;
+.logout-btn:active {
+  background: #ff4d4f;
+  transform: scale(0.98);
 }
 
-.action-item:active {
-  background-color: #f8f9fa;
+.logout-btn:active .logout-text {
+  color: #fff;
 }
 
-.action-icon {
-  font-size: 40rpx;
-  margin-right: 24rpx;
-  width: 40rpx;
-  text-align: center;
-}
-
-.action-content {
-  flex: 1;
-}
-
-.action-title {
-  font-size: 28rpx;
-  color: #1a1a1a;
-  font-weight: 500;
-  margin-bottom: 4rpx;
-}
-
-.action-desc {
-  font-size: 24rpx;
-  color: #8a8a8a;
-}
-
-.action-arrow {
+.logout-text {
   font-size: 32rpx;
-  color: #ccc;
-  font-weight: 300;
-}
-
-/* Settings */
-.setting-item {
-  display: flex;
-  align-items: center;
-  padding: 32rpx;
-  border-bottom: 2rpx solid #f8f9fa;
-  transition: background-color 0.2s ease;
-}
-
-.setting-item:last-child {
-  border-bottom: none;
-}
-
-.setting-item:active {
-  background-color: #f8f9fa;
-}
-
-.logout-item {
-  color: #ff4d4f;
-}
-
-.logout-item .setting-text {
-  color: #ff4d4f;
-}
-
-.setting-icon {
-  font-size: 36rpx;
-  margin-right: 24rpx;
-  width: 36rpx;
-  text-align: center;
-}
-
-.setting-text {
-  flex: 1;
-  font-size: 28rpx;
-  color: #1a1a1a;
   font-weight: 500;
+  color: #ff4d4f;
+  transition: color 0.3s ease;
+  line-height: 1;
 }
 
-.setting-arrow {
-  font-size: 32rpx;
-  color: #ccc;
-  font-weight: 300;
+.logout-btn::after {
+  border: none;
 }
 
-/* Status Modal */
+/* Status Modal - 优化弹窗设计 */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -398,11 +295,11 @@
 
 .status-modal {
   background: #fff;
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   margin: 40rpx;
   max-width: 600rpx;
   width: 100%;
-  box-shadow: 0 20rpx 40rpx rgba(0, 0, 0, 0.2);
+  box-shadow: 0 24rpx 48rpx rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
@@ -410,101 +307,102 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32rpx;
+  padding: 40rpx;
   border-bottom: 2rpx solid #f5f5f5;
 }
 
 .modal-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: bold;
   color: #1a1a1a;
 }
 
 .close-btn {
-  width: 48rpx;
-  height: 48rpx;
+  width: 52rpx;
+  height: 52rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36rpx;
+  font-size: 40rpx;
   color: #999;
   cursor: pointer;
-  border-radius: 24rpx;
-  transition: background-color 0.2s ease;
+  border-radius: 26rpx;
+  transition: all 0.3s ease;
 }
 
 .close-btn:active {
   background-color: #f5f5f5;
+  transform: scale(0.9);
 }
 
 .modal-content {
-  padding: 32rpx;
+  padding: 40rpx;
 }
 
 .current-status {
   display: flex;
   align-items: center;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .status-indicator {
-  width: 24rpx;
-  height: 24rpx;
-  border-radius: 12rpx;
-  margin-right: 16rpx;
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 14rpx;
+  margin-right: 20rpx;
 }
 
 .status-name {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: 600;
   color: #1a1a1a;
 }
 
 .status-description {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #666;
   line-height: 1.6;
 }
 
-/* Responsive Design */
+/* Responsive Design - 响应式优化 */
 @media screen and (max-width: 750rpx) {
   .hero-content {
-    padding: 0 30rpx 30rpx;
+    padding: 0 30rpx 40rpx;
   }
   
   .quick-stats {
-    margin: 0 20rpx 20rpx;
-    padding: 24rpx 16rpx;
+    margin: 0 24rpx 24rpx;
+    padding: 32rpx 16rpx;
   }
   
   .stat-item {
-    padding: 0 12rpx;
+    padding: 0 16rpx;
   }
   
   .stat-number {
-    font-size: 32rpx;
+    font-size: 36rpx;
   }
   
-  .info-card, .action-card, .settings-card {
-    margin: 0 20rpx 20rpx;
+  .info-card, .settings-card {
+    margin: 0 24rpx 24rpx;
   }
   
   .card-header, .card-content {
-    padding: 24rpx;
+    padding: 32rpx;
   }
   
-  .action-item, .setting-item {
-    padding: 24rpx;
+  .setting-item {
+    padding: 32rpx;
   }
 }
 
-/* Animation Effects */
+/* Animation Effects - 优化动画效果 */
 .hero-section {
-  animation: fadeInDown 0.6s ease-out;
+  animation: fadeInDown 0.8s ease-out;
 }
 
-.quick-stats, .info-card, .action-card, .settings-card {
-  animation: slideUp 0.6s ease-out;
+.quick-stats, .info-card, .logout-section {
+  animation: slideUp 0.8s ease-out;
 }
 
 .quick-stats {
@@ -519,18 +417,14 @@
   animation-delay: 0.3s;
 }
 
-.action-card {
+.logout-section {
   animation-delay: 0.4s;
-}
-
-.settings-card {
-  animation-delay: 0.5s;
 }
 
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-40rpx);
+    transform: translateY(-60rpx);
   }
   to {
     opacity: 1;
@@ -541,7 +435,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(40rpx);
+    transform: translateY(60rpx);
   }
   to {
     opacity: 1;
@@ -549,39 +443,38 @@
   }
 }
 
-/* Hover Effects for Better Interaction */
+/* Enhanced Interaction Effects */
 .stat-item:hover {
-  transform: translateY(-4rpx);
+  transform: translateY(-6rpx);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
 }
 
-.action-item:hover, .setting-item:hover {
+.setting-item:hover {
   background-color: #f8f9fa;
 }
 
-.edit-btn:hover {
-  background: #5a6fd8;
-}
 
-.save-btn:hover {
-  background: #49b018;
-}
 
-/* Dark Mode Support (Optional) */
+/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .container {
     background: #1a1a1a;
   }
   
-  .info-card, .action-card, .settings-card, .quick-stats {
+  .info-card, .settings-card, .quick-stats {
     background: #2a2a2a;
-    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.3);
   }
   
-  .user-name, .title-text, .item-value, .action-title, .setting-text {
+  .user-name, .title-text, .item-value, .setting-text {
     color: #ffffff;
   }
   
-  .user-id, .stat-label, .item-label, .action-desc {
+  .user-id, .stat-label, .item-label {
     color: #cccccc;
+  }
+  
+  .card-header, .info-item {
+    border-bottom-color: #404040;
   }
 }

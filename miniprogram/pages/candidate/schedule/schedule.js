@@ -5,8 +5,8 @@ const app = getApp()
 Page({
   data: {
     examList: [],
-    filteredExamList: [], // Add filtered exam list for template
-    currentTab: 'all', // all, upcoming, completed
+    filteredExamList: [],
+    currentTab: 'all',
     isLoading: false,
     isEmpty: false,
     selectedExam: null,
@@ -14,7 +14,6 @@ Page({
     filterOptions: [
       { value: 'all', label: '全部考试', count: 0 },
       { value: 'upcoming', label: '即将开始', count: 0 },
-      { value: 'ongoing', label: '进行中', count: 0 },
       { value: 'completed', label: '已完成', count: 0 }
     ]
   },
@@ -22,16 +21,14 @@ Page({
   onLoad: function(options) {
     this.loadExamSchedule()
     
-    // 设置自定义tabBar的选中状态
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({
-        selected: 1 // 考试安排是第2个tab，索引为1
+        selected: 1
       })
     }
   },
 
   onShow: function() {
-    // Refresh data when page shows
     this.loadExamSchedule()
   },
 
@@ -41,111 +38,173 @@ Page({
     })
   },
 
-  // Load exam schedule
   loadExamSchedule: function() {
     this.setData({ isLoading: true })
 
-    // Check network status first
     return new Promise((resolve) => {
       wx.getNetworkType({
         success: (res) => resolve(res.networkType !== 'none'),
         fail: () => resolve(false)
-      });
-    }).then(networkAvailable => {
-      if (!networkAvailable) {
-        throw new Error('网络连接不可用，请检查网络设置');
-      }
-
-      // Get candidate info from storage
-      const candidateInfo = wx.getStorageSync('candidateInfo');
-      if (!candidateInfo || !candidateInfo.id) {
-        throw new Error('用户信息不存在，请重新登录');
-      }
-
-      return candidateAPI.getExamSchedule(candidateInfo.id);
-    }).then(response => {
-      console.log('Schedule API Response:', response)
-      
-      if (response.success && response.data) {
-        console.log('Raw exam data:', response.data)
-        
-        const examList = response.data.map(exam => {
-          console.log('Processing exam:', exam)
-          
-          const mappedExam = {
-            id: exam.id,
-            examName: exam.exam_name || exam.examName,
-            examType: exam.exam_type || exam.examType || 'Written',
-            startTime: new Date(exam.exam_time || exam.startTime),
-            endTime: new Date(exam.end_time || exam.endTime || (new Date(exam.exam_time || exam.startTime).getTime() + 2 * 60 * 60 * 1000)),
-            location: exam.venue || exam.location || '待定',
-            status: this.mapExamStatus(exam.status),
-            requirements: exam.requirements || ['身份证', '准考证'],
-            description: exam.description || exam.exam_name || exam.examName,
-            duration: exam.duration || 120,
-            totalMarks: exam.total_marks || exam.totalMarks || 100,
-            score: exam.score,
-            grade: exam.grade
-          }
-          
-          console.log('Mapped exam:', mappedExam)
-          return mappedExam
+      })
+    }).then(hasNetwork => {
+      if (!hasNetwork) {
+        wx.showToast({
+          title: '网络连接失败',
+          icon: 'none'
         })
+        this.setData({ isLoading: false })
+        return Promise.reject('No network')
+      }
+
+      return candidateAPI.getExamSchedule()
+    }).then(response => {
+      console.log('=== 原始API响应数据 ===')
+      console.log('完整响应对象:', JSON.stringify(response, null, 2))
+      console.log('响应数据类型:', typeof response)
+      console.log('是否为数组:', Array.isArray(response))
+      
+      if (response && typeof response === 'object') {
+        console.log('响应对象的所有属性:', Object.keys(response))
         
-        console.log('Final exam list:', examList)
-        console.log('Final exam list:', examList)
-        
-        // Update filtered list based on current tab
-        let filteredExamList
-        if (this.data.currentTab === 'all') {
-          filteredExamList = examList
-        } else {
-          filteredExamList = examList.filter(exam => exam.status === this.data.currentTab)
+        if (response.upcoming_exams) {
+          console.log('即将开始的考试数量:', response.upcoming_exams.length)
+          console.log('即将开始的考试详情:', JSON.stringify(response.upcoming_exams, null, 2))
         }
         
-        console.log('Setting filteredExamList:', filteredExamList)
+        if (response.completed_exams) {
+          console.log('已完成的考试数量:', response.completed_exams.length)
+          console.log('已完成的考试详情:', JSON.stringify(response.completed_exams, null, 2))
+        }
         
-        this.setData({
-          examList: examList,
-          filteredExamList: filteredExamList,
-          isEmpty: examList.length === 0
-        })
+        if (response.summary) {
+          console.log('考试统计信息:', JSON.stringify(response.summary, null, 2))
+        }
+      }
+      console.log('=== 原始API响应数据结束 ===')
 
-        this.updateFilterCounts(examList)
-      } else {
-        throw new Error(response.message || '获取考试安排失败')
+      let examData = []
+      
+      if (response && typeof response === 'object') {
+        if (response.upcoming_exams && Array.isArray(response.upcoming_exams)) {
+          examData = examData.concat(response.upcoming_exams)
+        }
+        if (response.completed_exams && Array.isArray(response.completed_exams)) {
+          examData = examData.concat(response.completed_exams)
+        }
+      } else if (Array.isArray(response)) {
+        examData = response
       }
-    }).catch(error => {
-      console.error('Failed to load exam schedule:', error)
-      
-      let errorMessage = '加载考试安排失败，请重试';
-      if (error.message.includes('网络')) {
-        errorMessage = error.message;
-      } else if (error.message.includes('token') || error.message.includes('登录')) {
-        errorMessage = '登录已过期，请重新登录';
-        setTimeout(() => {
-          wx.reLaunch({
-            url: '/pages/candidate/login/login'
-          });
-        }, 2000);
+
+      if (examData.length === 0) {
+        this.setData({
+          examList: [],
+          filteredExamList: [],
+          isEmpty: true,
+          isLoading: false
+        })
+        this.updateFilterCounts([])
+        return
       }
+
+      console.log('Raw exam data:', examData)
+
+      const mappedExams = examData.map(exam => {
+        console.log('Processing exam:', exam)
+        
+        const startTimeObj = new Date(exam.exam_time || exam.startTime)
+        const endTimeObj = new Date(exam.exam_end_time || exam.end_time || exam.endTime || (startTimeObj.getTime() + 2 * 60 * 60 * 1000))
+        
+        const mappedExam = {
+          id: exam.schedule_id || exam.id || exam.exam_id,
+          examName: exam.exam_name || exam.examName,
+          examType: exam.exam_type || exam.examType || '实操',
+          startTime: startTimeObj,
+          endTime: endTimeObj,
+          // 预格式化的时间字符串，供模板直接使用
+          formattedDate: this.formatDate(startTimeObj),
+          formattedStartTime: this.formatTime(startTimeObj),
+          formattedEndTime: this.formatTime(endTimeObj),
+          formattedTimeRange: `${this.formatTime(startTimeObj)} - ${this.formatTime(endTimeObj)}`,
+          location: exam.venue ? (exam.venue.name || exam.venue.address || exam.venue) : (exam.location || '待定'),
+          locationDetail: exam.venue ? `${exam.venue.name || ''} ${exam.venue.address || ''}`.trim() : (exam.location || '待定'),
+          status: this.mapExamStatus(exam.status),
+          requirements: exam.requirements || ['身份证', '准考证'],
+          description: exam.description || exam.exam_name || exam.examName,
+          duration: exam.duration || 120,
+          totalMarks: exam.total_marks || exam.totalMarks || 100,
+          score: exam.score,
+          grade: exam.grade,
+          canCheckin: exam.can_checkin || false,
+          checkinStartTime: exam.checkin_start_time ? new Date(exam.checkin_start_time) : null,
+          examResult: exam.exam_result,
+          originalStatus: exam.status
+        }
+        
+        // 添加时间调试信息
+        console.log('时间调试 - 原始时间:', exam.exam_time, exam.exam_end_time)
+        console.log('时间调试 - 转换后:', mappedExam.startTime, mappedExam.endTime)
+        console.log('时间调试 - 是否为Date对象:', mappedExam.startTime instanceof Date, mappedExam.endTime instanceof Date)
+        console.log('时间调试 - 格式化测试:', this.formatTime(mappedExam.startTime), this.formatDate(mappedExam.startTime))
+        
+        console.log('Mapped exam:', mappedExam)
+        return mappedExam
+      })
       
-      wx.showToast({
-        title: errorMessage,
-        icon: 'none',
-        duration: 2000
-      });
+      // 数据去重处理
+      console.log('=== 数据去重分析 ===')
+      console.log('原始数据数量:', mappedExams.length)
       
+      const uniqueExamsMap = new Map()
+      mappedExams.forEach(exam => {
+        const existingExam = uniqueExamsMap.get(exam.id)
+        if (!existingExam) {
+          uniqueExamsMap.set(exam.id, exam)
+          console.log(`新增考试 ID ${exam.id}:`, exam.examName, '状态:', exam.status, '(原始:', exam.originalStatus, ')')
+        } else {
+          const statusPriority = { 'completed': 3, 'ongoing': 2, 'upcoming': 1 }
+          const currentPriority = statusPriority[exam.status] || 0
+          const existingPriority = statusPriority[existingExam.status] || 0
+          
+          if (currentPriority > existingPriority) {
+            uniqueExamsMap.set(exam.id, exam)
+            console.log(`替换重复考试 ID ${exam.id}:`, existingExam.originalStatus, '->', exam.originalStatus)
+          } else {
+            console.log(`保留原有考试 ID ${exam.id}:`, existingExam.originalStatus, '(忽略', exam.originalStatus, ')')
+          }
+        }
+      })
+      
+      const uniqueExams = Array.from(uniqueExamsMap.values())
+      console.log('去重后数量:', uniqueExams.length)
+      console.log('去重详情:')
+      uniqueExams.forEach(exam => {
+        console.log(`- ID: ${exam.id}, 考试: ${exam.examName}, 状态: ${exam.status} (原始: ${exam.originalStatus})`)
+      })
+      console.log('=== 数据去重分析结束 ===')
+
+      console.log('Final exam list:', uniqueExams)
+
       this.setData({
-        examList: [],
-        isEmpty: true
-      });
-    }).finally(() => {
+        examList: uniqueExams,
+        isLoading: false,
+        isEmpty: uniqueExams.length === 0
+      })
+
+      this.updateFilterCounts(uniqueExams)
+      this.filterExams()
+
+      console.log('Setting filteredExamList:', uniqueExams)
+
+    }).catch(error => {
+      console.error('Load exam schedule error:', error)
+      wx.showToast({
+        title: '加载失败，请重试',
+        icon: 'none'
+      })
       this.setData({ isLoading: false })
     })
   },
 
-  // Map exam status from backend to frontend
   mapExamStatus: function(backendStatus) {
     const statusMap = {
       '待签到': 'upcoming',
@@ -154,87 +213,27 @@ Page({
       '缺考': 'completed',
       'confirmed': 'upcoming',
       'waiting': 'upcoming',
+      'scheduled': 'upcoming',
       'checked_in': 'ongoing',
       'completed': 'completed',
-      'absent': 'completed'
-    };
-    return statusMap[backendStatus] || 'upcoming';
+      'absent': 'completed',
+      'in_progress': 'ongoing',
+      'finished': 'completed'
+    }
+    
+    console.log('映射状态:', backendStatus, '->', statusMap[backendStatus] || 'upcoming')
+    
+    if (!backendStatus) {
+      return 'upcoming'
+    }
+    
+    return statusMap[backendStatus] || 'upcoming'
   },
 
-  // Load mock data for demo
-  loadMockData: function() {
-    const now = new Date()
-    const mockExams = [
-      {
-        id: 'EXAM001',
-        examName: 'Computer Science Fundamentals',
-        examType: 'Written',
-        startTime: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days later
-        endTime: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000), // +2 hours
-        location: 'Room A101',
-        status: 'upcoming',
-        requirements: ['ID Card', 'Student Card', 'Pencil'],
-        description: 'Comprehensive exam covering basic computer science concepts',
-        duration: 120,
-        totalMarks: 100
-      },
-      {
-        id: 'EXAM002',
-        examName: 'Data Structures and Algorithms',
-        examType: 'Practical',
-        startTime: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days later
-        endTime: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000), // +3 hours
-        location: 'Lab B205',
-        status: 'upcoming',
-        requirements: ['ID Card', 'Student Card', 'Laptop'],
-        description: 'Hands-on programming exam for data structures and algorithms',
-        duration: 180,
-        totalMarks: 150
-      },
-      {
-        id: 'EXAM003',
-        examName: 'Database Management Systems',
-        examType: 'Written',
-        startTime: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-        endTime: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000), // +2 hours
-        location: 'Room C301',
-        status: 'completed',
-        requirements: ['ID Card', 'Student Card'],
-        description: 'Theory and practical aspects of database management',
-        duration: 120,
-        totalMarks: 100,
-        score: 85,
-        grade: 'A'
-      },
-      {
-        id: 'EXAM004',
-        examName: 'Software Engineering',
-        examType: 'Project',
-        startTime: new Date(now.getTime() - 1 * 60 * 60 * 1000), // 1 hour ago
-        endTime: new Date(now.getTime() + 2 * 60 * 60 * 1000), // +2 hours from now
-        location: 'Online',
-        status: 'ongoing',
-        requirements: ['Stable Internet', 'Webcam'],
-        description: 'Project presentation and viva',
-        duration: 180,
-        totalMarks: 200
-      }
-    ]
-
-    this.setData({
-      examList: mockExams,
-      isEmpty: false
-    })
-
-    this.updateFilterCounts(mockExams)
-  },
-
-  // Update filter counts
   updateFilterCounts: function(examList) {
     const counts = {
       all: examList.length,
       upcoming: examList.filter(exam => exam.status === 'upcoming').length,
-      ongoing: examList.filter(exam => exam.status === 'ongoing').length,
       completed: examList.filter(exam => exam.status === 'completed').length
     }
 
@@ -246,47 +245,35 @@ Page({
     this.setData({ filterOptions })
   },
 
-  // Switch tab
   switchTab: function(e) {
     const tab = e.currentTarget.dataset.tab
-    this.setData({
-      currentTab: tab
-    })
-    this.updateFilteredExamList()
+    this.setData({ currentTab: tab })
+    this.filterExams()
   },
 
-  // Update filtered exam list for template
-  updateFilteredExamList: function() {
+  filterExams: function() {
     const { examList, currentTab } = this.data
-    
-    let filteredExamList
-    if (currentTab === 'all') {
-      filteredExamList = examList
-    } else {
-      filteredExamList = examList.filter(exam => exam.status === currentTab)
+    let filteredList = examList
+
+    if (currentTab === 'upcoming') {
+      filteredList = examList.filter(exam => exam.status === 'upcoming')
+    } else if (currentTab === 'completed') {
+      filteredList = examList.filter(exam => exam.status === 'completed')
     }
-    
-    this.setData({
-      filteredExamList: filteredExamList
+
+    this.setData({ 
+      filteredExamList: filteredList,
+      isEmpty: filteredList.length === 0
     })
   },
 
-  // Get filtered exam list (kept for compatibility)
-  getFilteredExams: function() {
-    const { examList, currentTab } = this.data
-    
-    if (currentTab === 'all') {
-      return examList
-    }
-    
-    return examList.filter(exam => exam.status === currentTab)
+  onRefresh: function() {
+    this.loadExamSchedule()
   },
 
-  // Show exam detail
   showExamDetail: function(e) {
     const examId = e.currentTarget.dataset.examId
-    const exam = this.data.examList.find(exam => exam.id === examId)
-    
+    const exam = this.data.examList.find(item => item.id == examId)
     if (exam) {
       this.setData({
         selectedExam: exam,
@@ -295,7 +282,6 @@ Page({
     }
   },
 
-  // Hide exam detail
   hideExamDetail: function() {
     this.setData({
       showExamDetail: false,
@@ -303,33 +289,49 @@ Page({
     })
   },
 
-  // Get exam status info
+  setReminder: function(e) {
+    const examId = e.currentTarget.dataset.examId
+    wx.showToast({
+      title: '提醒设置成功',
+      icon: 'success'
+    })
+  },
+
   getStatusInfo: function(status) {
     const statusMap = {
       upcoming: { label: '即将开始', color: '#1890ff', bgColor: '#e6f7ff' },
-      ongoing: { label: '进行中', color: '#faad14', bgColor: '#fff7e6' },
-      completed: { label: '已完成', color: '#52c41a', bgColor: '#f6ffed' }
+      ongoing: { label: '进行中', color: '#52c41a', bgColor: '#f6ffed' },
+      completed: { label: '已完成', color: '#8c8c8c', bgColor: '#f5f5f5' }
     }
     return statusMap[status] || statusMap.upcoming
   },
 
-  // Format date
   formatDate: function(date) {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      console.log('Invalid date for formatDate:', date)
+      return '-'
+    }
     const year = date.getFullYear()
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const day = date.getDate().toString().padStart(2, '0')
     return `${year}-${month}-${day}`
   },
 
-  // Format time
   formatTime: function(date) {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      console.log('Invalid date for formatTime:', date)
+      return '-'
+    }
     const hours = date.getHours().toString().padStart(2, '0')
     const minutes = date.getMinutes().toString().padStart(2, '0')
     return `${hours}:${minutes}`
   },
 
-  // Get time remaining
   getTimeRemaining: function(startTime) {
+    if (!startTime || !(startTime instanceof Date)) {
+      return '-'
+    }
+    
     const now = new Date()
     const diff = startTime.getTime() - now.getTime()
     
@@ -339,52 +341,14 @@ Page({
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
     
     if (days > 0) {
-      return `${days}天 ${hours}小时`
+      return `${days}天${hours}小时`
     } else if (hours > 0) {
-      return `${hours}小时`
+      return `${hours}小时${minutes}分钟`
     } else {
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
       return `${minutes}分钟`
     }
-  },
-
-  // Navigate to QR code
-  goToQRCode: function() {
-    wx.switchTab({
-      url: '/pages/candidate/qrcode/qrcode'
-    })
-  },
-
-  // Set exam reminder
-  setReminder: function(e) {
-    const examId = e.currentTarget.dataset.examId
-    const exam = this.data.examList.find(exam => exam.id === examId)
-    
-    if (!exam) return
-    
-    wx.showModal({
-      title: 'Set Reminder',
-      content: `Set reminder for ${exam.examName}?`,
-      success: (res) => {
-        if (res.confirm) {
-          // Here you would typically call an API to set the reminder
-          wx.showToast({
-            title: 'Reminder set',
-            icon: 'success'
-          })
-        }
-      }
-    })
-  },
-
-  // Refresh data
-  onRefresh: function() {
-    this.loadExamSchedule()
-    wx.showToast({
-      title: 'Refreshed',
-      icon: 'success'
-    })
   }
 })

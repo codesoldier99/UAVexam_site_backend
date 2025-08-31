@@ -1,0 +1,4 @@
+<!--pages/staff/dashboard/dashboard.wxml-->
+<view class="container">
+  <text>工作人员仪表板</text>
+</view>

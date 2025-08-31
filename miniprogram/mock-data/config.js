@@ -1,16 +1,16 @@
 // Mock数据配置管理
 const config = {
   // 全局Mock开关
-  useMockData: true,
+  useMockData: false,  // 关闭Mock，使用真实API
   
   // 模块级别控制
   moduleConfig: {
-    auth: true,        // 认证模块
-    candidate: true,   // 考生模块
-    qrcode: true,      // 二维码模块
-    realtime: true,    // 实时数据模块
-    staff: true,       // 工作人员模块
-    public: true       // 公共模块
+    auth: false,       // 认证模块 - 使用真实API
+    candidate: false,  // 考生模块 - 使用真实API
+    qrcode: false,     // 二维码模块 - 使用真实API
+    realtime: false,   // 实时数据模块 - 使用真实API
+    staff: false,      // 工作人员模块 - 使用真实API
+    public: false      // 公共模块 - 使用真实API
   },
   
   // Mock行为配置

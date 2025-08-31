@@ -1,44 +1,103 @@
 <view class="container">
-  <view class="header">
+  <!-- 顶部装饰区域 -->
+  <view class="header-section">
     <view class="back-btn" bindtap="goBack">
       <text class="back-icon">←</text>
     </view>
-    <view class="title">考生登录</view>
+    <view class="logo-area">
+      <view class="logo-circle">
+        <text class="logo-text">考</text>
+      </view>
+      <view class="app-title">考试管理系统</view>
+      <view class="welcome-text">欢迎登录</view>
+    </view>
   </view>
 
-  <view class="login-form">
-    <view class="form-card card">
-      <view class="form-title">请输入您的身份证号</view>
+  <!-- 登录表单区域 -->
+  <view class="form-section">
+    <!-- 第一步：身份证验证 -->
+    <view class="login-card" wx:if="{{!showConfirm}}">
+      <view class="card-title">身份验证</view>
+      <view class="card-subtitle">请输入您的身份证号进行验证</view>
       
-      <view class="input-group">
-        <view class="input-label">身份证号</view>
-        <input 
-          class="input-field" 
-          type="idcard"
-          placeholder="请输入18位身份证号"
-          value="{{idNumber}}"
-          bindinput="onIdNumberInput"
-          maxlength="18"
-        />
+      <view class="input-container">
+        <view class="input-wrapper">
+          <view class="input-icon">🆔</view>
+          <input 
+            class="input-field" 
+            type="idcard"
+            placeholder="请输入18位身份证号"
+            value="{{idNumber}}"
+            bindinput="onIdNumberInput"
+            maxlength="18"
+          />
+        </view>
       </view>
 
       <button 
-        class="btn-primary login-btn" 
-        bindtap="handleLogin"
-        disabled="{{isLoading}}"
+        class="primary-btn {{isLoading || !idNumber ? 'disabled' : ''}}" 
+        bindtap="handleVerifyId"
+        disabled="{{isLoading || !idNumber}}"
       >
-        {{isLoading ? '登录中...' : '登录'}}
+        <text class="btn-text">{{isLoading ? '验证中...' : '验证身份'}}</text>
       </button>
     </view>
 
-    <view class="tips">
-      <view class="tip-item">
-        <text class="tip-icon">ℹ️</text>
-        <text class="tip-text">请确保输入的身份证号与报名时一致</text>
+    <!-- 第二步：确认信息并登录 -->
+    <view class="login-card" wx:if="{{showConfirm && candidateInfo}}">
+      <view class="card-title">确认信息</view>
+      <view class="card-subtitle">请核对您的个人信息</view>
+      
+      <view class="info-section">
+        <view class="info-row">
+          <view class="info-label">姓名</view>
+          <view class="info-value">{{candidateInfo.name}}</view>
+        </view>
+        <view class="info-row">
+          <view class="info-label">身份证号</view>
+          <view class="info-value">{{candidateInfo.id_card}}</view>
+        </view>
+        <view class="info-row">
+          <view class="info-label">联系电话</view>
+          <view class="info-value">{{candidateInfo.phone}}</view>
+        </view>
+        <view class="info-row">
+          <view class="info-label">培训机构</view>
+          <view class="info-value">{{candidateInfo.institution.name}}</view>
+        </view>
+        <view class="info-row" wx:if="{{candidateInfo.has_pending_exams}}">
+          <view class="info-label">下次考试</view>
+          <view class="info-value">{{candidateInfo.next_exam_date}}</view>
+        </view>
       </view>
-      <view class="tip-item">
-        <text class="tip-icon">🔒</text>
+
+      <view class="button-group">
+        <button 
+          class="secondary-btn" 
+          bindtap="handleCancelConfirm"
+          disabled="{{isLoading}}"
+        >
+          重新输入
+        </button>
+        <button 
+          class="primary-btn {{isLoading ? 'disabled' : ''}}" 
+          bindtap="handleConfirmLogin"
+          disabled="{{isLoading}}"
+        >
+          {{isLoading ? '登录中...' : '确认登录'}}
+        </button>
+      </view>
+    </view>
+
+    <!-- 安全提示 -->
+    <view class="security-tips">
+      <view class="tip-row">
+        <view class="tip-icon">🔒</view>
         <text class="tip-text">您的个人信息将被安全保护</text>
+      </view>
+      <view class="tip-row">
+        <view class="tip-icon">ℹ️</view>
+        <text class="tip-text">请确保输入的身份证号与报名时一致</text>
       </view>
     </view>
   </view>

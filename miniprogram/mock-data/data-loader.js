@@ -2,19 +2,20 @@
 // 直接导入所有mock数据模块
 
 // 认证相关数据
-const candidateLoginSuccess = require('./auth/candidate-login-success.js')
-const candidateLoginFailure = require('./auth/candidate-login-failure.js')
 const staffLoginSuccess = require('./auth/staff-login-success.js')
 const staffLoginFailure = require('./auth/staff-login-failure.js')
+const candidateLoginSuccess = require('./auth/candidate-login-success.js')
 const userInfo = require('./auth/user-info.js')
 
 // 考生相关数据
 const candidateInfo = require('./candidate/candidate-info.js')
+const candidateInfoByIdcard = require('./candidate/candidate-info-by-idcard.js')
 const candidateDetail = require('./candidate/candidate-detail.js')
 const examSchedule = require('./candidate/exam-schedule.js')
 const candidateQrcode = require('./candidate/candidate-qrcode.js')
 const checkinHistory = require('./candidate/checkin-history.js')
 const examResults = require('./candidate/exam-results.js')
+const updateCandidateInfo = require('./candidate/update-candidate-info.js')
 
 // 二维码相关数据
 const scheduleQr = require('./qrcode/schedule-qr.js')
@@ -37,19 +38,20 @@ class DataLoader {
     this.cache = new Map()
     this.mockData = {
       // 认证数据
-      'auth/candidate-login-success': candidateLoginSuccess,
-      'auth/candidate-login-failure': candidateLoginFailure,
       'auth/staff-login-success': staffLoginSuccess,
       'auth/staff-login-failure': staffLoginFailure,
+      'auth/candidate-login-success': candidateLoginSuccess,
       'auth/user-info': userInfo,
       
       // 考生数据
       'candidate/candidate-info': candidateInfo,
+      'candidate/candidate-info-by-idcard': candidateInfoByIdcard,
       'candidate/candidate-detail': candidateDetail,
       'candidate/exam-schedule': examSchedule,
       'candidate/candidate-qrcode': candidateQrcode,
       'candidate/checkin-history': checkinHistory,
       'candidate/exam-results': examResults,
+      'candidate/update-candidate-info': updateCandidateInfo,
       
       // 二维码数据
       'qrcode/schedule-qr': scheduleQr,

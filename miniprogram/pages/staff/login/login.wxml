@@ -42,6 +42,7 @@
             bindinput="onUsernameInput"
             bindfocus="onInputFocus"
             bindblur="onInputBlur"
+            data-field="usernameFocused"
             maxlength="20"
           />
         </view>
@@ -60,6 +61,7 @@
             bindinput="onPasswordInput"
             bindfocus="onInputFocus"
             bindblur="onInputBlur"
+            data-field="passwordFocused"
             maxlength="50"
           />
           <view class="password-toggle" bindtap="togglePassword">

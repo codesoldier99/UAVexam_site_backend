@@ -89,8 +89,14 @@ class DynamicGenerator {
         case 'qr_url':
           const content = this.generateQRContent(context.candidateId, context.scheduleId)
           return this.generateQRUrl(content)
+        case 'qr_code':
+          const qrContent = this.generateQRContent(context.candidateId, context.scheduleId)
+          return this.generateQRUrl(qrContent)
+        case 'expires_at':
         case 'expiry_time':
           return this.generateExpiryTime()
+        case 'schedule_id':
+          return context.scheduleId || context.id || 'SCH_' + this.generateId()
         case 'random_id':
           return this.generateId()
         case 'user_id':
@@ -131,6 +137,120 @@ class DynamicGenerator {
       expires_at: this.generateExpiryTime(2), // 2小时后过期
       token: this.generateToken(candidateId, 'candidate')
     }
+  }
+
+  // 生成考生信息
+  generateCandidateInfo(context = {}) {
+    const candidates = [
+      { name: '张三', idCard: '110101199001011234', phone: '13800138001', institution: '北京航空培训中心' },
+      { name: '李四', idCard: '110101199002022345', phone: '13800138002', institution: '上海飞行学院' },
+      { name: '王五', idCard: '110101199003033456', phone: '13800138003', institution: '广州航空学校' },
+      { name: '赵六', idCard: '110101199004044567', phone: '13800138004', institution: '深圳无人机培训中心' },
+      { name: '孙七', idCard: '110101199005055678', phone: '13800138005', institution: '成都航空技术学院' }
+    ]
+    
+    const candidate = candidates[Math.floor(Math.random() * candidates.length)]
+    
+    return {
+      candidateId: context.candidateId || `CAND_${Math.floor(Math.random() * 9000 + 1000)}`,
+      candidateName: context.candidateName || candidate.name,
+      idNumber: context.idNumber || candidate.idCard,
+      phone: candidate.phone,
+      institution: candidate.institution,
+      examName: context.examName || this.generateExamName(),
+      examTime: context.examTime || this.generateExamTime(),
+      venue: context.venue || this.generateVenue()
+    }
+  }
+
+  // 生成工作人员信息
+  generateStaffInfo(context = {}) {
+    const staffNames = ['张老师', '李老师', '王老师', '赵老师', '孙老师']
+    const departments = ['教务处', '考务中心', '监考部', '技术支持部', '质量管理部']
+    
+    return {
+      staffId: context.staffId || `STAFF_${Math.floor(Math.random() * 9000 + 1000)}`,
+      staffName: context.staffName || staffNames[Math.floor(Math.random() * staffNames.length)],
+      department: departments[Math.floor(Math.random() * departments.length)],
+      role: context.role || 'staff'
+    }
+  }
+
+  // 生成扫码结果
+  generateScanResult(context = {}) {
+    const candidateInfo = this.generateCandidateInfo(context)
+    const staffInfo = this.generateStaffInfo(context)
+    
+    // 根据二维码内容判断扫码结果
+    const qrCode = context.qrCode || ''
+    let success = true
+    let errorMessage = ''
+    let errorCode = ''
+    let reason = ''
+    
+    // 模拟各种扫码失败情况
+    if (qrCode.includes('expired') || qrCode.includes('old')) {
+      success = false
+      errorMessage = '二维码已过期，请刷新后重试'
+      errorCode = 'QR_EXPIRED'
+      reason = '二维码过期'
+    } else if (qrCode.includes('invalid') || qrCode.length < 10) {
+      success = false
+      errorMessage = '无效的二维码，请确认二维码正确'
+      errorCode = 'QR_INVALID'
+      reason = '二维码无效'
+    } else if (qrCode.includes('duplicate')) {
+      success = false
+      errorMessage = '该考生已完成签到，请勿重复签到'
+      errorCode = 'ALREADY_CHECKED_IN'
+      reason = '重复签到'
+    } else if (Math.random() < 0.1) { // 10%概率随机失败
+      success = false
+      errorMessage = '签到失败，请重试'
+      errorCode = 'CHECKIN_FAILED'
+      reason = '系统错误'
+    }
+    
+    return {
+      success,
+      candidateId: candidateInfo.candidateId,
+      candidateName: candidateInfo.candidateName,
+      examName: candidateInfo.examName,
+      examTime: candidateInfo.examTime,
+      venue: candidateInfo.venue,
+      scheduleId: `SCH_${Math.floor(Math.random() * 9000 + 1000)}`,
+      staffId: staffInfo.staffId,
+      staffName: staffInfo.staffName,
+      qrCode: qrCode,
+      errorMessage,
+      errorCode,
+      reason
+    }
+  }
+
+  // 生成考试名称
+  generateExamName() {
+    const examTypes = [
+      '无人机驾驶员理论考试',
+      '无人机驾驶员实操考试',
+      '航空法规考试',
+      '飞行安全考试',
+      '无人机维修考试'
+    ]
+    return examTypes[Math.floor(Math.random() * examTypes.length)]
+  }
+
+  // 生成考试时间
+  generateExamTime() {
+    const now = new Date()
+    const examDate = new Date(now.getTime() + Math.random() * 7 * 24 * 60 * 60 * 1000) // 未来7天内
+    return examDate.toISOString()
+  }
+
+  // 生成考场
+  generateVenue() {
+    const venues = ['考场A101', '考场A102', '考场B201', '考场B202', '考场C301', '考场C302']
+    return venues[Math.floor(Math.random() * venues.length)]
   }
 }
 
