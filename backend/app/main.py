@@ -99,13 +99,13 @@ app.include_router(schedules_router, prefix="/api/v1")
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(health_router, prefix="/api/v1")
 
-# 注册PC端专用路由
+# 注册PC端专用路由 - 更具体的路由要放在前面
 app.include_router(pc_auth_router, prefix="/api/v1/pc/auth", tags=["PC-认证"])
+app.include_router(pc_exam_products_router, prefix="/api/v1/pc/exam-products", tags=["PC-考试产品"])
 app.include_router(pc_dashboard_router, prefix="/api/v1/pc", tags=["PC-仪表板"])
 app.include_router(pc_candidates_router, prefix="/api/v1/pc", tags=["PC-考生管理"])
 app.include_router(pc_checkins_router, prefix="/api/v1/pc", tags=["PC-签到管理"])
 app.include_router(pc_venues_router, prefix="/api/v1/pc", tags=["PC-考场管理"])
-app.include_router(pc_exam_products_router, prefix="/api/v1/pc", tags=["PC-考试产品"])
 app.include_router(pc_institutions_router, prefix="/api/v1/pc", tags=["PC-机构管理"])
 app.include_router(pc_schedules_router, prefix="/api/v1/pc", tags=["PC-考试安排"])
 app.include_router(pc_registrations_router, prefix="/api/v1/pc", tags=["PC-考试报名"])

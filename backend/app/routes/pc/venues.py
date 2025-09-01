@@ -71,7 +71,7 @@ async def get_venues(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取考场列表失败: {str(e)}")
 
-@router.get("/{venue_id}/")
+@router.get("/{venue_id}")
 async def get_venue(
     venue_id: int,
     current_user: User = Depends(AuthService.get_current_user),
