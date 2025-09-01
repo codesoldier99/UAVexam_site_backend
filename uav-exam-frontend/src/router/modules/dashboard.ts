@@ -3,7 +3,7 @@ import { RouteRecordRaw } from 'vue-router'
 const dashboardRoutes: RouteRecordRaw = {
   path: 'dashboard/index',
   name: 'DashboardIndex',
-  component: () => import('@/views/admin/dashboard/index.vue'),
+  component: () => import('@/views/DashboardNew.vue'),
   meta: {
     title: '首页',
     icon: 'home',

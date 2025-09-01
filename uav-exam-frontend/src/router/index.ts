@@ -8,6 +8,7 @@ import examRoutes from "./modules/exam-new";
 import personnelRoutes from "./modules/personnel";
 import attendanceRoutes from "./modules/attendance";
 import attendanceNewRoutes from "./modules/attendance-new";
+import examProductsRoutes from "./modules/exam-products";
 import settingsRoutes from "./modules/settings";
 import registrationRoutes from "./modules/registration";
 import candidatesRoutes from "./modules/candidates";
@@ -53,7 +54,8 @@ const routes = [
       ...settingsRoutes,
       ...registrationRoutes,
       ...candidatesRoutes,
-      ...attendanceNewRoutes
+      ...attendanceNewRoutes,
+      ...examProductsRoutes
     ],
     meta: {
       requiresAuth: true
